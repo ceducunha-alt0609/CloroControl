@@ -5404,11 +5404,11 @@ window.addEventListener('error', function(ev) {
 })();
 
 // ── Service Worker registration ────────────────────────────────────
-if('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('service-worker.js')
-      .then(reg => console.log('CloroPrime SW registered:', reg.scope))
-      .catch(err => console.log('SW registration failed:', err));
+    navigator.serviceWorker.register('./sw.js')
+      .then((reg) => console.log('CloroPrime SW registered:', reg.scope))
+      .catch((err) => console.error('SW registration failed:', err));
   });
 }
 </script>
