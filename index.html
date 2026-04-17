@@ -1,0 +1,3821 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0c0e12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CloroPrime">
+<title>CloroPrime — Gestão de Cloração</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/x-icon" href="icons/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=DM+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&family=Fira+Code:wght@400;700&family=IBM+Plex+Mono:wght@400;700&family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style id="theme-vars">
+/* tema escuro padrão — sobrescrito pelo JS */
+</style>
+<style>
+:root {
+  --bg: #0c0e12;
+  --bg2: #13161d;
+  --bg3: #1a1e28;
+  --surface: #22273a;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --accent: #1e8fff;
+  --accent2: #1270cc;
+  --gold: #e8a020;
+  --gold2: #c8830a;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+  --success: #22c55e;
+  --text: #f0f2f8;
+  --text2: #8891a8;
+  --text3: #4a5470;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Inter', sans-serif;
+  --r: 14px;
+  --r2: 10px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* Background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 50% at 20% 0%, rgba(30,143,255,0.06) 0%, transparent 60%),
+              radial-gradient(ellipse 60% 40% at 80% 100%, rgba(232,160,32,0.04) 0%, transparent 55%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* app definition in layout section below */
+
+/* Header */
+header {
+  padding: 20px 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.logo {
+  display: flex; align-items: center; gap: 10px;
+}
+.logo-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.logo-text { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+.logo-text span { color: var(--accent); }
+
+.header-status {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 11px; color: var(--text3);
+}
+.pulse-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--success);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+
+/* Nav Tabs */
+.nav {
+  display: flex; gap: 4px;
+  padding: 16px 20px 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nav::-webkit-scrollbar { display: none; }
+.nav-btn {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text3);
+  font-family: var(--sans); font-size: 13px; font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  white-space: nowrap;
+}
+.nav-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+/* Views */
+.view { display: none; padding: 20px; }
+.view.active { display: block; }
+
+/* Section Title */
+.sec-title {
+  font-size: 11px; font-weight: 700; letter-spacing: 2px;
+  color: var(--text3); text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+/* Drum Status Card */
+.drum-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 20px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.drum-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+
+.drum-visual {
+  display: flex; align-items: flex-end; gap: 20px; margin-bottom: 16px;
+}
+.drum-svg-wrap { flex-shrink: 0; }
+.drum-info { flex: 1; }
+.drum-vol {
+  font-family: var(--mono); font-size: 38px; font-weight: 700;
+  line-height: 1; color: var(--accent);
+}
+.drum-vol span { font-size: 18px; color: var(--text2); }
+.drum-sub { font-size: 13px; color: var(--text2); margin-top: 4px; }
+
+.status-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.pill {
+  padding: 4px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 700; letter-spacing: .5px;
+  font-family: var(--mono);
+}
+.pill-ok { background: rgba(34,197,94,.15); color: var(--success); border: 1px solid rgba(34,197,94,.25); }
+.pill-warn { background: rgba(245,158,11,.15); color: var(--warn); border: 1px solid rgba(245,158,11,.25); }
+.pill-danger { background: rgba(239,68,68,.15); color: var(--danger); border: 1px solid rgba(239,68,68,.25); }
+
+/* Progress bar */
+.prog-wrap { margin-top: 12px; }
+.prog-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text3); margin-bottom: 6px; }
+.prog-track { height: 8px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 4px; transition: width .5s ease; }
+
+/* Info grid */
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.info-cell {
+  background: var(--bg3); border-radius: var(--r2);
+  padding: 12px 14px;
+}
+.info-cell .label { font-size: 11px; color: var(--text3); margin-bottom: 4px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; }
+.info-cell .value { font-family: var(--mono); font-size: 18px; font-weight: 700; color: var(--text); }
+.info-cell .value.accent { color: var(--accent); }
+.info-cell .value.warn { color: var(--warn); }
+.info-cell .value.danger { color: var(--danger); }
+
+/* Inputs */
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 12px; font-weight: 700; color: var(--text3); letter-spacing: .5px; text-transform: uppercase; margin-bottom: 6px; }
+.field input, .field select {
+  width: 100%; padding: 12px 14px;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--r2); color: var(--text);
+  font-family: var(--mono); font-size: 15px;
+  outline: none; transition: border-color .2s;
+  -webkit-appearance: none; appearance: none;
+}
+.field input:focus, .field select:focus { border-color: var(--accent); }
+.field select option { background: var(--bg2); }
+
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* Slider */
+.slider-field { margin-bottom: 14px; }
+.slider-field label { display: block; font-size: 12px; font-weight: 700; color: var(--text3); letter-spacing: .5px; text-transform: uppercase; margin-bottom: 6px; }
+.slider-wrap { display: flex; align-items: center; gap: 10px; }
+.slider-wrap input[type=range] {
+  flex: 1; -webkit-appearance: none; appearance: none;
+  height: 4px; background: var(--bg3); border-radius: 2px; outline: none;
+  border: none; padding: 0;
+}
+.slider-wrap input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 20px; height: 20px;
+  border-radius: 50%; background: var(--accent); cursor: pointer;
+  border: 3px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--accent2);
+}
+.slider-val { font-family: var(--mono); font-size: 16px; font-weight: 700; color: var(--accent); min-width: 42px; text-align: right; }
+
+/* Buttons */
+.btn {
+  width: 100%; padding: 14px;
+  border-radius: var(--r); border: none; cursor: pointer;
+  font-family: var(--sans); font-size: 15px; font-weight: 700;
+  letter-spacing: .3px; transition: all .15s; display: block;
+  text-align: center;
+}
+.btn-primary { background: var(--gold); color: #0c0e12; border: none; }
+.btn-primary:hover { background: var(--gold2); }
+.btn-primary:active { transform: scale(.98); background: var(--gold2); }
+.btn-secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+.btn-secondary:hover { background: rgba(30,143,255,.08); }
+.btn-secondary:active { transform: scale(.98); }
+.btn-danger { background: rgba(239,68,68,.12); color: var(--danger); border: 1px solid rgba(239,68,68,.25); }
+.btn-sm { padding: 8px 14px; font-size: 13px; width: auto; border-radius: var(--r2); }
+
+/* Result card */
+.result-card {
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: var(--r); padding: 16px; margin: 16px 0;
+}
+.result-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.result-row:last-child { border-bottom: none; }
+.result-label { font-size: 13px; color: var(--text2); }
+.result-val { font-family: var(--mono); font-size: 16px; font-weight: 700; color: var(--accent); }
+.result-val.big { font-size: 22px; }
+
+/* Alert Banner */
+.alert {
+  border-radius: var(--r2); padding: 12px 14px; margin-bottom: 12px;
+  font-size: 13px; font-weight: 600; display: flex; align-items: flex-start; gap: 8px;
+}
+.alert-warn { background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.2); color: var(--warn); }
+.alert-danger { background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.2); color: var(--danger); }
+.alert-info { background: rgba(0,212,255,.08); border: 1px solid rgba(0,212,255,.15); color: var(--accent); }
+
+/* History */
+.hist-item {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 14px 16px; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 12px;
+}
+.hist-icon { font-size: 20px; flex-shrink: 0; }
+.hist-info { flex: 1; }
+.hist-title { font-size: 14px; font-weight: 600; color: var(--text); }
+.hist-sub { font-size: 12px; color: var(--text3); margin-top: 2px; font-family: var(--mono); }
+.hist-val { font-family: var(--mono); font-size: 14px; color: var(--accent); font-weight: 700; }
+
+/* Empty state */
+.empty { text-align: center; padding: 40px 20px; color: var(--text3); }
+.empty .e-icon { font-size: 40px; margin-bottom: 12px; }
+.empty p { font-size: 14px; }
+
+/* Config section */
+.config-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 20px; margin-bottom: 16px;
+}
+.config-title { font-size: 15px; font-weight: 700; margin-bottom: 14px; color: var(--text); display: flex; align-items: center; gap: 8px; }
+
+/* Divider */
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+/* Tag */
+.tag { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; font-family: var(--mono); background: rgba(0,212,255,.1); color: var(--accent); }
+
+/* Dose calc result highlight */
+.dose-highlight {
+  background: linear-gradient(135deg, rgba(0,212,255,.08), rgba(0,153,204,.04));
+  border: 1px solid var(--accent2);
+  border-radius: var(--r);
+  padding: 18px; margin: 12px 0;
+  text-align: center;
+}
+.dose-highlight .big-val { font-family: var(--mono); font-size: 48px; font-weight: 700; color: var(--accent); line-height: 1; }
+.dose-highlight .big-unit { font-size: 18px; color: var(--text2); margin-top: 4px; }
+.dose-highlight .big-note { font-size: 12px; color: var(--text3); margin-top: 8px; }
+
+/* ── Metrics grid ── */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.metric-card {
+  position: relative; overflow: hidden;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--r); padding: 20px;
+}
+.metric-card::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+}
+.metric-card.good  { border-color: rgba(34,197,94,.24); }
+.metric-card.good::after  { background: linear-gradient(90deg, var(--success), transparent); }
+.metric-card.warn  { border-color: rgba(245,158,11,.24); }
+.metric-card.warn::after  { background: linear-gradient(90deg, var(--warn), transparent); }
+.metric-card.danger { border-color: rgba(239,68,68,.24); }
+.metric-card.danger::after { background: linear-gradient(90deg, var(--danger), transparent); }
+.metric-card .m-label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; font-weight: 600; }
+.metric-card .m-value { font-size: 30px; font-weight: 800; letter-spacing: -0.8px; color: var(--text); line-height: 1; }
+.metric-card .m-value.accent { color: var(--accent); }
+.metric-card .m-sub { margin-top: 8px; font-size: 12px; color: var(--text2); line-height: 1.45; }
+.metric-card .m-pill { display: inline-flex; margin-top: 10px; }
+
+/* ── Operations layout ── */
+.ops-layout { display: grid; grid-template-columns: 1.1fr .9fr; gap: 16px; align-items: start; }
+.ops-card {
+  background: var(--bg3);
+  border: 1px solid var(--border2); border-radius: var(--r); padding: 22px;
+}
+.ops-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.ops-title { font-size: 22px; font-weight: 800; letter-spacing: -0.6px; }
+.ops-sub { font-size: 13px; color: var(--text2); margin-top: 6px; line-height: 1.5; }
+.ops-mini-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; margin-bottom: 12px; }
+.ops-mini { background: rgba(255,255,255,.03); border: 1px solid var(--border); border-radius: var(--r); padding: 14px; }
+.ops-mini .k { font-size: 11px; letter-spacing: 1px; color: var(--text3); text-transform: uppercase; margin-bottom: 6px; }
+.ops-mini .v { font-size: 22px; font-weight: 800; color: var(--accent); font-family: var(--mono); }
+.ops-mini .s { margin-top: 6px; font-size: 12px; color: var(--text2); }
+.ops-status {
+  background: rgba(30,143,255,.06);
+  border: 1px solid rgba(30,143,255,.16); border-radius: var(--r); padding: 16px; margin-top: 12px;
+}
+.ops-status-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.ops-badge { padding: 8px 12px; border-radius: 999px; font-size: 12px; font-weight: 800; font-family: var(--mono); border: 1px solid var(--border); }
+.ops-badge.ok  { background: rgba(34,197,94,.15); color: var(--success); border-color: rgba(34,197,94,.3); }
+.ops-badge.warn { background: rgba(245,158,11,.15); color: var(--warn); border-color: rgba(245,158,11,.3); }
+.ops-badge.danger { background: rgba(239,68,68,.15); color: var(--danger); border-color: rgba(239,68,68,.3); }
+.ops-copy { font-size: 13px; color: var(--text2); line-height: 1.55; }
+.ops-copy strong { color: var(--text); }
+.ops-action-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+.ops-action-btn { min-width: 180px; }
+.ops-highlight { margin-top: 14px; }
+.ops-highlight .big-val { font-size: 40px; }
+
+/* ── Component cards ── */
+.drum-card {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--r); padding: 20px; margin-bottom: 16px;
+  position: relative; overflow: hidden;
+}
+.drum-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+.config-card {
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: var(--r); padding: 22px; margin-bottom: 16px;
+}
+.result-card {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: var(--r); padding: 16px; margin: 16px 0;
+}
+
+/* ── Temas ── */
+html[data-theme="light"] {
+  --bg: #f4f6fa;
+  --bg2: #eaedf4;
+  --bg3: #e0e5ef;
+  --surface: #d5dcec;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.13);
+  --accent: #1060bb;
+  --accent2: #0a4a99;
+  --gold: #c07010;
+  --gold2: #a05800;
+  --warn: #d97706;
+  --danger: #dc2626;
+  --success: #16a34a;
+  --text: #0c0e12;
+  --text2: #40466a;
+  --text3: #7080a0;
+}
+html[data-theme="light"] body { background: var(--bg); }
+html[data-theme="light"] .field input,
+html[data-theme="light"] .field select { background: #fff; color: var(--text); border-color: var(--border2); }
+html[data-theme="light"] .ops-card,
+html[data-theme="light"] .drum-card,
+html[data-theme="light"] .config-card,
+html[data-theme="light"] .result-card,
+html[data-theme="light"] .scenario-card,
+html[data-theme="light"] .metric-card,
+html[data-theme="light"] .chart-card { background: #fff; border-color: var(--border2); }
+html[data-theme="light"] .hist-item { background: #fff; }
+html[data-theme="light"] .sidebar { background: #fff; }
+html[data-theme="light"] .main-panel { background: var(--bg); }
+html[data-theme="light"] .nav { background: #fff; }
+html[data-theme="light"] body::before { background: none; }
+
+html[data-theme="midnight"] {
+  --bg: #02050a;
+  --bg2: #060d16;
+  --bg3: #0a1520;
+  --surface: #0d1c2e;
+  --border: rgba(80,160,255,0.10);
+  --border2: rgba(80,160,255,0.18);
+  --accent: #00aaff;
+  --accent2: #0077cc;
+  --text: #d0eaff;
+  --text2: #6aa8d0;
+  --text3: #3a6a8a;
+}
+
+/* ── Personalização ── */
+.font-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.font-card {
+  background: var(--bg2); border: 2px solid var(--border);
+  border-radius: var(--r); padding: 14px 16px; cursor: pointer; transition: all .2s;
+}
+.font-card.selected { border-color: var(--accent); background: rgba(0,212,255,.08); }
+.font-card .fc-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.font-card .fc-preview { font-size: 18px; font-weight: 700; color: var(--accent); line-height: 1.2; }
+.font-card .fc-sub { font-size: 10px; color: var(--text3); margin-top: 4px; text-transform: uppercase; letter-spacing: .6px; }
+
+.theme-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px; }
+@media(max-width:480px){ .theme-grid { grid-template-columns: 1fr 1fr; } }
+.theme-card {
+  border: 2px solid var(--border); border-radius: var(--r); padding: 14px 10px;
+  cursor: pointer; transition: all .2s; text-align: center;
+}
+.theme-card.selected { border-color: var(--accent); }
+.theme-card .tc-preview { width: 100%; height: 36px; border-radius: 8px; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.theme-card .tc-name { font-size: 12px; font-weight: 700; color: var(--text); }
+.tc-dark  { background: linear-gradient(135deg,#07111f,#0d1e35); }
+.tc-light { background: linear-gradient(135deg,#f0f7ff,#d4e6f4); }
+.tc-midnight { background: linear-gradient(135deg,#02050a,#0a1520); }
+.tc-system { background: linear-gradient(135deg,#07111f 50%,#f0f7ff 50%); }
+
+.backup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media(max-width:400px){ .backup-grid { grid-template-columns:1fr; } }
+
+/* ── Wizard ── */
+.wizard-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(2,5,10,.88); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.wizard-overlay.hidden { display: none; }
+.wizard-box {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 24px; width: 100%; max-width: 460px;
+  padding: 28px 24px; box-shadow: 0 32px 80px rgba(0,0,0,.5);
+  position: relative;
+}
+.wizard-step { display: none; }
+.wizard-step.active { display: block; }
+.wizard-progress { display: flex; gap: 6px; margin-bottom: 24px; }
+.wizard-progress .wp { flex: 1; height: 4px; border-radius: 2px; background: var(--bg3); transition: background .3s; }
+.wizard-progress .wp.done { background: var(--accent); }
+.wizard-title { font-size: 22px; font-weight: 800; letter-spacing: -.5px; margin-bottom: 6px; }
+.wizard-sub { font-size: 13px; color: var(--text2); margin-bottom: 20px; line-height: 1.55; }
+.wizard-emoji { font-size: 36px; margin-bottom: 12px; }
+.wizard-nav { display: flex; gap: 10px; margin-top: 20px; }
+.wizard-nav .btn { flex: 1; }
+.wizard-skip { position: absolute; top: 16px; right: 20px; background: none; border: none; color: var(--text3); font-size: 12px; cursor: pointer; font-family: var(--sans); }
+.wizard-skip:hover { color: var(--text2); }
+.wz-choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px; }
+.wz-choice {
+  background: var(--bg3); border: 2px solid var(--border); border-radius: 14px;
+  padding: 16px 12px; text-align: center; cursor: pointer; transition: all .2s;
+}
+.wz-choice.selected { border-color: var(--accent); background: rgba(0,212,255,.1); }
+.wz-choice .wc-icon { font-size: 28px; margin-bottom: 6px; }
+.wz-choice .wc-label { font-size: 13px; font-weight: 700; color: var(--text); }
+.wz-choice .wc-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+/* ── FAQ ── */
+.faq-item { border: 1px solid var(--border); border-radius: var(--r); margin-bottom: 8px; overflow: hidden; }
+.faq-question {
+  width: 100%; background: var(--bg2); border: none; padding: 16px 18px;
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  color: var(--text); font-family: var(--sans); font-size: 14px; font-weight: 700;
+  cursor: pointer; text-align: left; transition: background .2s;
+}
+.faq-question:hover { background: var(--bg3); }
+.faq-question .fq-icon { font-size: 18px; flex-shrink: 0; transition: transform .25s; }
+.faq-question.open .fq-icon { transform: rotate(45deg); }
+.faq-answer {
+  max-height: 0; overflow: hidden; transition: max-height .3s ease;
+  background: var(--bg); border-top: 0 solid var(--border);
+}
+.faq-answer.open { max-height: 600px; border-top-width: 1px; }
+.faq-answer-inner { padding: 14px 18px; font-size: 13px; color: var(--text2); line-height: 1.65; }
+.faq-answer-inner strong { color: var(--text); }
+.faq-answer-inner ul { margin: 8px 0 0 16px; }
+.faq-answer-inner li { margin-bottom: 5px; }
+.faq-cat { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--text3); text-transform: uppercase; margin: 20px 0 10px; }
+
+/* ── Validação cruzada ── */
+.valida-zone { margin-bottom: 12px; }
+.valida-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 11px 14px; border-radius: var(--r2); margin-bottom: 6px;
+  font-size: 13px; font-weight: 600; line-height: 1.45;
+}
+.valida-item.danger { background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.25); color: var(--danger); }
+.valida-item.warn   { background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.25); color: var(--warn); }
+.valida-item.info   { background: rgba(0,212,255,.07); border: 1px solid rgba(0,212,255,.18); color: var(--accent); }
+.valida-item .vi-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+/* ── Splash Screen ── */
+#splash {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #0c0e12;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 0;
+  transition: opacity .6s ease, visibility .6s ease;
+}
+#splash.hiding { opacity: 0; visibility: hidden; }
+#splash.hidden { display: none; }
+
+.splash-logo {
+  width: 96px; height: 96px;
+  animation: splashPop .5s cubic-bezier(.34,1.56,.64,1) both;
+}
+.splash-brand {
+  margin-top: 24px;
+  font-family: var(--sans);
+  font-size: 36px; font-weight: 800;
+  letter-spacing: -1px; color: #f0f2f8;
+  animation: splashFadeUp .5s ease .15s both;
+}
+.splash-brand span { color: #e8a020; }
+.splash-tagline {
+  margin-top: 10px;
+  font-family: var(--sans);
+  font-size: 14px; font-weight: 500;
+  color: #4a5470; letter-spacing: .5px;
+  animation: splashFadeUp .5s ease .3s both;
+}
+.splash-bar-wrap {
+  margin-top: 48px; width: 160px; height: 3px;
+  background: rgba(255,255,255,.07); border-radius: 99px; overflow: hidden;
+  animation: splashFadeUp .4s ease .4s both;
+}
+.splash-bar {
+  height: 100%; width: 0%; border-radius: 99px;
+  background: linear-gradient(90deg, #1e8fff, #e8a020);
+  animation: splashProgress 2.6s cubic-bezier(.4,0,.2,1) .4s forwards;
+}
+@keyframes splashPop {
+  from { opacity: 0; transform: scale(.7); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes splashFadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes splashProgress {
+  0%   { width: 0%; }
+  60%  { width: 75%; }
+  90%  { width: 92%; }
+  100% { width: 100%; }
+}
+
+.toast-container { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }
+.toast { padding: 12px 20px; border-radius: 14px; font-size: 14px; font-weight: 700; font-family: var(--sans); max-width: 340px; text-align: center; pointer-events: auto; animation: toastIn .25s ease; box-shadow: 0 8px 32px rgba(0,0,0,.4); }
+.toast.ok   { background: rgba(34,197,94,.18); border: 1px solid rgba(34,197,94,.4); color: var(--success); }
+.toast.warn { background: rgba(245,158,11,.18); border: 1px solid rgba(245,158,11,.4); color: var(--warn); }
+.toast.info { background: rgba(0,212,255,.14); border: 1px solid rgba(0,212,255,.3); color: var(--accent); }
+.toast.err  { background: rgba(239,68,68,.18); border: 1px solid rgba(239,68,68,.4); color: var(--danger); }
+@keyframes toastIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── Camera / AI leitura ── */
+.ai-foto-btn { display: flex; align-items: center; gap: 8px; padding: 11px 16px; background: linear-gradient(135deg, rgba(0,212,255,.15), rgba(0,153,204,.08)); border: 1px solid var(--accent2); border-radius: var(--r2); color: var(--accent); font-family: var(--sans); font-size: 13px; font-weight: 700; cursor: pointer; width: 100%; justify-content: center; margin-bottom: 14px; transition: all .2s; }
+.ai-foto-btn:hover { background: linear-gradient(135deg, rgba(0,212,255,.25), rgba(0,153,204,.15)); }
+.ai-foto-btn .ai-icon { font-size: 18px; }
+.ai-loading { display: none; align-items: center; gap: 10px; padding: 12px 16px; background: rgba(0,212,255,.08); border: 1px solid var(--border); border-radius: var(--r2); font-size: 13px; color: var(--text2); margin-bottom: 14px; }
+.ai-loading.visible { display: flex; }
+.ai-spinner { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.ai-result-box { display: none; background: linear-gradient(135deg, rgba(0,212,255,.08), rgba(0,153,204,.04)); border: 1px solid var(--accent2); border-radius: var(--r2); padding: 12px 16px; margin-bottom: 14px; }
+.ai-result-box.visible { display: block; }
+.ai-result-box .ai-val { font-family: var(--mono); font-size: 28px; font-weight: 700; color: var(--accent); }
+.ai-result-box .ai-desc { font-size: 12px; color: var(--text2); margin-top: 4px; }
+
+/* ── Charts & Dashboard ── */
+.chart-card {
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: var(--r); padding: 22px; margin-bottom: 16px;
+}
+.chart-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:18px; gap:12px; flex-wrap:wrap; }
+.chart-title { font-size:13px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--text3); margin-bottom:4px; }
+.chart-value { font-size:28px; font-weight:800; letter-spacing:-0.6px; color:var(--text); }
+.chart-value .unit { font-size:14px; font-weight:500; color:var(--text2); margin-left:4px; }
+.chart-sub { font-size:12px; color:var(--text2); margin-top:4px; }
+.chart-canvas-wrap { position:relative; width:100%; }
+.chart-tabs { display:flex; gap:4px; }
+.chart-tab {
+  padding:5px 12px; border-radius:6px; border:1px solid var(--border); background:transparent;
+  color:var(--text3); font-family:var(--sans); font-size:12px; font-weight:600; cursor:pointer; transition:.15s;
+}
+.chart-tab.active { background:var(--bg2); color:var(--text); border-color:var(--border2); }
+.dash-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+@media(max-width:780px){ .dash-grid2{ grid-template-columns:1fr; } }
+.day-summary {
+  background: linear-gradient(135deg, rgba(232,160,32,.1), rgba(30,143,255,.06));
+  border: 1px solid rgba(232,160,32,.2); border-radius:var(--r); padding:22px; margin-bottom:16px;
+}
+.day-summary-title { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--text3); margin-bottom:12px; }
+.day-summary-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+@media(max-width:600px){ .day-summary-grid{ grid-template-columns:1fr 1fr; } }
+.day-cell .dc-k { font-size:10px; letter-spacing:1px; text-transform:uppercase; color:var(--text3); margin-bottom:5px; font-weight:600; }
+.day-cell .dc-v { font-size:22px; font-weight:800; color:var(--text); letter-spacing:-0.5px; font-family:var(--mono); }
+.day-cell .dc-v.gold { color:var(--gold); }
+.day-cell .dc-v.blue { color:var(--accent); }
+.day-cell .dc-v.ok   { color:var(--success); }
+.day-cell .dc-v.warn { color:var(--warn); }
+.day-cell .dc-v.danger { color:var(--danger); }
+.day-cell .dc-s { font-size:11px; color:var(--text2); margin-top:3px; }
+.cost-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.2); border-radius: 20px; font-size: 12px; font-weight: 700; color: var(--success); font-family: var(--mono); }
+.filter-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; font-family: var(--mono); }
+.filter-badge.ok   { background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.2); color: var(--success); }
+.filter-badge.warn { background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.2); color: var(--warn); }
+.filter-badge.danger { background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.2); color: var(--danger); }
+
+
+/* Scenario helper */
+.scenario-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 16px;
+  margin-top: 16px;
+}
+.scenario-head {
+  display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px;
+}
+.scenario-title { font-size:15px; font-weight:700; color:var(--text); }
+.scenario-sub { font-size:12px; color:var(--text3); margin-top:3px; }
+.scenario-grid {
+  display:grid; grid-template-columns: repeat(2, 1fr); gap:8px; margin-top:12px;
+}
+.scenario-box {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--r2); padding: 12px;
+}
+.scenario-box .s-label { font-size:11px; color:var(--text3); text-transform:uppercase; letter-spacing:.6px; margin-bottom:6px; }
+.scenario-box .s-val { font-family:var(--mono); font-size:20px; font-weight:700; color:var(--accent); }
+.scenario-box .s-note { font-size:11px; color:var(--text2); margin-top:4px; }
+.scenario-table { width:100%; border-collapse: collapse; margin-top:12px; font-size:12px; }
+.scenario-table th, .scenario-table td { padding: 9px 8px; text-align:left; border-bottom:1px solid var(--border); }
+.scenario-table th { color:var(--text3); font-size:11px; text-transform:uppercase; letter-spacing:.5px; }
+.scenario-table td strong { color: var(--accent); }
+
+
+.fita-panel {
+  background: linear-gradient(135deg, rgba(0,212,255,.06), rgba(0,153,204,.03));
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 16px;
+  margin-top: 16px;
+}
+.fita-status {
+  display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.fita-badge {
+  padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 800; letter-spacing: .5px;
+  font-family: var(--mono); border: 1px solid var(--border);
+}
+.fita-badge.ok { background: rgba(34,197,94,.15); color: var(--success); border-color: rgba(34,197,94,.3); }
+.fita-badge.warn { background: rgba(245,158,11,.15); color: var(--warn); border-color: rgba(245,158,11,.3); }
+.fita-badge.danger { background: rgba(239,68,68,.15); color: var(--danger); border-color: rgba(239,68,68,.3); }
+.fita-copy {
+  background: var(--bg3); border:1px solid var(--border); border-radius: var(--r2); padding: 12px; margin-top: 12px;
+}
+.fita-copy .line1 { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.fita-copy .line2 { font-size: 12px; color: var(--text2); line-height: 1.45; }
+
+
+
+/* ═══════════════════════════════════════════
+   LAYOUT — Shell, Sidebar, Topbar, Nav
+═══════════════════════════════════════════ */
+
+/* Shell */
+.shell {
+  display: grid;
+  grid-template-columns: 240px minmax(0,1fr);
+  min-height: 100dvh;
+  width: 100%;
+}
+.shell.collapsed {
+  grid-template-columns: 60px minmax(0,1fr);
+}
+
+/* ── Sidebar toggle tab — always visible on right edge ── */
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow: visible; /* allow toggle tab to poke out */
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  z-index: 20;
+  width: 240px;
+  transition: width .25s ease;
+  flex-shrink: 0;
+}
+.sidebar-inner {
+  display: flex; flex-direction: column; height: 100%;
+  overflow: hidden; /* inner clips normally */
+  position: relative;
+}
+.sidebar-scroll { flex: 1; overflow-y: auto; scrollbar-width: none; }
+.sidebar-scroll::-webkit-scrollbar { display: none; }
+
+/* Brand */
+.brand-card { padding: 20px 18px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.brand-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.brand-identity { display: flex; align-items: center; gap: 10px; overflow: hidden; }
+.logo-badge { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; font-size: 18px; background: var(--gold); flex-shrink: 0; }
+.brand-copy { overflow: hidden; }
+.brand-title { font-size: 17px; font-weight: 800; letter-spacing: -.5px; color: var(--text); white-space: nowrap; }
+.brand-title span { color: var(--gold); }
+.brand-sub { font-size: 10px; color: var(--text3); line-height: 1.4; margin-top: 3px; }
+.sidebar-collapse {
+  background: none; border: 1px solid var(--border); color: var(--text3);
+  cursor: pointer; font-size: 14px; padding: 6px 8px; border-radius: 8px;
+  transition: all .15s; flex-shrink: 0;
+}
+.sidebar-collapse:hover { color: var(--text); border-color: var(--border2); }
+
+.sidebar-toggle-tab {
+  position: absolute;
+  right: -14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px; height: 44px;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-left: none;
+  border-radius: 0 8px 8px 0;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--text3);
+  font-size: 13px;
+  z-index: 30;
+  transition: color .15s, background .15s;
+}
+.sidebar-toggle-tab:hover { color: var(--text); background: var(--bg3); }
+
+/* Nav groups */
+.side-group { padding: 8px 0; border-bottom: 1px solid var(--border); }
+.side-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); padding: 4px 18px 6px; white-space: nowrap; overflow: hidden; }
+.side-nav { display: flex; flex-direction: column; gap: 1px; padding: 0 8px; }
+.side-nav-btn {
+  width: 100%; padding: 9px 10px; border-radius: 8px; border: none;
+  background: transparent; color: var(--text2);
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  cursor: pointer; text-align: left; transition: all .15s; font-family: var(--sans);
+  white-space: nowrap; overflow: hidden; position: relative;
+}
+.side-nav-btn .left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.side-nav-btn .ico { font-size: 15px; width: 22px; text-align: center; flex-shrink: 0; }
+.side-nav-btn .txt { display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+.side-nav-btn .txt strong { font-size: 13px; font-weight: 600; color: inherit; display: block; white-space: nowrap; }
+.side-nav-btn .txt span { font-size: 11px; color: var(--text3); display: block; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.side-nav-btn .go { font-size: 11px; color: var(--text3); flex-shrink: 0; }
+.side-nav-btn:hover { background: var(--bg3); color: var(--text); }
+.side-nav-btn.active { background: rgba(232,160,32,.13); color: var(--gold); }
+.side-nav-btn.active .go { color: var(--gold); opacity: .5; }
+.side-nav-btn.active .txt span { color: rgba(232,160,32,.5); }
+
+/* Tooltip on collapsed */
+.side-nav-btn[data-tip]:hover::after {
+  content: attr(data-tip);
+  position: absolute; left: 54px; top: 50%; transform: translateY(-50%);
+  background: var(--bg3); border: 1px solid var(--border2);
+  color: var(--text); font-size: 12px; font-weight: 600;
+  padding: 5px 10px; border-radius: 6px; white-space: nowrap; z-index: 100;
+  pointer-events: none;
+}
+
+/* Sidebar quick cards */
+.quick-wrap { flex: 1; overflow-y: auto; scrollbar-width: none; }
+.quick-wrap::-webkit-scrollbar { display: none; }
+.quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px 10px 14px; }
+.quick-card { padding: 12px; border-radius: 10px; background: var(--bg3); border: 1px solid var(--border); }
+.quick-card.wide { grid-column: 1/-1; }
+.quick-k { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text3); margin-bottom: 6px; font-weight: 700; }
+.quick-v { font-family: var(--mono); font-size: 18px; font-weight: 700; color: var(--text); }
+.quick-v.accent { color: var(--accent); }
+.quick-s { margin-top: 4px; color: var(--text2); font-size: 11px; line-height: 1.4; }
+.mini-pill { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:999px; font-size:11px; font-weight:700; border:1px solid var(--border); }
+.mini-pill.ok { color:var(--success); background:rgba(34,197,94,.1); border-color:rgba(34,197,94,.2); }
+.mini-pill.warn { color:var(--warn); background:rgba(245,158,11,.1); border-color:rgba(245,158,11,.2); }
+.mini-pill.danger { color:var(--danger); background:rgba(239,68,68,.1); border-color:rgba(239,68,68,.2); }
+
+/* ── Collapsed state ── */
+.sidebar.collapsed { width: 60px; }
+.sidebar.collapsed .brand-copy { display: none; }
+.sidebar.collapsed .side-label { display: none; }
+.sidebar.collapsed .quick-wrap { display: none; }
+.sidebar.collapsed .side-nav-btn .txt { display: none; }
+.sidebar.collapsed .side-nav-btn .go { display: none; }
+.sidebar.collapsed .side-nav-btn { justify-content: center; padding: 10px 0; }
+.sidebar.collapsed .side-nav-btn .left { justify-content: center; gap: 0; }
+.sidebar.collapsed .brand-card { padding: 14px 0; }
+.sidebar.collapsed .brand-top { justify-content: center; }
+.sidebar.collapsed .sidebar-collapse { display: none; }
+.sidebar.collapsed .side-group { padding: 6px 0; }
+
+/* Old collapse-fab — replaced by sidebar-toggle-tab */
+.collapse-fab { display: none !important; }
+
+/* ── Main panel ── */
+.main-panel { min-width: 0; background: var(--bg); display: flex; flex-direction: column; }
+.app { position: relative; z-index: 1; flex: 1; padding: 0 0 80px; }
+header { display: none; }
+
+/* ── Topbar ── */
+.topbar-clean {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  padding: 16px 24px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  position: sticky; top: 0; z-index: 10;
+}
+.topbar-clean .left { display: flex; align-items: center; gap: 10px; }
+.topbar-clean .hamburger {
+  display: none; background: none; border: none; color: var(--text2);
+  font-size: 20px; cursor: pointer; padding: 4px; line-height: 1;
+}
+.topbar-clean .eyebrow { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); margin-bottom: 3px; }
+.topbar-clean .title { font-size: 24px; font-weight: 800; letter-spacing: -.8px; color: var(--text); }
+.topbar-clean .title span { color: var(--gold); }
+.topbar-clean .right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.top-chip { padding: 7px 13px; border-radius: 99px; border: 1px solid var(--border2); background: var(--bg3); color: var(--text2); font-size: 12px; font-weight: 600; white-space: nowrap; }
+.top-chip strong { color: var(--text); }
+
+/* ── Desktop Nav — hidden, sidebar is primary ── */
+.nav { display: none; }
+
+/* ── Mobile Nav (tabs) ── */
+.mobile-nav {
+  display: none;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto; scrollbar-width: none;
+}
+.mobile-nav::-webkit-scrollbar { display: none; }
+.mobile-nav-inner { display: flex; padding: 0 12px; gap: 0; min-width: max-content; }
+.mnav-btn {
+  padding: 13px 14px; border: none; border-bottom: 2px solid transparent;
+  background: transparent; color: var(--text3); font-family: var(--sans);
+  font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s;
+  white-space: nowrap; margin-bottom: -1px;
+}
+.mnav-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+.mnav-btn:hover:not(.active) { color: var(--text2); }
+/* More button */
+.mnav-more-wrap { position: relative; }
+.mnav-more-dropdown {
+  display: none; position: absolute; top: calc(100% + 4px); right: 0;
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: var(--r); min-width: 180px; z-index: 50;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4); overflow: hidden;
+}
+.mnav-more-dropdown.open { display: block; }
+.mnav-dd-btn {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 12px 16px; border: none; background: transparent;
+  color: var(--text2); font-family: var(--sans); font-size: 13px;
+  font-weight: 600; cursor: pointer; text-align: left; transition: background .15s;
+}
+.mnav-dd-btn:hover { background: var(--bg2); color: var(--text); }
+.mnav-dd-btn.active { color: var(--gold); }
+
+/* ── Mobile sidebar drawer ── */
+.drawer-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.6); z-index: 40;
+  backdrop-filter: blur(2px);
+}
+.drawer-overlay.open { display: block; }
+.mobile-side-toggle { display: none; }
+
+/* ── View ── */
+.view { display: none; padding: 24px; }
+.view.active { display: block; }
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+
+/* Tablet: sidebar stays but narrower */
+@media (max-width: 1100px) {
+  .shell { grid-template-columns: 220px minmax(0,1fr); }
+  .sidebar { width: 220px; }
+}
+
+/* Mobile */
+@media (max-width: 780px) {
+  /* Shell is single column */
+  .shell, .shell.collapsed { grid-template-columns: 1fr; }
+
+  /* Sidebar becomes drawer */
+  .sidebar {
+    position: fixed; top: 0; left: 0; bottom: 0;
+    width: 260px; height: 100dvh; z-index: 50;
+    transform: translateX(-100%);
+    transition: transform .25s ease;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar.collapsed { width: 260px; transform: translateX(-100%); }
+  .sidebar.collapsed.open { transform: translateX(0); }
+  .collapse-fab { display: none !important; }
+
+  /* Show hamburger in topbar */
+  .topbar-clean .hamburger { display: flex; }
+  .topbar-clean { padding: 12px 16px; }
+  .topbar-clean .title { font-size: 20px; }
+  .topbar-clean .right { display: none; }
+
+  /* Show mobile nav */
+  .mobile-nav { display: block; }
+
+  /* Views */
+  .view { padding: 14px; }
+
+  /* Metrics */
+  .metrics-grid { grid-template-columns: 1fr 1fr; }
+  .ops-layout { grid-template-columns: 1fr; }
+  .ops-mini-grid { grid-template-columns: 1fr 1fr; }
+  .dash-grid2 { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .metrics-grid { grid-template-columns: 1fr 1fr; }
+  .field-row { grid-template-columns: 1fr; }
+  .wz-choice-grid { grid-template-columns: 1fr 1fr; }
+  .day-summary-grid { grid-template-columns: 1fr 1fr; }
+}
+
+
+
+
+</style>
+</head>
+<body>
+
+<!-- ── Splash Screen ── -->
+<div id="splash">
+  <svg class="splash-logo" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="sp-bg" cx="50%" cy="40%" r="60%">
+        <stop offset="0%" stop-color="#1a1e28"/>
+        <stop offset="100%" stop-color="#0c0e12"/>
+      </radialGradient>
+      <linearGradient id="sp-drop" x1="30%" y1="0%" x2="70%" y2="100%">
+        <stop offset="0%" stop-color="#1e8fff"/>
+        <stop offset="100%" stop-color="#0a4fa8"/>
+      </linearGradient>
+      <linearGradient id="sp-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#f5c842"/>
+        <stop offset="100%" stop-color="#e8a020"/>
+      </linearGradient>
+      <filter id="sp-glow">
+        <feGaussianBlur stdDeviation="12" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+    <rect width="512" height="512" rx="112" fill="url(#sp-bg)"/>
+    <ellipse cx="256" cy="290" rx="140" ry="150" fill="#1e8fff" opacity="0.07"/>
+    <path d="M256 108 C256 108 158 232 158 302 C158 358 202 396 256 396 C310 396 354 358 354 302 C354 232 256 108 256 108Z"
+          fill="url(#sp-drop)" filter="url(#sp-glow)"/>
+    <path d="M256 148 C256 148 188 248 188 302 C188 340 218 368 256 370"
+          fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="4" stroke-linecap="round"/>
+    <text x="256" y="320" text-anchor="middle" dominant-baseline="middle"
+          font-family="'Inter',Arial,sans-serif" font-weight="800" font-size="98"
+          letter-spacing="-4" fill="url(#sp-gold)">CP</text>
+    <circle cx="256" cy="120" r="11" fill="#e8a020" opacity="0.9"/>
+    <rect x="196" y="412" width="120" height="5" rx="2.5" fill="url(#sp-gold)" opacity="0.65"/>
+  </svg>
+  <div class="splash-brand">Cloro<span>Prime</span></div>
+  <div class="splash-tagline">Controle total da qualidade da água</div>
+  <div class="splash-bar-wrap"><div class="splash-bar"></div></div>
+</div>
+<div class="toast-container" id="toast-container"></div>
+<input type="file" id="fita-camera-input" accept="image/*" capture="environment" style="display:none">
+
+<!-- WIZARD PRIMEIRO USO -->
+<div class="wizard-overlay hidden" id="wizard-overlay">
+  <div class="wizard-box">
+    <button class="wizard-skip" onclick="fecharWizard(true)">Pular configuração ✕</button>
+    <div class="wizard-progress" id="wizard-progress"></div>
+
+    <!-- Step 0: Boas-vindas -->
+    <div class="wizard-step active" id="wz-0">
+      <div class="wizard-emoji">💧</div>
+      <div class="wizard-title">Bem-vindo ao CloroPrime!</div>
+      <div class="wizard-sub">Parece que é sua primeira vez aqui. Vamos configurar o básico em menos de 2 minutos para que os cálculos sejam precisos desde o início.</div>
+      <div class="wizard-nav">
+        <button class="btn btn-primary" onclick="wzAvancar()">Vamos começar →</button>
+      </div>
+    </div>
+
+    <!-- Step 1: Fonte da água -->
+    <div class="wizard-step" id="wz-1">
+      <div class="wizard-emoji">🏗️</div>
+      <div class="wizard-title">Qual a fonte da água?</div>
+      <div class="wizard-sub">Isso influencia a necessidade de cloro — água de poço precisa de dosagem mais controlada que a da concessionária.</div>
+      <div class="wz-choice-grid">
+        <div class="wz-choice selected" id="wz-fonte-poco" onclick="wzSelecionarFonte('poco',this)">
+          <div class="wc-icon">⛏️</div><div class="wc-label">Poço artesiano</div><div class="wc-sub">100% poço</div>
+        </div>
+        <div class="wz-choice" id="wz-fonte-misto" onclick="wzSelecionarFonte('misto',this)">
+          <div class="wc-icon">🔀</div><div class="wc-label">Poço + rua</div><div class="wc-sub">Mistura / complemento</div>
+        </div>
+        <div class="wz-choice" id="wz-fonte-rua" onclick="wzSelecionarFonte('rua',this)">
+          <div class="wc-icon">🏙️</div><div class="wc-label">Só rua</div><div class="wc-sub">SABESP / concessionária</div>
+        </div>
+      </div>
+      <div class="wizard-nav">
+        <button class="btn btn-secondary" onclick="wzVoltar()">← Voltar</button>
+        <button class="btn btn-primary" onclick="wzAvancar()">Próximo →</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Volume dos reservatórios -->
+    <div class="wizard-step" id="wz-2">
+      <div class="wizard-emoji">🏊</div>
+      <div class="wizard-title">Volume total de água</div>
+      <div class="wizard-sub">Some todos os reservatórios e caixas d'água do condomínio. Valor aproximado é suficiente para começar.</div>
+      <div class="field">
+        <label>Reservatório principal (L)</label>
+        <input type="number" id="wz-reserv" placeholder="Ex: 30000" min="1000" step="1000" value="30000">
+      </div>
+      <div class="field">
+        <label>Reservatório secundário (L) <span style="color:var(--text3);font-weight:400">opcional</span></label>
+        <input type="number" id="wz-reserv-sec" placeholder="Ex: 9000" min="0" step="500" value="9000">
+      </div>
+      <div class="field">
+        <label>Nº de apartamentos / unidades</label>
+        <input type="number" id="wz-unidades" placeholder="Ex: 80" min="1" value="80">
+      </div>
+      <div class="wizard-nav">
+        <button class="btn btn-secondary" onclick="wzVoltar()">← Voltar</button>
+        <button class="btn btn-primary" onclick="wzAvancar()">Próximo →</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Bomba dosadora -->
+    <div class="wizard-step" id="wz-3">
+      <div class="wizard-emoji">⚙️</div>
+      <div class="wizard-title">Bomba dosadora</div>
+      <div class="wizard-sub">Selecione a capacidade máxima da sua bomba. Se não sabe agora, FCE 1.5 é o mais comum em condomínios médios — você pode corrigir depois.</div>
+      <div class="field">
+        <label>Capacidade máxima da bomba (L/h)</label>
+        <select id="wz-bomba">
+          <option value="0.8">0,8 L/h — pequena (até ~50 apt)</option>
+          <option value="1.5" selected>1,5 L/h — média (FCE padrão)</option>
+          <option value="3">3,0 L/h — grande (acima de 100 apt)</option>
+          <option value="5">5,0 L/h — industrial</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Modelo (opcional)</label>
+        <input type="text" id="wz-modelo" placeholder="Ex: FCE 1.5, Etatron...">
+      </div>
+      <div class="field">
+        <label>Regulagem atual do FCE (%)</label>
+        <input type="number" id="wz-fce" placeholder="Ex: 15" min="0" max="100" value="15">
+      </div>
+      <div class="wizard-nav">
+        <button class="btn btn-secondary" onclick="wzVoltar()">← Voltar</button>
+        <button class="btn btn-primary" onclick="wzAvancar()">Próximo →</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Produto -->
+    <div class="wizard-step" id="wz-4">
+      <div class="wizard-emoji">🧴</div>
+      <div class="wizard-title">Hipoclorito que você usa</div>
+      <div class="wizard-sub">A concentração do produto é fundamental para o cálculo da mistura correta no tambor.</div>
+      <div class="field">
+        <label>Concentração do hipoclorito</label>
+        <select id="wz-conc">
+          <option value="2.5">2,5% — água sanitária doméstica</option>
+          <option value="10">10% — uso profissional padrão</option>
+          <option value="12" selected>12% — concentrado (mais comum)</option>
+          <option value="15">15% — forte</option>
+          <option value="20">20% — industrial</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Vazão do poço ou entrada de água (L/h)</label>
+        <input type="number" id="wz-vazao" placeholder="Ex: 1500" min="50" step="50" value="1500">
+      </div>
+      <div class="wizard-nav">
+        <button class="btn btn-secondary" onclick="wzVoltar()">← Voltar</button>
+        <button class="btn btn-primary" onclick="wzAvancar()">Próximo →</button>
+      </div>
+    </div>
+
+    <!-- Step 5: Tambor -->
+    <div class="wizard-step" id="wz-5">
+      <div class="wizard-emoji">🛢️</div>
+      <div class="wizard-title">Tambor de hipoclorito</div>
+      <div class="wizard-sub">Quanto produto tem no tambor agora? Isso vai aparecer no painel de autonomia imediatamente.</div>
+      <div class="field">
+        <label>Capacidade do tambor (L)</label>
+        <input type="number" id="wz-tambor-cap" value="100" min="10" step="5">
+      </div>
+      <div class="field">
+        <label>Nível atual no tambor (L)</label>
+        <input type="number" id="wz-nivel" placeholder="Ex: 80" min="0" value="80">
+      </div>
+      <div class="wizard-nav">
+        <button class="btn btn-secondary" onclick="wzVoltar()">← Voltar</button>
+        <button class="btn btn-primary" onclick="wzFinalizar()">✅ Concluir configuração</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Drawer overlay (mobile) -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeSidebar()"></div>
+<!-- Collapse FAB (desktop collapsed) -->
+<button class="collapse-fab" id="collapse-fab" onclick="toggleSidebar()" title="Expandir sidebar">›</button>
+<button class="mobile-side-toggle" style="display:none" id="mobile-side-toggle"></button>
+<div class="shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-inner">
+      <button class="sidebar-toggle-tab" id="sidebar-toggle-tab" onclick="toggleSidebar()" title="Recolher/Expandir">‹</button>
+      <div class="brand-card">
+        <div class="brand-top">
+          <div class="brand-identity">
+            <div class="logo-badge">💧</div>
+            <div class="brand-copy">
+              <div class="brand-title">Cloro<span>Prime</span></div>
+              <div class="brand-sub">Gestão de cloração</div>
+            </div>
+          </div>
+          <button class="sidebar-collapse" id="sidebar-collapse-btn" onclick="toggleSidebar()" title="Recolher">‹</button>
+        </div>
+      </div>
+      <div class="sidebar-scroll">
+        <div class="side-group">
+          <div class="side-label">Principal</div>
+          <div class="side-nav">
+            <button class="side-nav-btn active" data-view="operacao" data-tip="Operação" onclick="showView('operacao',this)">
+              <div class="left"><span class="ico">◎</span><span class="txt"><strong>Operação</strong><span>Leitura diária e ação imediata</span></span></div><span class="go">›</span>
+            </button>
+            <button class="side-nav-btn" data-view="dashboard" data-tip="Dashboard" onclick="showView('dashboard',this)">
+              <div class="left"><span class="ico">◫</span><span class="txt"><strong>Dashboard</strong><span>Visão geral e gráficos</span></span></div><span class="go">›</span>
+            </button>
+            <button class="side-nav-btn" data-view="abastecer" data-tip="Abastecer" onclick="showView('abastecer',this)">
+              <div class="left"><span class="ico">🛢</span><span class="txt"><strong>Abastecer</strong><span>Nível real do tambor</span></span></div><span class="go">›</span>
+            </button>
+          </div>
+        </div>
+        <div class="side-group">
+          <div class="side-label">Ferramentas</div>
+          <div class="side-nav">
+            <button class="side-nav-btn" data-view="calcular" data-tip="Calcular" onclick="showView('calcular',this)">
+              <div class="left"><span class="ico">∑</span><span class="txt"><strong>Calcular</strong><span>Mistura, dose e fita</span></span></div><span class="go">›</span>
+            </button>
+            <button class="side-nav-btn" data-view="historico" data-tip="Histórico" onclick="showView('historico',this)">
+              <div class="left"><span class="ico">↺</span><span class="txt"><strong>Histórico</strong><span>Rastro de operação</span></span></div><span class="go">›</span>
+            </button>
+          </div>
+        </div>
+        <div class="side-group">
+          <div class="side-label">Sistema</div>
+          <div class="side-nav">
+            <button class="side-nav-btn" data-view="config" data-tip="Config" onclick="showView('config',this)">
+              <div class="left"><span class="ico">⚙</span><span class="txt"><strong>Config</strong><span>Parâmetros do cenário</span></span></div><span class="go">›</span>
+            </button>
+            <button class="side-nav-btn" data-view="personalizar" data-tip="Visual" onclick="showView('personalizar',this)">
+              <div class="left"><span class="ico">🎨</span><span class="txt"><strong>Personalizar</strong><span>Tema, fontes e backup</span></span></div><span class="go">›</span>
+            </button>
+            <button class="side-nav-btn" data-view="faq" data-tip="FAQ" onclick="showView('faq',this)">
+              <div class="left"><span class="ico">❓</span><span class="txt"><strong>FAQ</strong><span>Dúvidas técnicas</span></span></div><span class="go">›</span>
+            </button>
+          </div>
+        </div>
+        <div class="side-group quick-wrap">
+          <div class="side-label">Operação viva</div>
+          <div class="quick-grid">
+            <div class="quick-card">
+              <div class="quick-k">Tambor</div>
+              <div class="quick-v accent" id="side-level">-- L</div>
+              <div class="quick-s" id="side-level-sub">Nível atual</div>
+            </div>
+            <div class="quick-card">
+              <div class="quick-k">Autonomia</div>
+              <div class="quick-v" id="side-days">--</div>
+              <div class="quick-s" id="side-days-sub">dias estimados</div>
+            </div>
+            <div class="quick-card wide">
+              <div class="quick-k">Mistura operacional</div>
+              <div class="quick-v" id="side-dose">--</div>
+              <div class="quick-s" id="side-dose-sub">Produto no tambor de 100 L</div>
+            </div>
+            <div class="quick-card wide">
+              <div class="quick-k">Leitura da fita</div>
+              <div id="side-fita-pill" class="mini-pill ok">Sem leitura</div>
+              <div class="quick-s" id="side-fita-sub">Informe a leitura para diagnóstico.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+  <main class="main-panel">
+<div class="app">
+  <div class="topbar-clean">
+    <div class="left">
+      <button class="hamburger" id="hamburger-btn" onclick="openSidebar()" title="Menu">☰</button>
+      <div>
+        <div class="eyebrow">Gestão de cloração</div>
+        <div class="title">Cloro<span>Prime</span></div>
+      </div>
+    </div>
+    <div class="right">
+      <div class="top-chip"><strong id="top-status">Operação inicial</strong></div>
+      <div class="top-chip">Tambor <strong id="top-tambor">-- L</strong></div>
+      <div class="top-chip">Autonomia <strong id="top-autonomia">-- dias</strong></div>
+      <div class="top-chip" id="hdr-date-chip" style="font-family:var(--mono);font-size:12px"></div>
+    </div>
+  </div>
+
+  <!-- Mobile nav tabs -->
+  <nav class="mobile-nav" id="mobile-nav">
+    <div class="mobile-nav-inner">
+      <button class="mnav-btn active" data-view="operacao" onclick="showView('operacao',this)">Operação</button>
+      <button class="mnav-btn" data-view="dashboard" onclick="showView('dashboard',this)">Dashboard</button>
+      <button class="mnav-btn" data-view="abastecer" onclick="showView('abastecer',this)">Abastecer</button>
+      <div class="mnav-more-wrap">
+        <button class="mnav-btn" id="mnav-more-btn" onclick="toggleMoreMenu(event)">⋯ Mais</button>
+        <div class="mnav-more-dropdown" id="mnav-more-dropdown">
+          <button class="mnav-dd-btn" data-view="calcular" onclick="showView('calcular',this);closeMoreMenu()">∑ Calcular</button>
+          <button class="mnav-dd-btn" data-view="historico" onclick="showView('historico',this);closeMoreMenu()">↺ Histórico</button>
+          <button class="mnav-dd-btn" data-view="config" onclick="showView('config',this);closeMoreMenu()">⚙ Config</button>
+          <button class="mnav-dd-btn" data-view="personalizar" onclick="showView('personalizar',this);closeMoreMenu()">🎨 Visual</button>
+          <button class="mnav-dd-btn" data-view="faq" onclick="showView('faq',this);closeMoreMenu()">❓ FAQ</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hidden legacy nav (kept for JS compatibility) -->
+  <nav class="nav" id="nav-desktop" style="display:none">
+    <button class="nav-btn active" data-view="operacao" onclick="showView('operacao', this)">Operação</button>
+    <button class="nav-btn" data-view="dashboard" onclick="showView('dashboard', this)">Dashboard</button>
+    <button class="nav-btn" data-view="calcular" onclick="showView('calcular', this)">Calcular</button>
+    <button class="nav-btn" data-view="abastecer" onclick="showView('abastecer', this)">Abastecer</button>
+    <button class="nav-btn" data-view="historico" onclick="showView('historico', this)">Histórico</button>
+    <button class="nav-btn" data-view="config" onclick="showView('config', this)">Config</button>
+    <button class="nav-btn" data-view="personalizar" onclick="showView('personalizar', this)">🎨 Visual</button>
+    <button class="nav-btn" data-view="faq" onclick="showView('faq', this)">❓ FAQ</button>
+  </nav>
+
+  <!-- OPERACAO -->
+  <div class="view active" id="view-operacao">
+    <div class="valida-zone" id="valida-zone"></div>
+    <div class="ops-layout">
+      <div class="ops-card">
+        <div class="ops-head">
+          <div>
+            <div class="sec-title" style="margin-bottom:8px">Operação diária</div>
+            <div class="ops-title">Uma tela para medir, avaliar e agir</div>
+            <div class="ops-sub">Use essa tela como rotina do zelador ou do síndico: lançar leitura da fita, conferir FCE, visualizar autonomia e aplicar a sugestão automática.</div>
+          </div>
+          <div class="tag">Campo + desktop</div>
+        </div>
+
+        <div class="ops-mini-grid">
+          <div class="ops-mini">
+            <div class="k">Tambor</div>
+            <div class="v" id="ops-nivel">-- L</div>
+            <div class="s" id="ops-nivel-sub">Nível disponível no momento</div>
+          </div>
+          <div class="ops-mini">
+            <div class="k">Autonomia</div>
+            <div class="v" id="ops-autonomia">--</div>
+            <div class="s">dias estimados até abastecer</div>
+          </div>
+          <div class="ops-mini">
+            <div class="k">Consumo do dosador</div>
+            <div class="v" id="ops-consumo">--</div>
+            <div class="s">litros/dia na regulagem atual</div>
+          </div>
+        </div>
+
+        <button class="ai-foto-btn" type="button" onclick="abrirCameraFita()">
+          <span class="ai-icon">📷</span> Fotografar fita — IA interpreta a cor automaticamente
+        </button>
+        <div class="ai-loading" id="ai-loading"><div class="ai-spinner"></div><span>Analisando a cor da fita…</span></div>
+        <div class="ai-result-box" id="ai-result-box">
+          <div class="ai-val" id="ai-result-val">--</div>
+          <div class="ai-desc" id="ai-result-desc"></div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Leitura da fita (mg/L)</label>
+            <input type="number" id="ops-fita-valor" min="0" max="10" step="0.1" placeholder="Ex: 0.4" oninput="syncOperacaoFromUI()">
+          </div>
+          <div class="field">
+            <label>Ponto da coleta</label>
+            <select id="ops-fita-ponto" onchange="syncOperacaoFromUI()">
+              <option value="ponta">Ponta mais distante</option>
+              <option value="secundario">Saída do reservatório secundário</option>
+              <option value="principal">Saída do reservatório principal</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>% atual do FCE</label>
+            <input type="number" id="ops-fce" min="0" max="100" step="1" oninput="syncOperacaoFromUI()">
+          </div>
+          <div class="field">
+            <label>Hipoclorito da mistura (%)</label>
+            <select id="ops-conc" onchange="syncOperacaoFromUI()">
+              <option value="2.5">2,5%</option>
+              <option value="5">5%</option>
+              <option value="10">10%</option>
+              <option value="12">12%</option>
+              <option value="15">15%</option>
+              <option value="20">20%</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="ops-status">
+          <div class="ops-status-row">
+            <div class="ops-badge ok" id="ops-badge">Sem leitura</div>
+            <div class="tag" id="ops-meta">Meta automática por ponto</div>
+          </div>
+          <div class="ops-copy"><strong id="ops-resumo">Informe a leitura da fita para o diagnóstico automático.</strong></div>
+          <div class="ops-copy" style="margin-top:8px" id="ops-acao">A sugestão aparecerá aqui em linguagem simples.</div>
+        </div>
+
+        <div class="ops-action-bar">
+          <button class="btn btn-primary ops-action-btn" type="button" onclick="aplicarSugestaoOperacao()">Aplicar sugestão ao cálculo</button>
+          <button class="btn btn-secondary ops-action-btn" type="button" onclick="registrarLeituraOperacao()">Registrar leitura no histórico</button>
+          <button class="btn btn-secondary ops-action-btn" type="button" onclick="agendarProximaVerificacao()">📅 Agendar próxima verificação</button>
+        </div>
+      </div>
+
+      <div class="ops-card">
+        <div class="sec-title" style="margin-bottom:8px">Ajuste sugerido</div>
+        <div class="dose-highlight ops-highlight">
+          <div class="big-val" id="ops-cloro-litros">--</div>
+          <div class="big-unit">L de hipoclorito no tambor de 100 L</div>
+          <div class="big-note" id="ops-agua-litros">Complete com água até 100 L</div>
+        </div>
+        <div class="result-card" style="margin-top:14px">
+          <div class="result-row">
+            <span class="result-label">Mistura sugerida</span>
+            <span class="result-val" id="ops-mistura-texto">--</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Dose alvo operacional</span>
+            <span class="result-val" id="ops-dose-alvo">--</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Próximo abastecimento</span>
+            <span class="result-val" id="ops-prox-abast">--</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Ajuste no FCE</span>
+            <span class="result-val" id="ops-fce-ajuste">--</span>
+          </div>
+        </div>
+        <div class="fita-copy" style="margin-top:14px">
+          <div class="line1">Leitura operacional</div>
+          <div class="line2" id="ops-copy-extra">Busque ficar entre 0,2 e 0,5 mg/L na ponta mais distante. No principal e no secundário você pode aceitar um pouco acima dessa faixa para garantir residual na rede.</div>
+        </div>
+        <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+          <div>
+            <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Próxima verificação</div>
+            <div id="ops-proxima-verif" style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--accent)">—</div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Filtro plissado</div>
+            <div id="ops-filtro-status" class="filter-badge ok">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="view" id="view-dashboard">
+
+    <div id="alert-zone"></div>
+
+    <!-- Resumo do dia -->
+    <div class="day-summary">
+      <div class="day-summary-title">📋 Resumo de hoje · <span id="dash-hoje-data">--</span></div>
+      <div class="day-summary-grid">
+        <div class="day-cell">
+          <div class="dc-k">Tambor</div>
+          <div class="dc-v blue" id="ds-tambor">-- L</div>
+          <div class="dc-s" id="ds-tambor-s">--% · -- dias</div>
+        </div>
+        <div class="day-cell">
+          <div class="dc-k">Última leitura</div>
+          <div class="dc-v" id="ds-leitura">-- mg/L</div>
+          <div class="dc-s" id="ds-leitura-s">nenhuma hoje</div>
+        </div>
+        <div class="day-cell">
+          <div class="dc-k">Dosador FCE</div>
+          <div class="dc-v gold" id="ds-fce">--%</div>
+          <div class="dc-s" id="ds-fce-s">-- L/dia</div>
+        </div>
+        <div class="day-cell">
+          <div class="dc-k">Custo/mês est.</div>
+          <div class="dc-v" id="ds-custo">R$ --</div>
+          <div class="dc-s" id="ds-custo-s">-- L/dia × R$ --/L</div>
+        </div>
+        <div class="day-cell">
+          <div class="dc-k">Próx. abastec.</div>
+          <div class="dc-v" id="ds-prox-abast">--</div>
+          <div class="dc-s">estimado pelo consumo</div>
+        </div>
+        <div class="day-cell">
+          <div class="dc-k">Filtro plissado</div>
+          <div class="dc-v" id="ds-filtro">--</div>
+          <div class="dc-s" id="ds-filtro-s">--</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Métricas -->
+    <div class="metrics-grid">
+      <div class="metric-card" id="card-status">
+        <div class="m-label">Status do sistema</div>
+        <div class="m-value" id="card-status-value">--</div>
+        <div class="m-sub" id="card-status-sub">Leitura operacional e margem de segurança</div>
+        <div class="m-pill"><span class="mini-pill ok" id="card-status-pill">Sem leitura</span></div>
+      </div>
+      <div class="metric-card">
+        <div class="m-label">Tambor</div>
+        <div class="m-value accent" id="card-tambor-value">-- L</div>
+        <div class="m-sub" id="card-tambor-sub">Nível restante e reserva prática</div>
+      </div>
+      <div class="metric-card">
+        <div class="m-label">Dosador</div>
+        <div class="m-value" id="card-dosador-value">--%</div>
+        <div class="m-sub" id="card-dosador-sub">Consumo diário na regulagem atual</div>
+      </div>
+      <div class="metric-card">
+        <div class="m-label">Mistura base</div>
+        <div class="m-value" id="card-mistura-value">--</div>
+        <div class="m-sub" id="card-mistura-sub">Quanto colocar no tambor de 100 L</div>
+      </div>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="dash-grid2">
+      <!-- Gráfico: leituras ao longo do tempo -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Leituras de cloro</div>
+            <div class="chart-value" id="ch-leitura-ultima">-- <span class="unit">mg/L</span></div>
+            <div class="chart-sub">última leitura registrada</div>
+          </div>
+          <div class="chart-tabs">
+            <button class="chart-tab active" onclick="mudarPeriodoLeituras(7,this)">7d</button>
+            <button class="chart-tab" onclick="mudarPeriodoLeituras(30,this)">30d</button>
+            <button class="chart-tab" onclick="mudarPeriodoLeituras(90,this)">90d</button>
+          </div>
+        </div>
+        <div class="chart-canvas-wrap" style="height:180px">
+          <canvas id="chart-leituras"></canvas>
+        </div>
+      </div>
+
+      <!-- Gráfico: custo acumulado do mês -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Custo acumulado</div>
+            <div class="chart-value" id="ch-custo-mes">R$ -- <span class="unit">/ mês</span></div>
+            <div class="chart-sub" id="ch-custo-sub">estimado pelo consumo diário</div>
+          </div>
+        </div>
+        <div class="chart-canvas-wrap" style="height:180px">
+          <canvas id="chart-custo"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráfico: comparativo semanal -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Comparativo semanal — leituras</div>
+          <div class="chart-sub">média de cloro residual por semana</div>
+        </div>
+      </div>
+      <div class="chart-canvas-wrap" style="height:160px">
+        <canvas id="chart-semanal"></canvas>
+      </div>
+    </div>
+
+    <!-- Nível do tambor -->
+    <div class="drum-card">
+      <div class="drum-visual">
+        <div class="drum-svg-wrap">
+          <svg width="64" height="100" viewBox="0 0 64 100">
+            <defs>
+              <clipPath id="drum-clip"><rect x="8" y="10" width="48" height="80" rx="6"/></clipPath>
+              <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#1e8fff" stop-opacity="0.8"/>
+                <stop offset="100%" stop-color="#1270cc" stop-opacity="0.9"/>
+              </linearGradient>
+            </defs>
+            <rect x="8" y="10" width="48" height="80" rx="6" fill="#1a1e28" stroke="#22273a" stroke-width="1.5"/>
+            <g clip-path="url(#drum-clip)">
+              <rect id="drum-water" x="8" y="10" width="48" height="80" fill="url(#wg)" opacity="0.8"/>
+            </g>
+            <line x1="10" y1="30" x2="16" y2="30" stroke="#22273a" stroke-width="1"/>
+            <line x1="10" y1="50" x2="16" y2="50" stroke="#22273a" stroke-width="1"/>
+            <line x1="10" y1="70" x2="16" y2="70" stroke="#22273a" stroke-width="1"/>
+            <text x="18" y="33" fill="#4a5470" font-size="7" font-family="monospace">75%</text>
+            <text x="18" y="53" fill="#4a5470" font-size="7" font-family="monospace">50%</text>
+            <text x="18" y="73" fill="#4a5470" font-size="7" font-family="monospace">25%</text>
+            <rect x="6" y="22" width="52" height="5" rx="2" fill="none" stroke="#22273a" stroke-width="1.5"/>
+            <rect x="6" y="73" width="52" height="5" rx="2" fill="none" stroke="#22273a" stroke-width="1.5"/>
+            <rect x="24" y="4" width="16" height="8" rx="3" fill="#22273a"/>
+            <text x="32" y="55" text-anchor="middle" fill="#1e8fff" font-size="9" font-weight="bold" font-family="monospace">100L</text>
+          </svg>
+        </div>
+        <div class="drum-info">
+          <div class="drum-vol"><span id="drum-vol-display">--</span><span> L</span></div>
+          <div class="drum-sub">Hipoclorito no tambor</div>
+          <div class="status-pills" id="drum-pills"></div>
+        </div>
+      </div>
+      <div class="prog-wrap">
+        <div class="prog-label">
+          <span>Nível do tambor</span>
+          <span id="drum-pct-label">--%</span>
+        </div>
+        <div class="prog-track">
+          <div class="prog-fill" id="drum-prog" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-grid" style="margin-bottom:16px">
+      <div class="info-cell"><div class="label">Consumo/dia</div><div class="value accent" id="dash-consume">-- L</div></div>
+      <div class="info-cell"><div class="label">Autonomia</div><div class="value" id="dash-days">-- dias</div></div>
+      <div class="info-cell"><div class="label">Dosador FCE</div><div class="value accent" id="dash-fce">--%</div></div>
+      <div class="info-cell"><div class="label">Hipoclorito</div><div class="value" id="dash-conc">--%</div></div>
+      <div class="info-cell"><div class="label">Reserv. principal</div><div class="value" id="dash-reserv-main">-- L</div></div>
+      <div class="info-cell"><div class="label">Reserv. secundário</div><div class="value" id="dash-reserv-sec">-- L</div></div>
+    </div>
+
+  </div>
+
+
+  <!-- CALCULAR DOSAGEM -->
+  <div class="view" id="view-calcular">
+    <div class="sec-title">Calculadora de dosagem</div>
+
+    <div class="drum-card">
+      <div class="slider-field">
+        <label>Percentual do dosador FCE (%)</label>
+        <div class="slider-wrap">
+          <input type="range" min="0" max="100" step="1" id="calc-fce" oninput="calcular()">
+          <span class="slider-val" id="calc-fce-val">10%</span>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Concentração do hipoclorito</label>
+          <select id="calc-conc" onchange="calcular()">
+            <option value="2.5">2,5% (fraco)</option>
+            <option value="5">5% (uso doméstico)</option>
+            <option value="10" selected>10% (padrão)</option>
+            <option value="12">12% (concentrado)</option>
+            <option value="15">15% (forte)</option>
+            <option value="20">20% (industrial)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Vazão do poço (L/h)</label>
+          <input type="number" id="calc-vazao" value="500" min="50" max="5000" oninput="calcular()">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Meta de cloro residual (mg/L)</label>
+        <select id="calc-meta" onchange="calcular()">
+          <option value="0.2">0,2 mg/L (mínimo ANVISA)</option>
+          <option value="0.5" selected>0,5 mg/L (recomendado)</option>
+          <option value="1.0">1,0 mg/L (conservador)</option>
+          <option value="2.0">2,0 mg/L (muito conservador)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="dose-highlight" id="dose-result">
+      <div class="big-val" id="dose-injecao">--</div>
+      <div class="big-unit">mL/hora injetados</div>
+      <div class="big-note" id="dose-note">Configure os parâmetros acima</div>
+    </div>
+
+    <div class="result-card" id="dose-details" style="display:none">
+      <div class="result-row">
+        <span class="result-label">Cloro ativo injetado</span>
+        <span class="result-val" id="res-cativo">-- mg/L</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Consumo do tambor/hora</span>
+        <span class="result-val" id="res-consumo-h">-- L/h</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Consumo do tambor/dia</span>
+        <span class="result-val" id="res-consumo-d">-- L/dia</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Autonomia do tambor atual</span>
+        <span class="result-val" id="res-autonomia">-- dias</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Cloro por pessoa/dia</span>
+        <span class="result-val" id="res-pessoa">-- mg</span>
+      </div>
+    </div>
+
+    
+    <div id="dose-alerta" style="display:none"></div>
+
+    <div class="scenario-card">
+      <div class="scenario-head">
+        <div>
+          <div class="scenario-title">🧪 Mistura do tambor · cenários</div>
+          <div class="scenario-sub">Calcula quanto produto colocar no tambor de 100 L, com base na força do cloro, regulagem do FCE e dose alvo.</div>
+        </div>
+        <span class="tag">Tambor 100 L</span>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Capacidade da bomba em 100%</label>
+          <select id="mix-bomba" onchange="calcularMisturaCenarios()">
+            <option value="0.8">0,8 L/h</option>
+            <option value="1.5" selected>1,5 L/h</option>
+            <option value="3">3,0 L/h</option>
+            <option value="5">5,0 L/h</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Dose alvo na linha (mg/L)</label>
+          <select id="mix-alvo" onchange="calcularMisturaCenarios()">
+            <option value="0.5">0,5 mg/L</option>
+            <option value="0.8">0,8 mg/L</option>
+            <option value="1.0" selected>1,0 mg/L</option>
+            <option value="1.5">1,5 mg/L</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="scenario-grid">
+        <div class="scenario-box">
+          <div class="s-label">Injeção real do dosador</div>
+          <div class="s-val" id="mix-injecao-real">-- L/h</div>
+          <div class="s-note">Baseado na regulagem atual do FCE</div>
+        </div>
+        <div class="scenario-box">
+          <div class="s-label">Autonomia do tambor</div>
+          <div class="s-val" id="mix-autonomia">-- dias</div>
+          <div class="s-note">Quanto tempo os 100 L devem render</div>
+        </div>
+      </div>
+
+      <table class="scenario-table">
+        <thead>
+          <tr>
+            <th>Produto</th>
+            <th>Cloro no tambor</th>
+            <th>Água</th>
+            <th>Leitura esperada</th>
+          </tr>
+        </thead>
+        <tbody id="mix-table-body"></tbody>
+      </table>
+
+      <div class="alert alert-info" style="margin-top:12px">
+        🎯 Meta prática: buscar <strong style="margin:0 4px">0,2 a 0,5 mg/L</strong> na ponta mais distante da rede. A tabela abaixo é ponto de partida; ajuste pela fita.
+      </div>
+
+      <div class="fita-panel">
+        <div class="scenario-head" style="margin-bottom:10px">
+          <div>
+            <div class="scenario-title">🧾 Leitura da fita · ajuste rápido</div>
+            <div class="scenario-sub">Informe o valor medido para o app dizer se está pouca, ideal ou alta, e sugerir correção operacional.</div>
+          </div>
+          <span class="tag">Operação</span>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Leitura da fita (mg/L)</label>
+            <input type="number" id="fita-valor" min="0" max="5" step="0.1" value="0.3" oninput="avaliarFita()">
+          </div>
+          <div class="field">
+            <label>Ponto da coleta</label>
+            <select id="fita-ponto" onchange="avaliarFita()">
+              <option value="ponta" selected>Ponta mais distante</option>
+              <option value="secundario">Saída do reservatório secundário</option>
+              <option value="principal">Saída do reservatório principal</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="scenario-grid" style="margin-top:0">
+          <div class="scenario-box">
+            <div class="s-label">Status da leitura</div>
+            <div class="fita-status">
+              <div class="s-val" id="fita-faixa">--</div>
+              <span class="fita-badge ok" id="fita-badge">--</span>
+            </div>
+            <div class="s-note" id="fita-meta">Meta: --</div>
+          </div>
+          <div class="scenario-box">
+            <div class="s-label">Correção sugerida</div>
+            <div class="s-val" id="fita-ajuste">--</div>
+            <div class="s-note" id="fita-ajuste-sub">--</div>
+          </div>
+        </div>
+
+        <div class="fita-copy">
+          <div class="line1" id="fita-resumo">Aguardando leitura.</div>
+          <div class="line2" id="fita-acao">Preencha a leitura para receber uma ação direta de campo.</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="salvarConfig()" style="margin-top:8px">💾 Salvar configuração atual</button>
+  </div>
+
+  <!-- ABASTECER TAMBOR -->
+  <div class="view" id="view-abastecer">
+    <div class="sec-title">Registrar abastecimento</div>
+
+    <div class="drum-card">
+      <div class="field">
+        <label>Volume atual no tambor (litros)</label>
+        <input type="number" id="ab-atual" placeholder="0" min="0" max="100" step="0.5" oninput="previewAbast()">
+      </div>
+
+      <div class="field">
+        <label>Litros adicionados</label>
+        <input type="number" id="ab-add" placeholder="Ex: 60" min="0" max="100" step="0.5" oninput="previewAbast()">
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Concentração (%)</label>
+          <select id="ab-conc">
+            <option value="2.5">2,5%</option>
+            <option value="5">5%</option>
+            <option value="10" selected>10%</option>
+            <option value="12">12%</option>
+            <option value="15">15%</option>
+            <option value="20">20%</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Marca / Lote</label>
+          <input type="text" id="ab-marca" placeholder="Opcional">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Observação</label>
+        <input type="text" id="ab-obs" placeholder="Ex: tambor recarregado com produto novo">
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Preço pago (R$)</label>
+          <input type="number" id="ab-preco" placeholder="Ex: 85.00" min="0" step="0.01">
+        </div>
+        <div class="field">
+          <label>Volume comprado (L)</label>
+          <input type="number" id="ab-vol-comprado" placeholder="Ex: 20" min="0" step="0.5">
+        </div>
+      </div>
+
+      <div class="result-card" id="ab-preview" style="display:none">
+        <div class="result-row">
+          <span class="result-label">Nível após abastecimento</span>
+          <span class="result-val big" id="ab-prev-total">-- L</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">Percentual</span>
+          <span class="result-val" id="ab-prev-pct">--%</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="registrarAbast()">✅ Registrar abastecimento</button>
+
+    <div class="divider"></div>
+    <div class="sec-title">Atualizar nível manualmente</div>
+    <div class="drum-card">
+      <div class="field">
+        <label>Nível atual real no tambor (L)</label>
+        <input type="number" id="nivel-manual" placeholder="Quanto tem agora?" min="0" max="100" step="0.5">
+      </div>
+      <button class="btn btn-secondary" onclick="atualizarNivel()">📏 Atualizar nível</button>
+    </div>
+  </div>
+
+  <!-- HISTÓRICO -->
+  <div class="view" id="view-historico">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div class="sec-title" style="margin:0">Histórico de eventos</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary btn-sm" onclick="exportarHistorico()">📥 Exportar CSV</button>
+        <button class="btn btn-danger btn-sm" onclick="limparHistorico()">🗑 Limpar</button>
+      </div>
+    </div>
+    <div id="hist-list"></div>
+  </div>
+
+  <!-- CONFIG -->
+  <div class="view" id="view-config">
+    <div class="sec-title">Configurações do sistema</div>
+
+    <div class="config-card">
+      <div class="config-title">💧 Sistema hídrico</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Reservatório principal (L)</label>
+          <input type="number" id="cfg-reserv" value="30000" onchange="saveConfig()">
+        </div>
+        <div class="field">
+          <label>Reservatório secundário (L)</label>
+          <input type="number" id="cfg-reserv-sec" value="9000" onchange="saveConfig()">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Nº de caixas</label>
+          <input type="number" id="cfg-caixas" value="8" onchange="saveConfig()">
+        </div>
+        <div class="field">
+          <label>Vol. por caixa (L)</label>
+          <input type="number" id="cfg-vol-caixa" value="2000" onchange="saveConfig()">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Nº de unidades</label>
+          <input type="number" id="cfg-unidades" value="80" onchange="saveConfig()">
+        </div>
+        <div class="field">
+          <label>Pessoas totais</label>
+          <input type="number" id="cfg-pessoas" value="240" onchange="saveConfig()">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Vazão do poço (L/h)</label>
+          <input type="number" id="cfg-vazao" value="1500" onchange="saveConfig()">
+        </div>
+        <div class="field">
+          <label>Torres atendidas</label>
+          <input type="number" id="cfg-torres" value="4" onchange="saveConfig()">
+        </div>
+      </div>
+    </div>
+
+    <div class="config-card">
+      <div class="config-title">🧴 Dosador FCE</div>
+      <div class="field">
+        <label>Modelo da bomba</label>
+        <input type="text" id="cfg-modelo-bomba" placeholder="Ex: FCE 1.5, FCE 3.0…" onchange="saveConfig()">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>% atual no FCE</label>
+          <input type="number" id="cfg-fce" value="18" min="0" max="100" onchange="saveConfig()">
+        </div>
+        <div class="field">
+          <label>Concentração do produto</label>
+          <select id="cfg-hipoct" onchange="saveConfig()">
+            <option value="2.5">2,5%</option>
+            <option value="5">5%</option>
+            <option value="10">10%</option>
+            <option value="12" selected>12%</option>
+            <option value="15">15%</option>
+            <option value="20">20%</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Capacidade do tambor (L)</label>
+          <input type="number" id="cfg-tambor" value="100" onchange="saveConfig()">
+        </div>
+        <div class="field">
+          <label>Bomba em 100% (L/h)</label>
+          <select id="cfg-bomba-max" onchange="saveConfig()">
+            <option value="0.8">0,8</option>
+            <option value="1.5" selected>1,5</option>
+            <option value="3">3,0</option>
+            <option value="5">5,0</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Dose alvo base (mg/L)</label>
+        <select id="cfg-alvo-dose" onchange="saveConfig()">
+          <option value="0.5">0,5</option>
+          <option value="0.8">0,8</option>
+          <option value="1.0" selected>1,0</option>
+          <option value="1.5">1,5</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="config-card">
+      <div class="config-title">🔧 Filtro plissado</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Última troca do filtro</label>
+          <input type="date" id="cfg-filtro-troca" onchange="saveConfig()">
+        </div>
+        <div class="field">
+          <label>Intervalo de troca (dias)</label>
+          <input type="number" id="cfg-filtro-intervalo" value="60" min="7" max="365" onchange="saveConfig()">
+        </div>
+      </div>
+      <div id="cfg-filtro-info" style="font-size:12px;color:var(--text3);margin-top:4px"></div>
+    </div>
+
+    <div class="config-card">
+      <div class="config-title">💰 Custo do produto</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Último preço pago (R$)</label>
+          <input type="number" id="cfg-preco-produto" placeholder="Ex: 85.00" min="0" step="0.01" onchange="saveConfig()">
+        </div>
+        <div class="field">
+          <label>Volume do galão (L)</label>
+          <input type="number" id="cfg-vol-galao" placeholder="Ex: 20" min="1" step="0.5" onchange="saveConfig()">
+        </div>
+      </div>
+      <div id="cfg-custo-info" style="font-size:12px;color:var(--text2);margin-top:4px"></div>
+    </div>
+
+    <div class="config-card">
+      <div class="config-title">🔔 Alertas</div>
+      <div class="field">
+        <label>Alerta baixo nível (% do tambor)</label>
+        <input type="number" id="cfg-alerta-baixo" value="20" min="5" max="50" onchange="saveConfig()">
+      </div>
+      <div class="field">
+        <label>Alerta crítico (% do tambor)</label>
+        <input type="number" id="cfg-alerta-crit" value="10" min="1" max="30" onchange="saveConfig()">
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="saveConfig();toast('Configurações salvas! ✅','ok')">💾 Salvar tudo</button>
+    <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-secondary" style="flex:1" onclick="abrirWizard()">🧙 Refazer configuração inicial</button>
+      <button class="btn btn-danger" style="flex:1" onclick="resetApp()">⚠️ Resetar todos os dados</button>
+    </div>
+
+    <div class="divider"></div>
+    <div style="text-align:center;color:var(--text3);font-size:12px;padding:8px 0">
+      CloroPrime v3.6 · Condomínio · <span id="cfg-info"></span>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="view" id="view-faq">
+    <div class="sec-title">Perguntas frequentes</div>
+
+    <div class="faq-cat">Cloro e segurança</div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">O que é cloro residual livre e por que importa? <span class="fq-icon">+</span></button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        É a quantidade de cloro disponível na água <strong>depois de percorrer toda a tubulação</strong>. É o que efetivamente protege contra bactérias no ponto de consumo. A ANVISA (Portaria 888/2021) exige mínimo de <strong>0,2 mg/L</strong> em qualquer ponto da rede e máximo de <strong>5,0 mg/L</strong>. O recomendado na prática para poço é <strong>0,5 a 1,0 mg/L</strong> — suficiente para proteção sem gosto ou odor forte.
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">Posso usar água sanitária de supermercado no dosador? <span class="fq-icon">+</span></button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        Tecnicamente sim, mas <strong>não é recomendado</strong> por 3 razões: a concentração (~2,5%) é muito baixa, o que exige grandes volumes e entope o tambor rápido; contém surfactantes e aditivos que podem espumar na bomba; e o custo por mg de cloro ativo é muito maior que o hipoclorito 10-12% profissional. Use sempre <strong>hipoclorito de sódio 10-12%</strong> próprio para tratamento de água.
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">Com que frequência devo testar a água com a fita? <span class="fq-icon">+</span></button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        Enquanto você ainda está calibrando o sistema (primeiros 30-60 dias): <strong>a cada 2-3 dias</strong>, sempre no mesmo ponto (a torneira mais distante do reservatório). Após estabilizar: <strong>1-2x por semana</strong> é suficiente. Sempre faça uma leitura extra depois de eventos como chuva forte, limpeza dos reservatórios ou troca de galão de produto.
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">A água ficou com gosto/cheiro forte de cloro. O que fazer? <span class="fq-icon">+</span></button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        Significa que o residual está acima de ~1,5-2 mg/L no ponto de consumo. As ações são em ordem:
+        <ul>
+          <li>Meça com a fita para confirmar</li>
+          <li>Reduza o FCE em 2-3 pontos percentuais</li>
+          <li>Aguarde 24h e meça novamente</li>
+          <li>Se persistir, reduza a proporção de hipoclorito na mistura do tambor</li>
+        </ul>
+        Nunca zere o FCE abruptamente — reduza gradualmente.
+      </div></div>
+    </div>
+
+    <div class="faq-cat">Dosador FCE</div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">O que é o FCE e o que significa o percentual? <span class="fq-icon">+</span></button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        FCE significa <strong>Frequência de Curso do Êmbolo</strong> — é a velocidade com que a bomba peristáltica pulsa. Em 100% ela bate na capacidade máxima (ex: 1,5 L/h). Em 15% ela bate 15% dessa capacidade, ou seja, <strong>0,225 L/h</strong>. É uma forma simples de regular a dose sem trocar tubos ou produtos. O app calcula automaticamente quanto cloro é injetado por hora e por dia baseado nesse percentual.
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">Qual FCE devo usar para começar? <span class="fq-icon">+</span></button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        Para uma bomba FCE 1.5 com hipoclorito 12% e poço artesiano, <strong>15-20%</strong> é um bom ponto de partida. Mas o ponto correto depende da sua vazão e do volume de água. O fluxo certo é:
+        <ul>
+          <li>Ligue com 15%, espere 24h</li>
+          <li>Meça com a fita na torneira mais distante</li>
+          <li>Se abaixo de 0,2 mg/L → suba o FCE</li>
+          <li>Se acima de 1,5 mg/L → desça o FCE</li>
+          <li>Repita até estabilizar entre 0,5 e 1,0 mg/L</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">A bomba está ligada mas não parece estar injetando. Por quê? <span class="fq-icon">+</span></button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        As causas mais comuns são:
+        <ul>
+          <li><strong>Tubinho de sucção fora do líquido</strong> — tambor vazio ou tubinho curto demais</li>
+          <li><strong>Filtro entupido</strong> — troque o filtro plissado antes da bomba</li>
+          <li><strong>Ar no sistema</strong> — a bomba perdeu a escorva; use o botão de purga manual se houver</li>
+          <li><strong>Válvula de retorno travada</strong> — verifique os encaixes dos tubinhos</li>
+          <li><strong>FCE em 0%</strong> — verifique o potenciômetro</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="faq-cat">Filtro plissado</div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">Qual micragem de filtro usar antes do dosador? <span class="fq-icon">+</span></button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        Para água de poço artesiano com dosador peristáltico: <strong>20 micras</strong> é o ideal — filtra sedimentos finos sem precisar de trocas muito frequentes. Se a água for muito barrenta, coloque um filtro de <strong>50-100 micras antes</strong> (em série), para proteger o de 20. Para água da concessionária apenas: 50 micras já é suficiente.
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">Com que frequência trocar o filtro plissado? <span class="fq-icon">+</span></button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        Depende da qualidade da água do poço. Como referência:
+        <ul>
+          <li>Água limpa e clara: <strong>60-90 dias</strong></li>
+          <li>Água com alguma turbidez: <strong>30-45 dias</strong></li>
+          <li>Água muito barrenta ou com sedimento: <strong>15-30 dias</strong></li>
+        </ul>
+        O sinal mais prático de que está na hora: a bomba começa a "perder a escorva" ou a leitura da fita cai sem motivo aparente. Use o campo de controle de filtro no app para nunca perder a data.
+      </div></div>
+    </div>
+
+    <div class="faq-cat">Mistura e tambor</div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">Como preparar a mistura correta no tambor de 100 L? <span class="fq-icon">+</span></button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        A bomba dosadora não injeta hipoclorito puro — ela injeta uma <strong>solução diluída</strong>, o que protege a bomba e permite ajuste fino. Para hipoclorito 12% numa bomba FCE 1.5 em 15-20%:
+        <ul>
+          <li>Coloque <strong>a água primeiro</strong> (~80-85 L)</li>
+          <li>Adicione <strong>15-20 L de hipoclorito 12%</strong></li>
+          <li>A solução resultante fica em ~1,8-2,4%</li>
+        </ul>
+        Nunca inverta a ordem — hipoclorito primeiro pode espirrar e causar queimaduras. Use a aba Calcular do app para obter o valor exato para o seu cenário.
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">Quanto tempo dura um tambor de 100 L? <span class="fq-icon">+</span></button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        Depende do FCE e da bomba. Com bomba FCE 1.5 em 15%: <strong>0,225 L/h × 24h = 5,4 L/dia</strong>, logo o tambor dura cerca de <strong>18-19 dias</strong>. Em 20%: ~13 dias. O app calcula isso automaticamente e mostra a autonomia estimada. Após 2 ou 3 ciclos completos registrados, a previsão fica muito precisa.
+      </div></div>
+    </div>
+
+    <div class="faq-cat">Regulatório</div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">Qual a norma que regula o cloro em condomínios? <span class="fq-icon">+</span></button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        A principal é a <strong>Portaria GM/MS 888/2021</strong> do Ministério da Saúde, que define os padrões de potabilidade da água para consumo humano. Para cloro residual livre: mínimo de <strong>0,2 mg/L</strong> e máximo de <strong>5,0 mg/L</strong> em qualquer ponto da rede de distribuição. Condomínios com poço também devem seguir a <strong>NBR 12.244</strong> sobre construção de poços e a legislação estadual de vigilância sanitária aplicável.
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">O síndico pode ser responsabilizado pela qualidade da água? <span class="fq-icon">+</span></button>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        <strong>Sim.</strong> O síndico responde pela conservação e uso adequado das partes comuns, incluindo o sistema de abastecimento de água (art. 1.348 do Código Civil). Em caso de surto de doença de veiculação hídrica causado por falta de cloração adequada, pode haver responsabilidade civil e até criminal. Manter o registro histórico de leituras e abastecimentos — como o app faz — é uma forma importante de documentar a diligência na gestão.
+      </div></div>
+    </div>
+
+    <div style="text-align:center;padding:20px 0 8px;font-size:12px;color:var(--text3)">
+      CloroPrime · as informações acima são orientativas. Consulte um profissional habilitado para projetos de tratamento de água.
+    </div>
+  </div>
+
+  <!-- PERSONALIZAR -->
+  <div class="view" id="view-personalizar">
+    <div class="sec-title">Personalização</div>
+
+    <!-- TEMA -->
+    <div class="config-card">
+      <div class="config-title">🌗 Tema</div>
+      <div class="theme-grid" id="theme-grid">
+        <div class="theme-card" data-theme="dark" onclick="aplicarTema('dark',this)">
+          <div class="tc-preview tc-dark">🌙</div>
+          <div class="tc-name">Escuro</div>
+        </div>
+        <div class="theme-card" data-theme="light" onclick="aplicarTema('light',this)">
+          <div class="tc-preview tc-light" style="color:#07111f">☀️</div>
+          <div class="tc-name">Claro</div>
+        </div>
+        <div class="theme-card" data-theme="midnight" onclick="aplicarTema('midnight',this)">
+          <div class="tc-preview tc-midnight">🌑</div>
+          <div class="tc-name">Midnight</div>
+        </div>
+        <div class="theme-card" data-theme="system" onclick="aplicarTema('system',this)">
+          <div class="tc-preview tc-system">⚙️</div>
+          <div class="tc-name">Sistema</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FONTES CORPO -->
+    <div class="config-card">
+      <div class="config-title">🔤 Fonte principal</div>
+      <div class="font-grid" id="font-sans-grid">
+        <div class="font-card" data-font-sans="Syne" onclick="aplicarFonteSans('Syne',this)">
+          <div class="fc-name">Syne</div>
+          <div class="fc-preview" style="font-family:'Syne',sans-serif">Água 123</div>
+          <div class="fc-sub">Atual · Geométrica</div>
+        </div>
+        <div class="font-card" data-font-sans="Plus Jakarta Sans" onclick="aplicarFonteSans('Plus Jakarta Sans',this)">
+          <div class="fc-name">Plus Jakarta Sans</div>
+          <div class="fc-preview" style="font-family:'Plus Jakarta Sans',sans-serif">Água 123</div>
+          <div class="fc-sub">Moderna · Legível</div>
+        </div>
+        <div class="font-card" data-font-sans="Poppins" onclick="aplicarFonteSans('Poppins',this)">
+          <div class="fc-name">Poppins</div>
+          <div class="fc-preview" style="font-family:'Poppins',sans-serif">Água 123</div>
+          <div class="fc-sub">Arredondada · Amigável</div>
+        </div>
+        <div class="font-card" data-font-sans="Inter" onclick="aplicarFonteSans('Inter',this)">
+          <div class="fc-name">Inter</div>
+          <div class="fc-preview" style="font-family:'Inter',sans-serif">Água 123</div>
+          <div class="fc-sub">Neutra · Profissional</div>
+        </div>
+        <div class="font-card" data-font-sans="DM Sans" onclick="aplicarFonteSans('DM Sans',this)">
+          <div class="fc-name">DM Sans</div>
+          <div class="fc-preview" style="font-family:'DM Sans',sans-serif">Água 123</div>
+          <div class="fc-sub">Clean · Minimalista</div>
+        </div>
+        <div class="font-card" data-font-sans="IBM Plex Sans" onclick="aplicarFonteSans('IBM Plex Sans',this)">
+          <div class="fc-name">IBM Plex Sans</div>
+          <div class="fc-preview" style="font-family:'IBM Plex Sans',sans-serif">Água 123</div>
+          <div class="fc-sub">Técnica · Séria</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FONTES MONO -->
+    <div class="config-card">
+      <div class="config-title">💻 Fonte de dados (números/código)</div>
+      <div class="font-grid" id="font-mono-grid">
+        <div class="font-card" data-font-mono="Space Mono" onclick="aplicarFonteMono('Space Mono',this)">
+          <div class="fc-name">Space Mono</div>
+          <div class="fc-preview" style="font-family:'Space Mono',monospace">0.5 mg/L</div>
+          <div class="fc-sub">Atual · Retrô</div>
+        </div>
+        <div class="font-card" data-font-mono="JetBrains Mono" onclick="aplicarFonteMono('JetBrains Mono',this)">
+          <div class="fc-name">JetBrains Mono</div>
+          <div class="fc-preview" style="font-family:'JetBrains Mono',monospace">0.5 mg/L</div>
+          <div class="fc-sub">Técnica · Moderna</div>
+        </div>
+        <div class="font-card" data-font-mono="Fira Code" onclick="aplicarFonteMono('Fira Code',this)">
+          <div class="fc-name">Fira Code</div>
+          <div class="fc-preview" style="font-family:'Fira Code',monospace">0.5 mg/L</div>
+          <div class="fc-sub">Dev · Ligatures</div>
+        </div>
+        <div class="font-card" data-font-mono="IBM Plex Mono" onclick="aplicarFonteMono('IBM Plex Mono',this)">
+          <div class="fc-name">IBM Plex Mono</div>
+          <div class="fc-preview" style="font-family:'IBM Plex Mono',monospace">0.5 mg/L</div>
+          <div class="fc-sub">Clássica · Limpa</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BACKUP -->
+    <div class="config-card">
+      <div class="config-title">💾 Backup dos dados</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.55">
+        Os dados ficam no armazenamento local do navegador. Exporte um backup antes de trocar de celular, limpar o cache ou instalar o app em outro dispositivo.
+      </p>
+      <div class="backup-grid">
+        <button class="btn btn-primary" onclick="exportarBackup()">📤 Exportar backup</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('backup-import-input').click()">📥 Importar backup</button>
+      </div>
+      <input type="file" id="backup-import-input" accept=".json" style="display:none" onchange="importarBackup(this)">
+      <div id="backup-status" style="margin-top:10px;font-size:12px;color:var(--text3)">
+        Último backup: <span id="backup-ultima-data">nunca exportado</span>
+      </div>
+    </div>
+  </div>
+  <!-- END PERSONALIZAR -->
+
+</div>
+
+<script>
+// ─── State & Storage ───────────────────────────────────────────────
+const KEY = 'cloroprime_v1';
+let state = {
+  nivel: 50,
+  hist: [],
+  latestRead: { valor: '', ponto: 'ponta' },
+  proximaVerif: null,
+  custoTotal: 0,
+  config: {
+    reserv: 30000, reservSec: 9000, caixas: 8, volCaixa: 2000,
+    unidades: 80, pessoas: 240, vazao: 1500,
+    fce: 18, hipoct: 12, tambor: 100, bombaMax: 1.5,
+    alvoDose: 1.0, alertaBaixo: 20, alertaCrit: 10,
+    modeloBomba: '', filtroTroca: '', filtroIntervalo: 60,
+    precoProduto: 0, volGalao: 20
+  }
+};
+
+function load() {
+  try { const d = JSON.parse(localStorage.getItem(KEY)); if(d) state = d; } catch(e){}
+}
+function save() {
+  localStorage.setItem(KEY, JSON.stringify(state));
+}
+load();
+
+// ─── Navigation ────────────────────────────────────────────────────
+function activateView(id){ const trigger=document.querySelector(`[data-view="${id}"]`); showView(id, trigger); }
+
+function showView(id, triggerEl=null) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const targetView = document.getElementById('view-' + id);
+  if(targetView) targetView.classList.add('active');
+  setActiveNav(id);
+  if(triggerEl && window.innerWidth <= 780) {
+    document.getElementById('sidebar')?.classList.remove('open');
+  }
+  if(id==='operacao') renderOperacao();
+  if(id==='dashboard') { renderDashboard(); }
+  if(id==='historico') renderHistorico();
+  if(id==='calcular') { syncCalcFromConfig(); calcular(); }
+  if(id==='config') loadConfig();
+  if(id==='personalizar') carregarPersonalizacao();
+  if(id==='faq') {} // static
+}
+
+// ─── Dashboard ─────────────────────────────────────────────────────
+function fmtBR(n, d=1) {
+  return Number(n || 0).toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
+}
+function getPumpFlowLH(fcePct, maxLH) {
+  return (Number(fcePct || 0) / 100) * Number(maxLH || 0);
+}
+function calcMixLiters(targetMgL, waterLh, productPct, pumpLh) {
+  if(!targetMgL || !waterLh || !productPct || !pumpLh) return 0;
+  return (targetMgL * waterLh) / (100 * productPct * pumpLh);
+}
+function getOperationalTargets(point='ponta') {
+  if(point === 'principal') return { min: 0.5, max: 1.0, alvo: '0,5 a 1,0 mg/L' };
+  if(point === 'secundario') return { min: 0.3, max: 0.8, alvo: '0,3 a 0,8 mg/L' };
+  return { min: 0.2, max: 0.5, alvo: '0,2 a 0,5 mg/L' };
+}
+
+function getMixPlan(fcePct, productPct) {
+  const cfg = state.config;
+  const bomba = parseFloat(cfg.bombaMax || 1.5);
+  const waterLh = parseFloat(cfg.vazao || 1500);
+  const alvo = parseFloat(cfg.alvoDose || 1.0);
+  const pumpLh = getPumpFlowLH(fcePct, bomba);
+  const product = Math.max(0, Math.min(cfg.tambor || 100, calcMixLiters(alvo, waterLh, productPct, Math.max(pumpLh, 0.001))));
+  const water = Math.max(0, (cfg.tambor || 100) - product);
+  const consumoDia = pumpLh * 24;
+  const autonomia = consumoDia > 0 ? (Number(state.nivel || 0) / consumoDia) : 999;
+  return { bomba, waterLh, alvo, pumpLh, product, water, consumoDia, autonomia };
+}
+
+function analyzeReading(valor, point, fcePct, productPct) {
+  const faixa = getOperationalTargets(point);
+  const mix = getMixPlan(fcePct, productPct);
+  let cls='ok', badge='Sem leitura', resumo='Informe a leitura da fita para obter o diagnóstico automático.', acao='A sugestão prática aparecerá aqui.', fator=1.0, fceNovo=fcePct;
+  if(!Number.isFinite(valor)) {
+    return { faixa, mix, cls, badge, resumo, acao, fator, fceNovo, statusText:'Operação inicial' };
+  }
+  if(valor < faixa.min * 0.75) {
+    cls='danger'; badge='Muito baixa'; fator=1.30; fceNovo=Math.min(100, Math.round(fcePct * 1.15));
+    resumo='Residual insuficiente para este ponto da rede.';
+    acao='Suba a mistura do tambor em cerca de 30% ou eleve levemente o FCE e confirme nova leitura após estabilizar.';
+  } else if(valor < faixa.min) {
+    cls='warn'; badge='Baixa'; fator=1.15; fceNovo=Math.min(100, Math.round(fcePct * 1.08));
+    resumo='Está abaixo da faixa-alvo, mas perto do aceitável.';
+    acao='Aumente levemente a mistura do tambor e refaça a leitura no mesmo ponto.';
+  } else if(valor <= faixa.max) {
+    cls='ok'; badge='Ideal'; fator=1.00; fceNovo=fcePct;
+    resumo='Leitura boa para consumo e controle operacional.';
+    acao='Mantenha a mistura e a regulagem atual. Só ajuste se a vazão ou a fonte de água mudarem.';
+  } else if(valor <= Math.max(1.0, faixa.max * 1.8)) {
+    cls='warn'; badge='Alta'; fator=0.85; fceNovo=Math.max(0, Math.round(fcePct * 0.92));
+    resumo='Residual acima do necessário para este ponto.';
+    acao='Reduza um pouco a mistura do tambor ou baixe levemente o FCE para evitar cheiro, gosto e desperdício.';
+  } else {
+    cls='danger'; badge='Muito alta'; fator=0.70; fceNovo=Math.max(0, Math.round(fcePct * 0.85));
+    resumo='Dosagem forte demais para uso rotineiro.';
+    acao='Reduza a mistura com prioridade e confirme leitura novamente após o sistema estabilizar.';
+  }
+  const cloro = Math.max(0, Math.min(state.config.tambor || 100, mix.product * fator));
+  const agua = Math.max(0, (state.config.tambor || 100) - cloro);
+  return { faixa, mix, cls, badge, resumo, acao, fator, fceNovo, cloro, agua, statusText: badge + (Number.isFinite(valor) ? ` · ${fmtBR(valor,1)} mg/L` : '') };
+}
+
+function syncOperacaoFromUI() {
+  state.latestRead.valor = document.getElementById('ops-fita-valor')?.value ?? '';
+  state.latestRead.ponto = document.getElementById('ops-fita-ponto')?.value || 'ponta';
+  const opsFce = parseFloat(document.getElementById('ops-fce')?.value || state.config.fce || 0);
+  const opsConc = parseFloat(document.getElementById('ops-conc')?.value || state.config.hipoct || 12);
+  renderOperacao(opsFce, opsConc);
+  save();
+}
+
+function renderOperacao(forceFce=null, forceConc=null) {
+  const cfg = state.config;
+  const fitaValorRaw = document.getElementById('ops-fita-valor')?.value;
+  const fitaValor = parseFloat(fitaValorRaw);
+  const ponto = document.getElementById('ops-fita-ponto')?.value || state.latestRead.ponto || 'ponta';
+  const fce = Number.isFinite(forceFce) ? forceFce : parseFloat(document.getElementById('ops-fce')?.value || cfg.fce || 0);
+  const conc = Number.isFinite(forceConc) ? forceConc : parseFloat(document.getElementById('ops-conc')?.value || cfg.hipoct || 12);
+
+  const opsFceEl = document.getElementById('ops-fce');
+  const opsConcEl = document.getElementById('ops-conc');
+  const opsPontoEl = document.getElementById('ops-fita-ponto');
+  if(opsFceEl && document.activeElement !== opsFceEl) opsFceEl.value = fce;
+  if(opsConcEl && document.activeElement !== opsConcEl) opsConcEl.value = conc;
+  if(opsPontoEl && document.activeElement !== opsPontoEl) opsPontoEl.value = ponto;
+  const fitaInput = document.getElementById('ops-fita-valor');
+  if(fitaInput && document.activeElement !== fitaInput && state.latestRead.valor !== '' && !fitaInput.value) fitaInput.value = state.latestRead.valor;
+
+  const plan = getMixPlan(fce, conc);
+  const analysis = analyzeReading(fitaValor, ponto, fce, conc);
+  const today = new Date();
+  const next = new Date(today.getTime() + (Math.min(plan.autonomia, 999) * 24*60*60*1000));
+
+  document.getElementById('ops-nivel').textContent = fmtBR(state.nivel, 1) + ' L';
+  document.getElementById('ops-nivel-sub').textContent = fmtBR((state.nivel / cfg.tambor) * 100, 0) + '% do tambor disponível';
+  document.getElementById('ops-autonomia').textContent = plan.autonomia < 999 ? fmtBR(plan.autonomia,1) : '∞';
+  document.getElementById('ops-consumo').textContent = fmtBR(plan.consumoDia, 2);
+  const badge = document.getElementById('ops-badge');
+  badge.className = 'ops-badge ' + analysis.cls;
+  badge.textContent = analysis.badge;
+  document.getElementById('ops-meta').textContent = 'Meta neste ponto: ' + analysis.faixa.alvo;
+  document.getElementById('ops-resumo').textContent = analysis.resumo;
+  document.getElementById('ops-acao').textContent = analysis.acao;
+  const cloro = Number.isFinite(analysis.cloro) ? analysis.cloro : plan.product;
+  const agua = Number.isFinite(analysis.agua) ? analysis.agua : plan.water;
+  document.getElementById('ops-cloro-litros').textContent = fmtBR(cloro,1);
+  document.getElementById('ops-agua-litros').textContent = 'Complete com ' + fmtBR(agua,1) + ' L de água no tambor';
+  document.getElementById('ops-mistura-texto').textContent = fmtBR(cloro,1) + ' L cloro + ' + fmtBR(agua,1) + ' L água';
+  document.getElementById('ops-dose-alvo').textContent = fmtBR(cfg.alvoDose,1) + ' mg/L';
+  document.getElementById('ops-prox-abast').textContent = plan.autonomia < 999 ? next.toLocaleDateString('pt-BR') : 'Sem previsão';
+  document.getElementById('ops-fce-ajuste').textContent = Number.isFinite(fitaValor) ? (analysis.fceNovo + '% sugerido') : (fce + '% atual');
+  document.getElementById('ops-copy-extra').textContent = 'Com produto ' + String(conc).replace('.', ',') + '% e FCE em ' + fmtBR(fce,0) + '%, a mistura sugerida fica em ' + fmtBR(cloro,1) + ' L de hipoclorito no tambor de 100 L.';
+  state.latestRead.valor = document.getElementById('ops-fita-valor')?.value ?? state.latestRead.valor;
+  state.latestRead.ponto = ponto;
+  renderSidebarSummary();
+  renderTopbarAndCards(analysis, plan, cloro, agua, fce, conc);
+  validarCruzado();
+}
+
+function aplicarSugestaoOperacao() {
+  const val = parseFloat(document.getElementById('ops-fita-valor')?.value || '');
+  const ponto = document.getElementById('ops-fita-ponto')?.value || 'ponta';
+  const fce = parseFloat(document.getElementById('ops-fce')?.value || state.config.fce || 0);
+  const conc = parseFloat(document.getElementById('ops-conc')?.value || state.config.hipoct || 12);
+  const analysis = analyzeReading(val, ponto, fce, conc);
+  state.config.fce = analysis.fceNovo;
+  state.config.hipoct = conc;
+  save();
+  syncCalcFromConfig();
+  calcular();
+  renderOperacao();
+  addHistorico('config', 'Sugestão operacional aplicada', `FCE ajustado para ${analysis.fceNovo}% após leitura de ${Number.isFinite(val) ? fmtBR(val,1) : '--'} mg/L`);
+  toast('Sugestão aplicada ao cálculo e à regulagem base do app.','ok');
+}
+
+function registrarLeituraOperacao() {
+  const val = parseFloat(document.getElementById('ops-fita-valor')?.value || '');
+  const ponto = document.getElementById('ops-fita-ponto')?.value || 'ponta';
+  if(!Number.isFinite(val)) { toast('Informe a leitura da fita antes de registrar.','warn'); return; }
+  addHistorico('calc', `Leitura da fita: ${fmtBR(val,1)} mg/L`, `Ponto: ${ponto} · FCE ${state.config.fce}% · produto ${state.config.hipoct}%`);
+  toast('Leitura registrada no histórico! ✅','ok');
+}
+
+function renderTopbarAndCards(analysis, plan, cloro, agua, fce, conc) {
+  const topStatus = document.getElementById('top-status');
+  const topTambor = document.getElementById('top-tambor');
+  const topAut = document.getElementById('top-autonomia');
+  if(topStatus) topStatus.textContent = analysis.statusText || 'Operação inicial';
+  if(topTambor) topTambor.textContent = fmtBR(state.nivel,1) + ' L';
+  if(topAut) topAut.textContent = plan.autonomia < 999 ? fmtBR(plan.autonomia,1) + ' dias' : '∞';
+
+  const cardStatus = document.getElementById('card-status');
+  const cardStatusValue = document.getElementById('card-status-value');
+  const cardStatusSub = document.getElementById('card-status-sub');
+  const cardStatusPill = document.getElementById('card-status-pill');
+  if(cardStatus) cardStatus.className = 'metric-card ' + analysis.cls;
+  if(cardStatusValue) cardStatusValue.textContent = analysis.badge;
+  if(cardStatusSub) cardStatusSub.textContent = analysis.resumo;
+  if(cardStatusPill) { cardStatusPill.className = 'mini-pill ' + analysis.cls; cardStatusPill.textContent = analysis.statusText || 'Sem leitura'; }
+
+  document.getElementById('card-tambor-value').textContent = fmtBR(state.nivel,1) + ' L';
+  document.getElementById('card-tambor-sub').textContent = fmtBR((state.nivel / state.config.tambor) * 100,0) + '% do tambor · abastecer em ' + (plan.autonomia < 999 ? fmtBR(plan.autonomia,1) + ' dias' : 'sem previsão');
+  document.getElementById('card-dosador-value').textContent = fmtBR(fce,0) + '%';
+  document.getElementById('card-dosador-sub').textContent = fmtBR(plan.consumoDia,2) + ' L/dia na bomba ' + fmtBR(state.config.bombaMax,1) + ' L/h';
+  document.getElementById('card-mistura-value').textContent = fmtBR(cloro,1) + ' L';
+  document.getElementById('card-mistura-sub').textContent = 'Produto ' + String(conc).replace('.', ',') + '% + ' + fmtBR(agua,1) + ' L de água';
+}
+
+function renderDashboard() {
+  const cfg = state.config;
+  const n = state.nivel;
+  const pct = Math.round((n / cfg.tambor) * 100);
+
+  // Drum SVG
+  const waterH = (pct / 100) * 80;
+  const w = document.getElementById('drum-water');
+  if(w) { w.setAttribute('y', 10 + (80 - waterH)); w.setAttribute('height', waterH); }
+  const dvd = document.getElementById('drum-vol-display');
+  if(dvd) dvd.textContent = n.toFixed(1);
+  const dpl = document.getElementById('drum-pct-label');
+  if(dpl) dpl.textContent = pct + '%';
+  const fill = document.getElementById('drum-prog');
+  if(fill) { fill.style.width = pct + '%'; fill.style.background = pct <= 10 ? '#ef4444' : pct <= 20 ? '#f59e0b' : '#1e8fff'; }
+
+  // Pills
+  const pills = document.getElementById('drum-pills');
+  if(pills) {
+    let pClass = 'pill-ok', pTxt = 'Nível OK';
+    if(pct <= cfg.alertaCrit) { pClass = 'pill-danger'; pTxt = 'CRÍTICO'; }
+    else if(pct <= cfg.alertaBaixo) { pClass = 'pill-warn'; pTxt = 'Baixo'; }
+    pills.innerHTML = `<span class="pill ${pClass}">${pTxt} — ${pct}%</span>`;
+  }
+
+  const consumeH = getPumpFlowLH(cfg.fce, cfg.bombaMax || 1.5);
+  const consumeD = consumeH * 24;
+  const days = consumeD > 0 ? (n / consumeD) : 999;
+
+  const dc = document.getElementById('dash-consume'); if(dc) dc.textContent = consumeD.toFixed(1) + ' L';
+  const dd = document.getElementById('dash-days');
+  if(dd) { dd.textContent = days < 999 ? days.toFixed(1) + ' dias' : '∞'; dd.className = 'value ' + (days < 3 ? 'danger' : days < 7 ? 'warn' : ''); }
+  const df = document.getElementById('dash-fce'); if(df) df.textContent = cfg.fce + '%';
+  const dn = document.getElementById('dash-conc'); if(dn) dn.textContent = cfg.hipoct + '%';
+  const mr = document.getElementById('dash-reserv-main'); if(mr) mr.textContent = fmtBR(cfg.reserv, 0) + ' L';
+  const sr = document.getElementById('dash-reserv-sec'); if(sr) sr.textContent = fmtBR(cfg.reservSec || 9000, 0) + ' L';
+
+  // Alerts
+  const az = document.getElementById('alert-zone');
+  if(az) {
+    az.innerHTML = '';
+    if(pct <= cfg.alertaCrit) az.innerHTML += `<div class="alert alert-danger">🚨 Tambor CRÍTICO (${pct}%) — Abasteça imediatamente! Autonomia: ${days.toFixed(1)} dia(s).</div>`;
+    else if(pct <= cfg.alertaBaixo) az.innerHTML += `<div class="alert alert-warn">⚠️ Nível baixo (${pct}%) — Autonomia: ${days.toFixed(1)} dias.</div>`;
+    if(cfg.fce === 0) az.innerHTML += `<div class="alert alert-warn">⚠️ Dosador FCE em 0% — nenhum cloro sendo injetado.</div>`;
+  }
+
+  // Date chip
+  const dc2 = document.getElementById('hdr-date-chip');
+  if(dc2) dc2.textContent = new Date().toLocaleDateString('pt-BR');
+  const hd = document.getElementById('hdr-date');
+  if(hd) hd.textContent = new Date().toLocaleDateString('pt-BR');
+
+  const latestVal = parseFloat(state.latestRead?.valor || '');
+  const latestPoint = state.latestRead?.ponto || 'ponta';
+  const analysis = analyzeReading(latestVal, latestPoint, cfg.fce, cfg.hipoct);
+  renderTopbarAndCards(analysis, {autonomia: days, consumoDia: consumeD},
+    Number.isFinite(analysis.cloro)?analysis.cloro:getMixPlan(cfg.fce,cfg.hipoct).product,
+    Number.isFinite(analysis.agua)?analysis.agua:getMixPlan(cfg.fce,cfg.hipoct).water,
+    cfg.fce, cfg.hipoct);
+
+  renderSidebarSummary();
+  renderResumoDia();
+
+  // Charts — defer slightly so canvas is visible
+  setTimeout(() => {
+    renderChartLeituras();
+    renderChartCusto();
+    renderChartSemanal();
+  }, 80);
+}
+
+// ─── Calcular dosagem ──────────────────────────────────────────────
+function syncCalcFromConfig() {
+  const cfg = state.config;
+  const sl = document.getElementById('calc-fce');
+  sl.value = cfg.fce;
+  document.getElementById('calc-fce-val').textContent = cfg.fce + '%';
+  document.getElementById('calc-vazao').value = cfg.vazao;
+  document.getElementById('calc-conc').value = cfg.hipoct;
+  const mixBomba = document.getElementById('mix-bomba');
+  const mixAlvo = document.getElementById('mix-alvo');
+  if(mixBomba) mixBomba.value = cfg.bombaMax || 1.5;
+  if(mixAlvo) mixAlvo.value = cfg.alvoDose || 1.0;
+}
+
+function calcular() {
+  const fce = parseFloat(document.getElementById('calc-fce').value) || 0;
+  const conc = parseFloat(document.getElementById('calc-conc').value) || 10;
+  const vazao = parseFloat(document.getElementById('calc-vazao').value) || 500;
+  const meta = parseFloat(document.getElementById('calc-meta').value) || 0.5;
+
+  document.getElementById('calc-fce-val').textContent = fce + '%';
+
+  // Dosador peristáltico FCE: ~500 mL/h em 100%
+  const maxFlowLH = parseFloat(document.getElementById('mix-bomba')?.value || state.config.bombaMax || 1.5);
+  const flowLH = getPumpFlowLH(fce, maxFlowLH);
+  const flowMLH = flowLH * 1000;
+
+  // Cloro ativo injetado (g/h = L/h * conc%)
+  const cAtivo_gH = flowLH * (conc / 100) * 1000; // g/h → mg/h com *1000
+  // Concentração na água (mg/L)
+  const cAtivo_mgL = vazao > 0 ? (cAtivo_gH * 1000) / vazao : 0;
+
+  document.getElementById('dose-injecao').textContent = Math.round(flowMLH);
+  document.getElementById('dose-details').style.display = 'block';
+  document.getElementById('res-cativo').textContent = cAtivo_mgL.toFixed(3) + ' mg/L';
+
+  const consumeH = flowLH;
+  const consumeD = consumeH * 24;
+  document.getElementById('res-consumo-h').textContent = consumeH.toFixed(3) + ' L/h';
+  document.getElementById('res-consumo-d').textContent = consumeD.toFixed(2) + ' L/dia';
+
+  const days = consumeD > 0 ? (state.nivel / consumeD) : 999;
+  document.getElementById('res-autonomia').textContent = days < 999 ? days.toFixed(1) + ' dias' : '∞';
+
+  const cfg = state.config;
+  const consumoPessoa = vazao > 0 ? (cAtivo_mgL * (vazao * 24) / cfg.pessoas) : 0;
+  document.getElementById('res-pessoa').textContent = consumoPessoa.toFixed(0) + ' mg';
+
+  const note = `Com ${conc}% de concentração, vazão de ${vazao} L/h e bomba ${fmtBR(maxFlowLH,1)} L/h @100%`;
+  document.getElementById('dose-note').textContent = note;
+
+  // Alertas na calculadora
+  const da = document.getElementById('dose-alerta');
+  da.style.display = 'block';
+  da.innerHTML = '';
+  if(cAtivo_mgL < 0.2) {
+    da.innerHTML = '<div class="alert alert-danger">🚨 Abaixo do mínimo ANVISA (0,2 mg/L). Aumente o percentual do FCE.</div>';
+  } else if(cAtivo_mgL < meta) {
+    da.innerHTML = `<div class="alert alert-warn">⚠️ Abaixo da meta de ${meta} mg/L. Considere aumentar para atingir o objetivo.</div>`;
+  } else if(cAtivo_mgL > 5) {
+    da.innerHTML = '<div class="alert alert-danger">🚨 Supercloramento! Acima de 5 mg/L é prejudicial à saúde. Reduza o FCE.</div>';
+  } else {
+    da.innerHTML = `<div class="alert alert-info">✅ Dosagem adequada (${cAtivo_mgL.toFixed(2)} mg/L). Confirme com medição real.</div>`;
+  }
+  calcularMisturaCenarios();
+  avaliarFita();
+}
+
+function calcularMisturaCenarios() {
+  const fce = parseFloat(document.getElementById('calc-fce')?.value || state.config.fce || 0);
+  const vazao = parseFloat(document.getElementById('calc-vazao')?.value || state.config.vazao || 0);
+  const bomba = parseFloat(document.getElementById('mix-bomba')?.value || state.config.bombaMax || 1.5);
+  const alvo = parseFloat(document.getElementById('mix-alvo')?.value || state.config.alvoDose || 1.0);
+  const tambor = parseFloat(state.config.tambor || 100);
+  const injReal = getPumpFlowLH(fce, bomba);
+  const autonomia = injReal > 0 ? (tambor / (injReal * 24)) : 999;
+
+  const injEl = document.getElementById('mix-injecao-real');
+  const autEl = document.getElementById('mix-autonomia');
+  if(injEl) injEl.textContent = fmtBR(injReal, 2) + ' L/h';
+  if(autEl) autEl.textContent = autonomia < 999 ? fmtBR(autonomia, 1) + ' dias' : '∞';
+
+  const cenarios = [2.5, 5, 10, 12, 15, 20];
+  const tbody = document.getElementById('mix-table-body');
+  if(!tbody) return;
+  tbody.innerHTML = cenarios.map(pct => {
+    const litrosProduto = calcMixLiters(alvo, vazao, pct, injReal);
+    const litrosAjustados = Math.max(0, Math.min(tambor, litrosProduto));
+    const litrosAgua = Math.max(0, tambor - litrosAjustados);
+    let leitura = 'ajustar pela fita';
+    if(alvo <= 0.5) leitura = 'tende 0,2–0,4 mg/L';
+    else if(alvo <= 1.0) leitura = 'tende 0,2–0,5 mg/L';
+    else leitura = 'pode subir > 0,5 mg/L';
+    const aviso = litrosProduto > tambor ? ' ⚠️ forte demais p/ 100 L' : '';
+    return `<tr>
+      <td><strong>${String(pct).replace('.', ',')}%</strong></td>
+      <td>${fmtBR(litrosAjustados, 1)} L${aviso}</td>
+      <td>${fmtBR(litrosAgua, 1)} L</td>
+      <td>${leitura}</td>
+    </tr>`;
+  }).join('');
+}
+
+function getFitaBand(ponto) {
+  if(ponto === 'principal') return { min: 0.3, max: 0.8, alvo: '0,3 a 0,8 mg/L' };
+  if(ponto === 'secundario') return { min: 0.2, max: 0.6, alvo: '0,2 a 0,6 mg/L' };
+  return { min: 0.2, max: 0.5, alvo: '0,2 a 0,5 mg/L' };
+}
+
+function avaliarFita() {
+  const valor = parseFloat(document.getElementById('fita-valor')?.value || 0);
+  const ponto = document.getElementById('fita-ponto')?.value || 'ponta';
+  const faixa = getFitaBand(ponto);
+  const produto = parseFloat(document.getElementById('calc-conc')?.value || state.config.hipoct || 12);
+  const bomba = parseFloat(document.getElementById('mix-bomba')?.value || state.config.bombaMax || 1.5);
+  const fce = parseFloat(document.getElementById('calc-fce')?.value || state.config.fce || 0);
+  const vazao = parseFloat(document.getElementById('calc-vazao')?.value || state.config.vazao || 0);
+  const tambor = parseFloat(state.config.tambor || 100);
+  const alvo = parseFloat(document.getElementById('mix-alvo')?.value || state.config.alvoDose || 1.0);
+  const injReal = getPumpFlowLH(fce, bomba);
+  const misturaAtual = Math.max(0, Math.min(tambor, calcMixLiters(alvo, vazao, produto, injReal)));
+
+  let classe = 'ok';
+  let rotulo = 'IDEAL';
+  let faixaTxt = 'Dentro da faixa';
+  let fator = 1;
+  let ajuste = 'Manter';
+  let ajusteSub = 'Sem mudança na mistura agora';
+  let resumo = 'Leitura adequada para o ponto medido.';
+  let acao = 'Mantenha a mistura atual e repita a medição na mesma torneira para comparação consistente.';
+
+  if(valor < faixa.min * 0.6) {
+    classe = 'danger';
+    rotulo = 'MUITO BAIXA';
+    faixaTxt = 'Muito abaixo da meta';
+    fator = 1.30;
+    ajuste = '+30% na mistura';
+    resumo = 'A água está chegando com residual fraco para esse ponto.';
+    acao = 'Reforce a mistura do tambor em cerca de 30% ou suba um pouco o FCE, depois reavalie após o sistema girar.';
+  } else if(valor < faixa.min) {
+    classe = 'warn';
+    rotulo = 'BAIXA';
+    faixaTxt = 'Abaixo da faixa';
+    fator = 1.15;
+    ajuste = '+15% na mistura';
+    resumo = 'Há cloro, mas ainda abaixo do ideal para segurança operacional.';
+    acao = 'Aumente levemente a mistura do tambor ou a regulagem do dosador e meça novamente no mesmo ponto.';
+  } else if(valor <= faixa.max) {
+    classe = 'ok';
+    rotulo = 'IDEAL';
+    faixaTxt = 'Faixa correta';
+    fator = 1.00;
+    ajuste = 'Manter';
+    resumo = 'Leitura boa para consumo e controle de campo.';
+    acao = 'Mantenha a mistura atual. Só ajuste se houver mudança forte de vazão, chuva, limpeza de reservatório ou alteração na água da rua.';
+  } else if(valor <= Math.max(1.0, faixa.max * 1.8)) {
+    classe = 'warn';
+    rotulo = 'ALTA';
+    faixaTxt = 'Acima da faixa';
+    fator = 0.85;
+    ajuste = '-15% na mistura';
+    resumo = 'O residual está acima do necessário para esse ponto.';
+    acao = 'Reduza levemente a mistura do tambor ou a regulagem do FCE para evitar cheiro, gosto e desperdício.';
+  } else {
+    classe = 'danger';
+    rotulo = 'MUITO ALTA';
+    faixaTxt = 'Bem acima da faixa';
+    fator = 0.70;
+    ajuste = '-30% na mistura';
+    resumo = 'A dosagem está forte demais para uso rotineiro.';
+    acao = 'Baixe a mistura do tambor com prioridade e confirme nova leitura após estabilização do sistema.';
+  }
+
+  const misturaSugerida = Math.max(0, Math.min(tambor, misturaAtual * fator));
+  const aguaSugerida = Math.max(0, tambor - misturaSugerida);
+
+  const badge = document.getElementById('fita-badge');
+  if(badge) { badge.className = 'fita-badge ' + classe; badge.textContent = rotulo; }
+  const faixaEl = document.getElementById('fita-faixa');
+  if(faixaEl) faixaEl.textContent = faixaTxt;
+  const metaEl = document.getElementById('fita-meta');
+  if(metaEl) metaEl.textContent = 'Meta neste ponto: ' + faixa.alvo;
+  const ajusteEl = document.getElementById('fita-ajuste');
+  if(ajusteEl) ajusteEl.textContent = ajuste;
+  const ajusteSubEl = document.getElementById('fita-ajuste-sub');
+  if(ajusteSubEl) ajusteSubEl.textContent = 'Produto ' + String(produto).replace('.', ',') + '% → ' + fmtBR(misturaSugerida, 1) + ' L de cloro + ' + fmtBR(aguaSugerida, 1) + ' L de água no tambor';
+  const resumoEl = document.getElementById('fita-resumo');
+  if(resumoEl) resumoEl.textContent = resumo;
+  const acaoEl = document.getElementById('fita-acao');
+  if(acaoEl) acaoEl.textContent = acao;
+}
+
+function salvarConfig() {
+  state.config.fce = parseFloat(document.getElementById('calc-fce').value) || 0;
+  state.config.hipoct = parseFloat(document.getElementById('calc-conc').value) || 10;
+  state.config.vazao = parseFloat(document.getElementById('calc-vazao').value) || 1500;
+  state.config.bombaMax = parseFloat(document.getElementById('mix-bomba')?.value || state.config.bombaMax || 1.5);
+  state.config.alvoDose = parseFloat(document.getElementById('mix-alvo')?.value || state.config.alvoDose || 1.0);
+  save();
+  addHistorico('config', `FCE ${state.config.fce}% salvo`, `Conc. ${state.config.hipoct}% · Vazão ${state.config.vazao} L/h`);
+  toast('Configuração salva!','ok');
+}
+
+// ─── Abastecer ─────────────────────────────────────────────────────
+function previewAbast() {
+  const atual = parseFloat(document.getElementById('ab-atual').value) || 0;
+  const add = parseFloat(document.getElementById('ab-add').value) || 0;
+  const total = Math.min(atual + add, state.config.tambor);
+  const pct = Math.round((total / state.config.tambor) * 100);
+  document.getElementById('ab-preview').style.display = 'block';
+  document.getElementById('ab-prev-total').textContent = total.toFixed(1) + ' L';
+  document.getElementById('ab-prev-pct').textContent = pct + '%';
+}
+
+function registrarAbast() {
+  const atual = parseFloat(document.getElementById('ab-atual').value);
+  const add = parseFloat(document.getElementById('ab-add').value);
+  if(isNaN(atual) || isNaN(add) || add <= 0) { toast('Preencha o nível atual e o volume adicionado.','warn'); return; }
+  const total = Math.min(atual + add, state.config.tambor);
+  const conc = document.getElementById('ab-conc').value;
+  const marca = document.getElementById('ab-marca').value;
+  const obs = document.getElementById('ab-obs').value;
+  const preco = parseFloat(document.getElementById('ab-preco').value) || 0;
+  const volComprado = parseFloat(document.getElementById('ab-vol-comprado').value) || 0;
+
+  state.nivel = total;
+  state.config.hipoct = parseFloat(conc);
+  if(preco > 0 && volComprado > 0) {
+    state.config.precoProduto = preco;
+    state.config.volGalao = volComprado;
+    state.custoTotal = (state.custoTotal || 0) + preco;
+  }
+  addHistorico('abast', `Abastecimento +${add}L`, `Nível: ${total.toFixed(1)}L · ${conc}% · ${marca || 'sem marca'} ${obs ? '· '+obs : ''} ${preco > 0 ? '· R$'+preco.toFixed(2) : ''}`);
+  save();
+
+  document.getElementById('ab-atual').value = '';
+  document.getElementById('ab-add').value = '';
+  document.getElementById('ab-marca').value = '';
+  document.getElementById('ab-obs').value = '';
+  document.getElementById('ab-preco').value = '';
+  document.getElementById('ab-vol-comprado').value = '';
+  document.getElementById('ab-preview').style.display = 'none';
+  toast(`✅ Abastecimento registrado! Nível: ${total.toFixed(1)} L`,'ok');
+}
+
+function atualizarNivel() {
+  const v = parseFloat(document.getElementById('nivel-manual').value);
+  if(isNaN(v) || v < 0 || v > state.config.tambor) { toast('Valor inválido.','warn'); return; }
+  state.nivel = v;
+  addHistorico('nivel', `Nível atualizado: ${v.toFixed(1)}L`, `Atualização manual`);
+  save();
+  document.getElementById('nivel-manual').value = '';
+  toast(`Nível atualizado para ${v.toFixed(1)} L`,'ok');
+}
+
+// ─── Histórico ─────────────────────────────────────────────────────
+function addHistorico(tipo, titulo, sub) {
+  const icons = { abast: '🛢️', nivel: '📏', config: '⚙️', calc: '🧮' };
+  state.hist.unshift({
+    tipo, titulo, sub, ts: new Date().toISOString()
+  });
+  if(state.hist.length > 100) state.hist = state.hist.slice(0, 100);
+  save();
+}
+
+function renderHistorico() {
+  const el = document.getElementById('hist-list');
+  if(state.hist.length === 0) {
+    el.innerHTML = '<div class="empty"><div class="e-icon">📋</div><p>Nenhum registro ainda.<br>Faça seu primeiro abastecimento!</p></div>';
+    return;
+  }
+  const icons = { abast: '🛢️', nivel: '📏', config: '⚙️', calc: '🧮' };
+  el.innerHTML = state.hist.map(h => {
+    const d = new Date(h.ts);
+    const fmt = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+    return `<div class="hist-item">
+      <span class="hist-icon">${icons[h.tipo] || '📌'}</span>
+      <div class="hist-info">
+        <div class="hist-title">${h.titulo}</div>
+        <div class="hist-sub">${h.sub}</div>
+      </div>
+      <div class="hist-val">${fmt}</div>
+    </div>`;
+  }).join('');
+}
+
+function limparHistorico() {
+  if(confirm('Limpar todo o histórico?')) { state.hist = []; save(); renderHistorico(); }
+}
+
+// ─── Config ────────────────────────────────────────────────────────
+function loadConfig() {
+  const c = state.config;
+  document.getElementById('cfg-reserv').value = c.reserv;
+  document.getElementById('cfg-reserv-sec').value = c.reservSec || 9000;
+  document.getElementById('cfg-caixas').value = c.caixas;
+  document.getElementById('cfg-vol-caixa').value = c.volCaixa;
+  document.getElementById('cfg-unidades').value = c.unidades;
+  document.getElementById('cfg-pessoas').value = c.pessoas;
+  document.getElementById('cfg-vazao').value = c.vazao;
+  document.getElementById('cfg-torres').value = c.torres || 4;
+  document.getElementById('cfg-fce').value = c.fce;
+  document.getElementById('cfg-hipoct').value = c.hipoct;
+  document.getElementById('cfg-tambor').value = c.tambor;
+  document.getElementById('cfg-bomba-max').value = c.bombaMax || 1.5;
+  document.getElementById('cfg-alvo-dose').value = c.alvoDose || 1.0;
+  document.getElementById('cfg-alerta-baixo').value = c.alertaBaixo;
+  document.getElementById('cfg-alerta-crit').value = c.alertaCrit;
+  const mb = document.getElementById('cfg-modelo-bomba'); if(mb) mb.value = c.modeloBomba || '';
+  const ft = document.getElementById('cfg-filtro-troca'); if(ft) ft.value = c.filtroTroca || '';
+  const fi = document.getElementById('cfg-filtro-intervalo'); if(fi) fi.value = c.filtroIntervalo || 60;
+  const pp = document.getElementById('cfg-preco-produto'); if(pp) pp.value = c.precoProduto || '';
+  const vg = document.getElementById('cfg-vol-galao'); if(vg) vg.value = c.volGalao || '';
+  const total = ((c.caixas * c.volCaixa) + c.reserv + (c.reservSec || 0)) / 1000;
+  document.getElementById('cfg-info').textContent = `${c.unidades} apt · ${c.pessoas} pessoas · ${fmtBR(total,0)}k L`;
+  renderFiltroStatus();
+  renderCustoInfo();
+}
+
+function saveConfig() {
+  const c = state.config;
+  c.reserv = parseFloat(document.getElementById('cfg-reserv').value) || 30000;
+  c.reservSec = parseFloat(document.getElementById('cfg-reserv-sec').value) || 9000;
+  c.caixas = parseInt(document.getElementById('cfg-caixas').value) || 8;
+  c.volCaixa = parseFloat(document.getElementById('cfg-vol-caixa').value) || 2000;
+  c.unidades = parseInt(document.getElementById('cfg-unidades').value) || 80;
+  c.pessoas = parseInt(document.getElementById('cfg-pessoas').value) || 240;
+  c.vazao = parseFloat(document.getElementById('cfg-vazao').value) || 1500;
+  c.torres = parseInt(document.getElementById('cfg-torres').value) || 4;
+  c.fce = parseFloat(document.getElementById('cfg-fce').value) || 18;
+  c.hipoct = parseFloat(document.getElementById('cfg-hipoct').value) || 12;
+  c.tambor = parseFloat(document.getElementById('cfg-tambor').value) || 100;
+  c.bombaMax = parseFloat(document.getElementById('cfg-bomba-max').value) || 1.5;
+  c.alvoDose = parseFloat(document.getElementById('cfg-alvo-dose').value) || 1.0;
+  c.alertaBaixo = parseInt(document.getElementById('cfg-alerta-baixo').value) || 20;
+  c.alertaCrit = parseInt(document.getElementById('cfg-alerta-crit').value) || 10;
+  const mb = document.getElementById('cfg-modelo-bomba'); if(mb) c.modeloBomba = mb.value;
+  const ft = document.getElementById('cfg-filtro-troca'); if(ft) c.filtroTroca = ft.value;
+  const fi = document.getElementById('cfg-filtro-intervalo'); if(fi) c.filtroIntervalo = parseInt(fi.value) || 60;
+  const pp = document.getElementById('cfg-preco-produto'); if(pp && pp.value) c.precoProduto = parseFloat(pp.value);
+  const vg = document.getElementById('cfg-vol-galao'); if(vg && vg.value) c.volGalao = parseFloat(vg.value);
+  save();
+  renderOperacao();
+  renderFiltroStatus();
+  renderCustoInfo();
+}
+
+function resetApp() {
+  if(confirm('Isso apagará TODOS os dados. Confirma?')) {
+    localStorage.removeItem(KEY);
+    location.reload();
+  }
+}
+
+
+// ─── Sidebar & Navigation ──────────────────────────────────────────
+function toggleSidebar() {
+  const isMobile = window.innerWidth <= 780;
+  if(isMobile) {
+    openSidebar();
+  } else {
+    const sb = document.getElementById('sidebar');
+    const shell = document.querySelector('.shell');
+    const btn = document.getElementById('sidebar-collapse-btn');
+    const fab = document.getElementById('collapse-fab');
+    const collapsed = sb.classList.toggle('collapsed');
+    shell.classList.toggle('collapsed', collapsed);
+    if(btn) btn.textContent = collapsed ? '›' : '‹';
+    if(fab) fab.textContent = collapsed ? '›' : '‹';
+    state.sidebarCollapsed = collapsed;
+    save();
+  }
+}
+
+function openSidebar() {
+  const sb = document.getElementById('sidebar');
+  const overlay = document.getElementById('drawer-overlay');
+  sb.classList.add('open');
+  if(overlay) overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSidebar() {
+  const sb = document.getElementById('sidebar');
+  const overlay = document.getElementById('drawer-overlay');
+  sb.classList.remove('open');
+  if(overlay) overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function toggleMoreMenu(e) {
+  e.stopPropagation();
+  const dd = document.getElementById('mnav-more-dropdown');
+  dd.classList.toggle('open');
+}
+
+function closeMoreMenu() {
+  const dd = document.getElementById('mnav-more-dropdown');
+  if(dd) dd.classList.remove('open');
+}
+
+// Close more menu on outside click
+document.addEventListener('click', function(e) {
+  const wrap = e.target.closest('.mnav-more-wrap');
+  if(!wrap) closeMoreMenu();
+});
+
+function setActiveNav(id) {
+  // Sidebar
+  document.querySelectorAll('.side-nav-btn[data-view]').forEach(el => {
+    el.classList.toggle('active', el.getAttribute('data-view') === id);
+  });
+  // Mobile main tabs
+  document.querySelectorAll('.mnav-btn[data-view]').forEach(el => {
+    el.classList.toggle('active', el.getAttribute('data-view') === id);
+  });
+  // Mobile dropdown buttons
+  document.querySelectorAll('.mnav-dd-btn[data-view]').forEach(el => {
+    el.classList.toggle('active', el.getAttribute('data-view') === id);
+  });
+  // Update "Mais" button highlight when a dropdown item is active
+  const moreBtn = document.getElementById('mnav-more-btn');
+  const moreViews = ['calcular','historico','config','personalizar','faq'];
+  if(moreBtn) moreBtn.classList.toggle('active', moreViews.includes(id));
+  // Legacy nav
+  document.querySelectorAll('[data-view]').forEach(el => {
+    if(!el.classList.contains('side-nav-btn') && !el.classList.contains('mnav-btn') && !el.classList.contains('mnav-dd-btn')) {
+      el.classList.toggle('active', el.getAttribute('data-view') === id);
+    }
+  });
+}
+
+function renderSidebarSummary() {
+  const cfg = state.config;
+  const level = Number(state.nivel || 0);
+  const pct = cfg.tambor > 0 ? Math.round((level / cfg.tambor) * 100) : 0;
+  const bomba = parseFloat(cfg.bombaMax || 1.5);
+  const fce = parseFloat(cfg.fce || 0);
+  const dose = parseFloat(cfg.alvoDose || 1.0);
+  const conc = parseFloat(cfg.hipoct || 12);
+  const vazaoAgua = parseFloat(cfg.vazao || 1500);
+  const vazaoDosador = bomba * (fce / 100);
+  const autonomiaDias = vazaoDosador > 0 ? (cfg.tambor / (vazaoDosador * 24)) : 999;
+  const produto = (dose * vazaoAgua) / (100 * conc * Math.max(vazaoDosador, 0.001));
+  const produtoSeguro = Math.max(0, Math.min(cfg.tambor, produto));
+  const agua = Math.max(0, cfg.tambor - produtoSeguro);
+
+  const sideLevel = document.getElementById('side-level');
+  const sideLevelSub = document.getElementById('side-level-sub');
+  const sideDays = document.getElementById('side-days');
+  const sideDose = document.getElementById('side-dose');
+  const sideDoseSub = document.getElementById('side-dose-sub');
+  const sideScenario = document.getElementById('side-scenario');
+  if(sideLevel) sideLevel.textContent = level.toFixed(1) + ' L';
+  if(sideLevelSub) sideLevelSub.textContent = pct + '% do tambor disponível';
+  if(sideDays) sideDays.textContent = autonomiaDias < 999 ? autonomiaDias.toFixed(1) : '∞';
+  if(sideDose) sideDose.textContent = produtoSeguro.toFixed(1) + ' L';
+  if(sideDoseSub) sideDoseSub.textContent = 'Produto ' + conc + '% + ' + agua.toFixed(1) + ' L de água';
+  if(sideScenario) sideScenario.textContent = `Poço 100 m → filtro → dosador FCE ${fce}% → reservatório principal ${cfg.reserv.toLocaleString('pt-BR')} L → secundário ${cfg.reservSec.toLocaleString('pt-BR')} L → ${cfg.unidades} apt / ~${cfg.pessoas} pessoas.`;
+
+  const leitura = parseFloat(document.getElementById('ops-fita-valor')?.value || state.latestRead?.valor || document.getElementById('fita-valor')?.value || '');
+  const pill = document.getElementById('side-fita-pill');
+  const sub = document.getElementById('side-fita-sub');
+  if(!pill || !sub) return;
+  if(Number.isNaN(leitura)) {
+    pill.className = 'mini-pill ok';
+    pill.textContent = 'Sem leitura';
+    sub.textContent = 'Informe a leitura para diagnóstico automático.';
+    return;
+  }
+  let cls='ok', txt='Ideal', desc='Faixa operacional equilibrada.';
+  if(leitura < 0.2) { cls='danger'; txt='Muito baixa'; desc='Residual insuficiente, subir dose ou FCE.'; }
+  else if(leitura < 0.5) { cls='warn'; txt='Baixa'; desc='Aceitável em alguns pontos, mas ainda pede ajuste fino.'; }
+  else if(leitura <= 1.0) { cls='ok'; txt='Ideal'; desc='Boa margem operacional sem excesso aparente.'; }
+  else { cls='warn'; txt='Alta'; desc='Acima da meta usual, observar sabor e reduzir se necessário.'; }
+  pill.className = 'mini-pill ' + cls;
+  pill.textContent = txt + ' · ' + leitura.toFixed(2) + ' mg/L';
+  sub.textContent = desc;
+}
+
+// ─── Toast ─────────────────────────────────────────────────────────
+function toast(msg, tipo='info', dur=3200) {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = 'toast ' + tipo;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transform='translateY(8px)'; t.style.transition='all .3s'; setTimeout(()=>t.remove(), 320); }, dur);
+}
+
+// ─── IA Foto da fita ───────────────────────────────────────────────
+function abrirCameraFita() {
+  document.getElementById('fita-camera-input').click();
+}
+
+document.getElementById('fita-camera-input').addEventListener('change', async function() {
+  const file = this.files[0];
+  if(!file) return;
+  const loading = document.getElementById('ai-loading');
+  const resultBox = document.getElementById('ai-result-box');
+  loading.classList.add('visible');
+  resultBox.classList.remove('visible');
+  try {
+    const base64 = await fileToBase64(file);
+    const result = await interpretarFitaComIA(base64, file.type || 'image/jpeg');
+    loading.classList.remove('visible');
+    if(result && result.valor !== null) {
+      document.getElementById('ai-result-val').textContent = fmtBR(result.valor, 1) + ' mg/L';
+      document.getElementById('ai-result-desc').textContent = result.descricao + (result.confianca ? ' · Confiança: ' + result.confianca : '');
+      resultBox.classList.add('visible');
+      document.getElementById('ops-fita-valor').value = result.valor;
+      syncOperacaoFromUI();
+      toast('📷 Fita interpretada pela IA! Confira o valor e registre.', 'ok', 4000);
+    } else {
+      toast('Não consegui identificar a cor da fita. Tente iluminar melhor e refotografar.', 'warn', 4500);
+    }
+  } catch(err) {
+    loading.classList.remove('visible');
+    console.error('Erro IA fita:', err);
+    toast('Erro ao analisar a foto. Verifique a conexão e tente novamente.', 'err');
+  }
+  this.value = '';
+});
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result.split(',')[1]);
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+
+async function interpretarFitaComIA(base64, mediaType) {
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 300,
+      system: 'Você é um especialista em análise de fitas de teste de cloro para água. Sua tarefa é interpretar a cor de uma fita de teste e estimar a concentração de cloro residual livre em mg/L. Responda SOMENTE com um objeto JSON válido, sem texto antes ou depois, sem markdown. Formato: {"valor": 0.5, "confianca": "alta", "descricao": "Cor levemente amarelada, indica baixa concentração"}. Se não conseguir identificar, retorne {"valor": null, "confianca": "nenhuma", "descricao": "Não foi possível identificar"}.',
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+          { type: 'text', text: 'Analise a cor desta fita de teste de cloro. A fita geralmente tem uma escala de cores do branco/amarelo claro (baixo cloro ~0,2 mg/L) ao roxo/violeta escuro (cloro alto ~5 mg/L). Identifique a cor do bloco indicador de cloro livre e estime o valor em mg/L.' }
+        ]
+      }]
+    })
+  });
+  const data = await response.json();
+  const text = data.content?.find(b => b.type === 'text')?.text || '';
+  const clean = text.replace(/```json|```/g, '').trim();
+  return JSON.parse(clean);
+}
+
+// ─── Agendar próxima verificação ───────────────────────────────────
+function agendarProximaVerificacao() {
+  const diasOpcoes = ['1 dia', '2 dias', '3 dias', '7 dias'];
+  const escolha = prompt('Daqui a quantos dias verificar novamente?\n1 = 1 dia\n2 = 2 dias\n3 = 3 dias\n7 = 7 dias\n\nDigite o número:');
+  const dias = parseInt(escolha);
+  if(isNaN(dias) || dias < 1) { toast('Número inválido.','warn'); return; }
+  const data = new Date();
+  data.setDate(data.getDate() + dias);
+  state.proximaVerif = data.toISOString();
+  save();
+  renderProximaVerif();
+  addHistorico('config', `Próxima verificação agendada`, `Em ${dias} dia(s) — ${data.toLocaleDateString('pt-BR')}`);
+  toast(`📅 Verificação agendada para ${data.toLocaleDateString('pt-BR')}`, 'ok');
+}
+
+function renderProximaVerif() {
+  const el = document.getElementById('ops-proxima-verif');
+  if(!el) return;
+  if(!state.proximaVerif) { el.textContent = '—'; el.style.color = 'var(--text3)'; return; }
+  const d = new Date(state.proximaVerif);
+  const hoje = new Date();
+  const diff = Math.ceil((d - hoje) / (1000*60*60*24));
+  el.textContent = d.toLocaleDateString('pt-BR');
+  if(diff < 0) { el.style.color = 'var(--danger)'; el.textContent += ' ⚠ vencida'; }
+  else if(diff === 0) { el.style.color = 'var(--warn)'; el.textContent += ' — hoje!'; }
+  else { el.style.color = 'var(--accent)'; }
+  // alert no dashboard se vencida
+  const az = document.getElementById('alert-zone');
+  if(az && diff <= 0) {
+    const alreadyHas = az.querySelector('.verif-alert');
+    if(!alreadyHas) {
+      const div = document.createElement('div');
+      div.className = 'alert alert-warn verif-alert';
+      div.textContent = `📅 Verificação da fita estava agendada para ${d.toLocaleDateString('pt-BR')} — faça a leitura hoje!`;
+      az.prepend(div);
+    }
+  }
+}
+
+// ─── Filtro plissado ───────────────────────────────────────────────
+function renderFiltroStatus() {
+  const el = document.getElementById('ops-filtro-status');
+  const infoEl = document.getElementById('cfg-filtro-info');
+  const troca = state.config.filtroTroca;
+  const intervalo = parseInt(state.config.filtroIntervalo) || 60;
+  if(!troca) {
+    if(el) { el.className = 'filter-badge warn'; el.textContent = 'Data não informada'; }
+    if(infoEl) infoEl.textContent = 'Informe a data da última troca para monitorar.';
+    return;
+  }
+  const ultima = new Date(troca);
+  const proxima = new Date(ultima);
+  proxima.setDate(proxima.getDate() + intervalo);
+  const hoje = new Date();
+  const diasRestantes = Math.ceil((proxima - hoje) / (1000*60*60*24));
+  const proxFmt = proxima.toLocaleDateString('pt-BR');
+  if(diasRestantes < 0) {
+    if(el) { el.className = 'filter-badge danger'; el.textContent = `Vencido há ${Math.abs(diasRestantes)}d`; }
+    if(infoEl) infoEl.textContent = `⚠️ Troca vencida! Próxima deveria ter sido em ${proxFmt}. Troque o filtro.`;
+  } else if(diasRestantes <= 14) {
+    if(el) { el.className = 'filter-badge warn'; el.textContent = `Trocar em ${diasRestantes}d`; }
+    if(infoEl) infoEl.textContent = `⚠️ Filtro próximo do vencimento. Troca em ${proxFmt}.`;
+  } else {
+    if(el) { el.className = 'filter-badge ok'; el.textContent = `OK — ${diasRestantes}d restantes`; }
+    if(infoEl) infoEl.textContent = `✅ Filtro OK. Próxima troca em ${proxFmt} (${diasRestantes} dias).`;
+  }
+}
+
+// ─── Custo do produto ──────────────────────────────────────────────
+function renderCustoInfo() {
+  const infoEl = document.getElementById('cfg-custo-info');
+  if(!infoEl) return;
+  const preco = parseFloat(state.config.precoProduto) || 0;
+  const vol = parseFloat(state.config.volGalao) || 0;
+  if(!preco || !vol) { infoEl.textContent = 'Preencha preço e volume para calcular o custo por litro.'; return; }
+  const custoPorL = preco / vol;
+  const cfg = state.config;
+  const bomba = parseFloat(cfg.bombaMax || 1.5);
+  const consumoDia = getPumpFlowLH(cfg.fce, bomba) * 24;
+  const custoDia = consumoDia * custoPorL;
+  const custoMes = custoDia * 30;
+  infoEl.textContent = `R$ ${custoPorL.toFixed(2)}/L · ~R$ ${custoDia.toFixed(2)}/dia · ~R$ ${custoMes.toFixed(2)}/mês`;
+}
+
+// ─── Charts ────────────────────────────────────────────────────────
+let chartLeituras = null;
+let chartCusto = null;
+let chartSemanal = null;
+let periodoLeituras = 7;
+
+const CHART_DEFAULTS = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: { legend: { display: false }, tooltip: {
+    backgroundColor: '#1a1e28',
+    borderColor: 'rgba(255,255,255,0.1)',
+    borderWidth: 1,
+    titleColor: '#8891a8',
+    bodyColor: '#f0f2f8',
+    padding: 10,
+  }},
+  scales: {
+    x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#4a5470', font: { size: 10 } } },
+    y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#4a5470', font: { size: 10 } } }
+  }
+};
+
+function getLeiturasDoPeriodo(dias) {
+  const limite = new Date();
+  limite.setDate(limite.getDate() - dias);
+  return state.hist
+    .filter(h => h.tipo === 'calc' && h.titulo.includes('Leitura da fita') && new Date(h.ts) >= limite)
+    .map(h => {
+      const match = h.titulo.match(/([\d,.]+)\s*mg\/L/);
+      const val = match ? parseFloat(match[1].replace(',','.')) : null;
+      return { ts: new Date(h.ts), val };
+    })
+    .filter(h => h.val !== null)
+    .reverse();
+}
+
+function renderChartLeituras() {
+  const dados = getLeiturasDoPeriodo(periodoLeituras);
+  const ultima = dados.length ? dados[dados.length-1].val : null;
+  const elUltima = document.getElementById('ch-leitura-ultima');
+  if(elUltima) elUltima.innerHTML = ultima !== null ? `${ultima.toFixed(2)} <span class="unit">mg/L</span>` : `-- <span class="unit">mg/L</span>`;
+
+  const labels = dados.map(d => d.ts.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}));
+  const values = dados.map(d => d.val);
+  const ctx = document.getElementById('chart-leituras');
+  if(!ctx) return;
+  if(chartLeituras) { chartLeituras.destroy(); chartLeituras = null; }
+  if(!dados.length) {
+    ctx.getContext('2d').clearRect(0,0,ctx.width,ctx.height);
+    return;
+  }
+  chartLeituras = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        borderColor: '#1e8fff',
+        backgroundColor: 'rgba(30,143,255,0.08)',
+        borderWidth: 2,
+        pointBackgroundColor: values.map(v => v < 0.2 ? '#ef4444' : v > 2 ? '#f59e0b' : '#22c55e'),
+        pointRadius: 4,
+        tension: 0.3,
+        fill: true,
+      }]
+    },
+    options: {
+      ...CHART_DEFAULTS,
+      scales: {
+        ...CHART_DEFAULTS.scales,
+        y: { ...CHART_DEFAULTS.scales.y, min: 0, suggestedMax: 2,
+          ticks: { ...CHART_DEFAULTS.scales.y.ticks, callback: v => v + ' mg/L' } }
+      },
+      plugins: {
+        ...CHART_DEFAULTS.plugins,
+        annotation: { annotations: {
+          minLine: { type:'line', yMin:0.2, yMax:0.2, borderColor:'rgba(239,68,68,0.4)', borderWidth:1, borderDash:[4,4] },
+          maxLine: { type:'line', yMin:2, yMax:2, borderColor:'rgba(245,158,11,0.4)', borderWidth:1, borderDash:[4,4] },
+        }}
+      }
+    }
+  });
+}
+
+function renderChartCusto() {
+  const cfg = state.config;
+  const preco = parseFloat(cfg.precoProduto) || 0;
+  const vol = parseFloat(cfg.volGalao) || 20;
+  const bomba = parseFloat(cfg.bombaMax || 1.5);
+  const consumoDia = getPumpFlowLH(cfg.fce, bomba) * 24;
+  const custoPorL = preco > 0 && vol > 0 ? preco / vol : 0;
+  const custoDia = consumoDia * custoPorL;
+  const hoje = new Date();
+  const diasNoMes = new Date(hoje.getFullYear(), hoje.getMonth()+1, 0).getDate();
+  const diaAtual = hoje.getDate();
+
+  const elMes = document.getElementById('ch-custo-mes');
+  const elSub = document.getElementById('ch-custo-sub');
+  const custoMes = custoDia * diasNoMes;
+  if(elMes) elMes.innerHTML = custoPorL > 0 ? `R$ ${custoMes.toFixed(2)} <span class="unit">/ mês est.</span>` : `R$ -- <span class="unit">configure o preço</span>`;
+  if(elSub) elSub.textContent = custoPorL > 0 ? `R$ ${custoPorL.toFixed(2)}/L · ${consumoDia.toFixed(2)} L/dia` : 'Configure preço em Config';
+
+  const ctx = document.getElementById('chart-custo');
+  if(!ctx) return;
+  if(chartCusto) { chartCusto.destroy(); chartCusto = null; }
+
+  const labels = Array.from({length: diaAtual}, (_,i) => (i+1).toString());
+  const dataAcum = labels.map((_,i) => parseFloat(((i+1) * custoDia).toFixed(2)));
+  const dataProj = Array.from({length: diasNoMes}, (_,i) => parseFloat(((i+1) * custoDia).toFixed(2)));
+  const labelsAll = Array.from({length: diasNoMes}, (_,i) => (i+1).toString());
+
+  chartCusto = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labelsAll,
+      datasets: [
+        { label:'Projetado', data: dataProj, backgroundColor: 'rgba(30,143,255,0.12)', borderColor: 'rgba(30,143,255,0.3)', borderWidth:1 },
+        { label:'Acumulado', data: [...dataAcum, ...new Array(diasNoMes - diaAtual).fill(null)], backgroundColor: 'rgba(232,160,32,0.55)', borderColor: '#e8a020', borderWidth:1 },
+      ]
+    },
+    options: {
+      ...CHART_DEFAULTS,
+      plugins: { ...CHART_DEFAULTS.plugins, legend: { display: true, labels: { color:'#8891a8', font:{size:11}, boxWidth:12 } } },
+      scales: {
+        x: { ...CHART_DEFAULTS.scales.x, ticks: { ...CHART_DEFAULTS.scales.x.ticks, maxTicksLimit: 10 } },
+        y: { ...CHART_DEFAULTS.scales.y, ticks: { ...CHART_DEFAULTS.scales.y.ticks, callback: v => 'R$' + v.toFixed(0) } }
+      }
+    }
+  });
+}
+
+function renderChartSemanal() {
+  // Pega leituras dos últimos 8 semanas e calcula médias
+  const semanas = [];
+  for(let i = 7; i >= 0; i--) {
+    const fim = new Date(); fim.setDate(fim.getDate() - i*7);
+    const ini = new Date(fim); ini.setDate(ini.getDate() - 6);
+    const leituras = state.hist
+      .filter(h => {
+        if(h.tipo !== 'calc' || !h.titulo.includes('Leitura da fita')) return false;
+        const d = new Date(h.ts);
+        return d >= ini && d <= fim;
+      })
+      .map(h => { const m = h.titulo.match(/([\d,.]+)\s*mg\/L/); return m ? parseFloat(m[1].replace(',','.')) : null; })
+      .filter(v => v !== null);
+    const media = leituras.length ? leituras.reduce((a,b)=>a+b,0)/leituras.length : null;
+    const label = `S${8-i}`;
+    semanas.push({ label, media, count: leituras.length });
+  }
+
+  const ctx = document.getElementById('chart-semanal');
+  if(!ctx) return;
+  if(chartSemanal) { chartSemanal.destroy(); chartSemanal = null; }
+
+  chartSemanal = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: semanas.map(s => s.label),
+      datasets: [{
+        label: 'Média mg/L',
+        data: semanas.map(s => s.media !== null ? parseFloat(s.media.toFixed(3)) : 0),
+        backgroundColor: semanas.map(s => {
+          if(s.media === null) return 'rgba(255,255,255,0.05)';
+          if(s.media < 0.2) return 'rgba(239,68,68,0.6)';
+          if(s.media > 2) return 'rgba(245,158,11,0.6)';
+          return 'rgba(34,197,94,0.5)';
+        }),
+        borderRadius: 6,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      ...CHART_DEFAULTS,
+      scales: {
+        x: { ...CHART_DEFAULTS.scales.x },
+        y: { ...CHART_DEFAULTS.scales.y, min: 0, suggestedMax: 1.5,
+          ticks: { ...CHART_DEFAULTS.scales.y.ticks, callback: v => v + ' mg/L' } }
+      }
+    }
+  });
+}
+
+function mudarPeriodoLeituras(dias, btn) {
+  periodoLeituras = dias;
+  document.querySelectorAll('.chart-tab').forEach(b => b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderChartLeituras();
+}
+
+function renderResumoDia() {
+  const cfg = state.config;
+  const nivel = Number(state.nivel || 0);
+  const pct = cfg.tambor > 0 ? Math.round((nivel / cfg.tambor) * 100) : 0;
+  const bomba = parseFloat(cfg.bombaMax || 1.5);
+  const consumoDia = getPumpFlowLH(cfg.fce, bomba) * 24;
+  const autonomia = consumoDia > 0 ? nivel / consumoDia : 999;
+  const preco = parseFloat(cfg.precoProduto) || 0;
+  const vol = parseFloat(cfg.volGalao) || 20;
+  const custoPorL = preco > 0 && vol > 0 ? preco / vol : 0;
+  const custoDia = consumoDia * custoPorL;
+  const diasNoMes = new Date(new Date().getFullYear(), new Date().getMonth()+1, 0).getDate();
+
+  const hoje = new Date();
+  const el = id => document.getElementById(id);
+
+  if(el('dash-hoje-data')) el('dash-hoje-data').textContent = hoje.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+
+  if(el('ds-tambor')) { el('ds-tambor').textContent = nivel.toFixed(1) + ' L'; el('ds-tambor').className = 'dc-v ' + (pct <= 10 ? 'danger' : pct <= 20 ? 'warn' : 'blue'); }
+  if(el('ds-tambor-s')) el('ds-tambor-s').textContent = `${pct}% · ${autonomia < 999 ? autonomia.toFixed(1) + ' dias' : '∞'}`;
+
+  // última leitura
+  const ultima = state.hist.find(h => h.tipo === 'calc' && h.titulo.includes('Leitura da fita'));
+  if(ultima) {
+    const match = ultima.titulo.match(/([\d,.]+)\s*mg\/L/);
+    const val = match ? parseFloat(match[1].replace(',','.')) : null;
+    if(val !== null && el('ds-leitura')) {
+      el('ds-leitura').textContent = val.toFixed(2) + ' mg/L';
+      el('ds-leitura').className = 'dc-v ' + (val < 0.2 ? 'danger' : val > 2 ? 'warn' : 'ok');
+      const d = new Date(ultima.ts);
+      if(el('ds-leitura-s')) el('ds-leitura-s').textContent = d.toLocaleDateString('pt-BR') + ' · ' + (ultima.sub?.split('·')[0]?.trim() || '');
+    }
+  } else {
+    if(el('ds-leitura')) el('ds-leitura').textContent = '-- mg/L';
+  }
+
+  if(el('ds-fce')) { el('ds-fce').textContent = cfg.fce + '%'; }
+  if(el('ds-fce-s')) el('ds-fce-s').textContent = consumoDia.toFixed(2) + ' L/dia';
+
+  if(el('ds-custo')) el('ds-custo').textContent = custoPorL > 0 ? 'R$ ' + (custoDia * diasNoMes).toFixed(2) : 'R$ --';
+  if(el('ds-custo-s')) el('ds-custo-s').textContent = custoPorL > 0 ? `${consumoDia.toFixed(2)} L/dia × R$ ${custoPorL.toFixed(2)}/L` : 'configure o preço em Config';
+
+  if(el('ds-prox-abast')) {
+    if(autonomia < 999 && consumoDia > 0) {
+      const prox = new Date(); prox.setDate(prox.getDate() + Math.floor(autonomia));
+      el('ds-prox-abast').textContent = prox.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+      el('ds-prox-abast').className = 'dc-v ' + (autonomia < 2 ? 'danger' : autonomia < 5 ? 'warn' : 'ok');
+    } else { if(el('ds-prox-abast')) el('ds-prox-abast').textContent = '∞'; }
+  }
+
+  if(cfg.filtroTroca && el('ds-filtro')) {
+    const proxima = new Date(cfg.filtroTroca);
+    proxima.setDate(proxima.getDate() + (cfg.filtroIntervalo || 60));
+    const diff = Math.ceil((proxima - hoje) / (1000*60*60*24));
+    el('ds-filtro').textContent = diff < 0 ? 'Vencido' : diff + 'd';
+    el('ds-filtro').className = 'dc-v ' + (diff < 0 ? 'danger' : diff <= 7 ? 'warn' : 'ok');
+    if(el('ds-filtro-s')) el('ds-filtro-s').textContent = diff < 0 ? 'Troca urgente!' : `troca em ${proxima.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}`;
+  } else if(el('ds-filtro')) { el('ds-filtro').textContent = '--'; }
+}
+
+
+const TEMAS = {
+  dark:     { label:'Escuro',   bg:'#0c0e12',bg2:'#13161d',bg3:'#1a1e28',border:'rgba(255,255,255,0.07)',border2:'rgba(255,255,255,0.13)',accent:'#1e8fff',accent2:'#1270cc',text:'#f0f2f8',text2:'#8891a8',text3:'#4a5470' },
+  midnight: { label:'Midnight', bg:'#020304',bg2:'#08090c',bg3:'#0e1015',border:'rgba(255,255,255,0.05)',border2:'rgba(255,255,255,0.09)',accent:'#1e8fff',accent2:'#1270cc',text:'#e8eaf2',text2:'#6a7080',text3:'#3a3f50' },
+  light:    { label:'Claro',    bg:'#f4f6fa',bg2:'#eaedf4',bg3:'#e0e5ef',border:'rgba(0,0,0,0.08)',border2:'rgba(0,0,0,0.13)',accent:'#1060bb',accent2:'#0a4a99',text:'#0c0e12',text2:'#404660',text3:'#7080a0' },
+};
+
+function aplicarTema(tema, el) {
+  // sistema = segue prefers-color-scheme
+  if(tema === 'system') {
+    const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    aplicarTemaVars(dark ? 'dark' : 'light');
+    document.documentElement.removeAttribute('data-theme');
+  } else {
+    aplicarTemaVars(tema);
+    document.documentElement.setAttribute('data-theme', tema);
+  }
+  state.config.tema = tema;
+  save();
+  document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('selected'));
+  if(el) el.classList.add('selected');
+  else { const found = document.querySelector(`.theme-card[data-theme="${tema}"]`); if(found) found.classList.add('selected'); }
+  toast(`Tema "${TEMAS[tema]?.label || tema}" aplicado`, 'ok', 2000);
+}
+
+function aplicarTemaVars(tema) {
+  const t = TEMAS[tema];
+  if(!t) return;
+  const styleEl = document.getElementById('theme-vars');
+  styleEl.textContent = `:root {
+    --bg:${t.bg};--bg2:${t.bg2};--bg3:${t.bg3};
+    --border:${t.border};--border2:${t.border2};
+    --accent:${t.accent};--accent2:${t.accent2};
+    --text:${t.text};--text2:${t.text2};--text3:${t.text3};
+  }`;
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', t.bg);
+}
+
+// ─── Fontes ────────────────────────────────────────────────────────
+function aplicarFonteSans(fonte, el) {
+  document.documentElement.style.setProperty('--sans', `'${fonte}', sans-serif`);
+  state.config.fonteSans = fonte;
+  save();
+  document.querySelectorAll('[data-font-sans]').forEach(c => c.classList.remove('selected'));
+  if(el) el.classList.add('selected');
+  toast(`Fonte principal: ${fonte}`, 'ok', 2000);
+}
+
+function aplicarFonteMono(fonte, el) {
+  document.documentElement.style.setProperty('--mono', `'${fonte}', monospace`);
+  state.config.fonteMono = fonte;
+  save();
+  document.querySelectorAll('[data-font-mono]').forEach(c => c.classList.remove('selected'));
+  if(el) el.classList.add('selected');
+  toast(`Fonte de dados: ${fonte}`, 'ok', 2000);
+}
+
+function carregarPersonalizacao() {
+  const c = state.config;
+  // tema
+  const tema = c.tema || 'dark';
+  if(tema === 'system') {
+    const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    aplicarTemaVars(dark ? 'dark' : 'light');
+  } else {
+    aplicarTemaVars(tema);
+    document.documentElement.setAttribute('data-theme', tema);
+  }
+  const tCard = document.querySelector(`.theme-card[data-theme="${tema}"]`);
+  if(tCard) tCard.classList.add('selected');
+  // fonte sans
+  if(c.fonteSans) {
+    document.documentElement.style.setProperty('--sans', `'${c.fonteSans}', sans-serif`);
+    const fc = document.querySelector(`[data-font-sans="${c.fonteSans}"]`);
+    if(fc) fc.classList.add('selected');
+  } else {
+    const fc = document.querySelector('[data-font-sans="Syne"]');
+    if(fc) fc.classList.add('selected');
+  }
+  // fonte mono
+  if(c.fonteMono) {
+    document.documentElement.style.setProperty('--mono', `'${c.fonteMono}', monospace`);
+    const fc = document.querySelector(`[data-font-mono="${c.fonteMono}"]`);
+    if(fc) fc.classList.add('selected');
+  } else {
+    const fc = document.querySelector('[data-font-mono="Space Mono"]');
+    if(fc) fc.classList.add('selected');
+  }
+  // backup info
+  const ultimoEl = document.getElementById('backup-ultima-data');
+  if(ultimoEl && state.ultimoBackup) {
+    ultimoEl.textContent = new Date(state.ultimoBackup).toLocaleString('pt-BR');
+  }
+}
+
+// ─── Backup ────────────────────────────────────────────────────────
+function exportarBackup() {
+  state.ultimoBackup = new Date().toISOString();
+  save();
+  const json = JSON.stringify(state, null, 2);
+  const blob = new Blob([json], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const data = new Date().toLocaleDateString('pt-BR').replace(/\//g,'-');
+  a.href = url;
+  a.download = `CloroPrime_backup_${data}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  const ultimoEl = document.getElementById('backup-ultima-data');
+  if(ultimoEl) ultimoEl.textContent = new Date().toLocaleString('pt-BR');
+  toast('📤 Backup exportado com sucesso!', 'ok');
+}
+
+function importarBackup(input) {
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const dados = JSON.parse(e.target.result);
+      if(!dados.config || !Array.isArray(dados.hist)) {
+        toast('Arquivo inválido. Selecione um backup gerado pelo CloroPrime.', 'err', 5000);
+        return;
+      }
+      if(!confirm(`Importar backup de ${dados.ultimoBackup ? new Date(dados.ultimoBackup).toLocaleString('pt-BR') : 'data desconhecida'}?\n\nISTO VAI SUBSTITUIR todos os dados atuais.`)) return;
+      state = dados;
+      save();
+      carregarPersonalizacao();
+      renderOperacao();
+      renderDashboard();
+      toast('📥 Backup importado com sucesso! ✅', 'ok', 4000);
+    } catch(err) {
+      toast('Erro ao ler o arquivo. Certifique-se que é um JSON válido.', 'err', 5000);
+    }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+// ─── Wizard ────────────────────────────────────────────────────────
+let wzPasso = 0;
+let wzFonte = 'misto';
+const WZ_TOTAL = 6;
+
+function wzRenderProgress() {
+  const bar = document.getElementById('wizard-progress');
+  if(!bar) return;
+  bar.innerHTML = Array.from({length: WZ_TOTAL}, (_,i) =>
+    `<div class="wp ${i <= wzPasso ? 'done' : ''}"></div>`).join('');
+}
+
+function wzMostrarPasso(n) {
+  document.querySelectorAll('.wizard-step').forEach((el,i) => {
+    el.classList.toggle('active', i === n);
+  });
+  wzPasso = n;
+  wzRenderProgress();
+}
+
+function wzAvancar() { wzMostrarPasso(wzPasso + 1); }
+function wzVoltar()  { wzMostrarPasso(Math.max(0, wzPasso - 1)); }
+
+function wzSelecionarFonte(fonte, el) {
+  wzFonte = fonte;
+  document.querySelectorAll('#wz-1 .wz-choice').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function wzFinalizar() {
+  const c = state.config;
+  c.reserv = parseFloat(document.getElementById('wz-reserv').value) || 30000;
+  c.reservSec = parseFloat(document.getElementById('wz-reserv-sec').value) || 0;
+  c.unidades = parseInt(document.getElementById('wz-unidades').value) || 80;
+  c.pessoas = Math.round(c.unidades * 3);
+  c.bombaMax = parseFloat(document.getElementById('wz-bomba').value) || 1.5;
+  c.modeloBomba = document.getElementById('wz-modelo').value || '';
+  c.fce = parseFloat(document.getElementById('wz-fce').value) || 15;
+  c.hipoct = parseFloat(document.getElementById('wz-conc').value) || 12;
+  c.vazao = parseFloat(document.getElementById('wz-vazao').value) || 1500;
+  c.tambor = parseFloat(document.getElementById('wz-tambor-cap').value) || 100;
+  state.nivel = parseFloat(document.getElementById('wz-nivel').value) || 80;
+  state.wizardConcluido = true;
+  save();
+  fecharWizard(false);
+  syncCalcFromConfig();
+  renderOperacao();
+  renderDashboard();
+  addHistorico('config', 'Configuração inicial pelo wizard', `${c.unidades} apt · bomba ${c.bombaMax}L/h · FCE ${c.fce}% · hipoct ${c.hipoct}%`);
+  toast('✅ Configuração salva! O app já está calculando com seus dados.', 'ok', 5000);
+}
+
+function fecharWizard(pular) {
+  document.getElementById('wizard-overlay').classList.add('hidden');
+  if(pular) { state.wizardConcluido = true; save(); toast('Configuração pulada. Ajuste em Config quando quiser.', 'info'); }
+}
+
+function abrirWizard() {
+  wzPasso = 0;
+  wzMostrarPasso(0);
+  document.getElementById('wizard-overlay').classList.remove('hidden');
+}
+
+// ─── Validação cruzada ─────────────────────────────────────────────
+function validarCruzado() {
+  const zona = document.getElementById('valida-zone');
+  if(!zona) return;
+  const cfg = state.config;
+  const nivel = Number(state.nivel || 0);
+  const fce = parseFloat(cfg.fce || 0);
+  const bomba = parseFloat(cfg.bombaMax || 1.5);
+  const conc = parseFloat(cfg.hipoct || 12);
+  const vazao = parseFloat(cfg.vazao || 1500);
+  const tambor = parseFloat(cfg.tambor || 100);
+  const pumpLh = getPumpFlowLH(fce, bomba);
+  const consumoDia = pumpLh * 24;
+  const autonomiaH = (consumoDia > 0 && nivel > 0) ? (nivel / pumpLh) : 9999;
+  const autonomiaDias = consumoDia > 0 ? (nivel / consumoDia) : 999;
+  const cAtivoMgL = (vazao > 0 && pumpLh > 0) ? (pumpLh * (conc/100) * 1000 * 1000) / vazao : 0;
+  const alertas = [];
+
+  if(fce === 0) {
+    alertas.push({ tipo:'danger', icon:'🔴', msg:'Dosador em 0% — nenhum cloro está sendo injetado.' });
+  }
+  if(nivel <= 0 && fce > 0) {
+    alertas.push({ tipo:'danger', icon:'🚨', msg:'Tambor vazio com dosador ligado! Abasteça imediatamente.' });
+  } else if(autonomiaH < 4 && fce > 0 && nivel > 0) {
+    alertas.push({ tipo:'danger', icon:'⏱️', msg:`Tambor zera em menos de ${autonomiaH.toFixed(1)}h. Abasteça hoje!` });
+  } else if(autonomiaDias < 2 && fce > 0 && nivel > 0) {
+    alertas.push({ tipo:'warn', icon:'⚠️', msg:`Autonomia crítica: apenas ${autonomiaDias.toFixed(1)} dia(s) no tambor. Planeje o abastecimento.` });
+  }
+
+  if(cAtivoMgL > 5 && fce > 0) {
+    alertas.push({ tipo:'danger', icon:'☣️', msg:`Supercloração! Dose de ${cAtivoMgL.toFixed(2)} mg/L excede o limite de 5 mg/L (ANVISA). Reduza o FCE.` });
+  } else if(cAtivoMgL > 2 && fce > 0) {
+    alertas.push({ tipo:'warn', icon:'⚠️', msg:`Dose de ${cAtivoMgL.toFixed(2)} mg/L está alta — pode gerar gosto e odor. Considere reduzir o FCE.` });
+  } else if(cAtivoMgL < 0.2 && fce > 0 && nivel > 0) {
+    alertas.push({ tipo:'warn', icon:'⚠️', msg:`Dose de ${cAtivoMgL.toFixed(3)} mg/L está abaixo do mínimo ANVISA (0,2 mg/L). Verifique FCE, concentração e vazão.` });
+  }
+
+  if(conc <= 2.5 && fce > 0) {
+    alertas.push({ tipo:'info', icon:'💡', msg:'Produto 2,5% (água sanitária doméstica): volume necessário é muito maior. Considere hipoclorito 10-12%.' });
+  }
+
+  if(cfg.filtroTroca) {
+    const proxima = new Date(cfg.filtroTroca);
+    proxima.setDate(proxima.getDate() + (cfg.filtroIntervalo || 60));
+    const diffDias = Math.ceil((proxima - new Date()) / (1000*60*60*24));
+    if(diffDias < 0) alertas.push({ tipo:'warn', icon:'🔧', msg:`Filtro plissado com troca vencida há ${Math.abs(diffDias)} dia(s).` });
+    else if(diffDias <= 7) alertas.push({ tipo:'info', icon:'🔧', msg:`Filtro plissado: troca em ${diffDias} dia(s).` });
+  }
+
+  if(state.proximaVerif) {
+    const diff = Math.ceil((new Date(state.proximaVerif) - new Date()) / (1000*60*60*24));
+    if(diff < 0) alertas.push({ tipo:'warn', icon:'📅', msg:`Verificação da fita pendente desde ${new Date(state.proximaVerif).toLocaleDateString('pt-BR')}.` });
+  }
+
+  zona.innerHTML = alertas.map(a =>
+    `<div class="valida-item ${a.tipo}"><span class="vi-icon">${a.icon}</span><span>${a.msg}</span></div>`
+  ).join('');
+}
+
+// ─── FAQ toggle ────────────────────────────────────────────────────
+function toggleFaq(btn) {
+  const answer = btn.nextElementSibling;
+  const isOpen = answer.classList.contains('open');
+  document.querySelectorAll('.faq-answer.open').forEach(a => a.classList.remove('open'));
+  document.querySelectorAll('.faq-question.open').forEach(b => b.classList.remove('open'));
+  if(!isOpen) { answer.classList.add('open'); btn.classList.add('open'); }
+}
+
+function exportarHistorico() {
+  if(!state.hist.length) { toast('Histórico vazio, nada para exportar.','warn'); return; }
+  const linhas = [['Data','Tipo','Título','Detalhe']];
+  state.hist.forEach(h => {
+    const d = new Date(h.ts).toLocaleString('pt-BR');
+    linhas.push([d, h.tipo, h.titulo, h.sub]);
+  });
+  const csv = linhas.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `CloroPrime_historico_${new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('📥 Histórico exportado como CSV!','ok');
+}
+
+// ─── Init complementar ────────────────────────────────────────────
+function initExtras() {
+  carregarPersonalizacao();
+  // Restore sidebar collapsed state (desktop only)
+  if(state.sidebarCollapsed && window.innerWidth > 780) {
+    const sb = document.getElementById('sidebar');
+    const shell = document.querySelector('.shell');
+    const btn = document.getElementById('sidebar-collapse-btn');
+    if(sb) sb.classList.add('collapsed');
+    if(shell) shell.classList.add('collapsed');
+    if(btn) btn.textContent = '›';
+  }
+  renderProximaVerif();
+  renderFiltroStatus();
+  renderCustoInfo();
+  validarCruzado();
+  // Wizard no primeiro uso
+  if(!state.wizardConcluido) {
+    setTimeout(abrirWizard, 400);
+  }
+  // Alerta de verificação vencida no load
+  if(state.proximaVerif) {
+    const d = new Date(state.proximaVerif);
+    const diff = Math.ceil((d - new Date()) / (1000*60*60*24));
+    if(diff <= 0) toast(`📅 Verificação agendada para ${d.toLocaleDateString('pt-BR')} está pendente!`,'warn',5000);
+    else if(diff === 1) toast(`📅 Lembrete: verificar a fita amanhã.`,'info',4000);
+  }
+  if(state.config.filtroTroca) {
+    const ultima = new Date(state.config.filtroTroca);
+    const proxima = new Date(ultima);
+    proxima.setDate(proxima.getDate() + (state.config.filtroIntervalo || 60));
+    const diff = Math.ceil((proxima - new Date()) / (1000*60*60*24));
+    if(diff <= 0) toast(`🔧 Filtro plissado: troca vencida! Verifique.`,'err',5000);
+    else if(diff <= 7) toast(`🔧 Filtro plissado: troca em ${diff} dias.`,'warn',4000);
+  }
+}
+
+
+syncCalcFromConfig();
+const opsFita = document.getElementById('ops-fita-valor'); if(opsFita && state.latestRead?.valor) opsFita.value = state.latestRead.valor;
+const opsPonto = document.getElementById('ops-fita-ponto'); if(opsPonto && state.latestRead?.ponto) opsPonto.value = state.latestRead.ponto;
+const opsFce = document.getElementById('ops-fce'); if(opsFce) opsFce.value = state.config.fce;
+const opsConc = document.getElementById('ops-conc'); if(opsConc) opsConc.value = state.config.hipoct;
+renderOperacao();
+renderDashboard();
+showView('operacao');
+initExtras();
+
+['fita-valor','fita-ponto'].forEach(id => { const el=document.getElementById(id); if(el) el.addEventListener('input', renderSidebarSummary); if(el) el.addEventListener('change', renderSidebarSummary); });
+calcularMisturaCenarios();
+
+// Slider sync
+document.getElementById('calc-fce').addEventListener('input', function() {
+  document.getElementById('calc-fce-val').textContent = this.value + '%';
+  calcular();
+});
+
+// ── Splash screen ──────────────────────────────────────────────────
+(function() {
+  const splash = document.getElementById('splash');
+  if(!splash) return;
+  // Hide after 3s
+  setTimeout(() => {
+    splash.classList.add('hiding');
+    setTimeout(() => splash.classList.add('hidden'), 650);
+  }, 3000);
+  // Also hide on tap/click (impatient users)
+  splash.addEventListener('click', () => {
+    splash.classList.add('hiding');
+    setTimeout(() => splash.classList.add('hidden'), 650);
+  });
+})();
+
+// ── Deep-link shortcuts (PWA shortcuts) ───────────────────────────
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const view = params.get('view');
+  if(view) setTimeout(() => showView(view), 200);
+})();
+
+// ── Service Worker registration ────────────────────────────────────
+if('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(reg => console.log('CloroPrime SW registered:', reg.scope))
+      .catch(err => console.log('SW registration failed:', err));
+  });
+}
+</script>
+</body>
+</html>

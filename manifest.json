@@ -1,0 +1,47 @@
+{
+  "name": "CloroPrime",
+  "short_name": "CloroPrime",
+  "description": "Controle total da qualidade da água — gestão de cloração para condomínios",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0c0e12",
+  "theme_color": "#0c0e12",
+  "lang": "pt-BR",
+  "categories": ["utilities", "productivity"],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Operação",
+      "short_name": "Operação",
+      "description": "Leitura diária e ação imediata",
+      "url": "/?view=operacao"
+    },
+    {
+      "name": "Abastecer",
+      "short_name": "Abastecer",
+      "description": "Registrar abastecimento do tambor",
+      "url": "/?view=abastecer"
+    }
+  ]
+}
