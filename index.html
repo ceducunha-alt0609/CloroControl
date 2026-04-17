@@ -531,57 +531,154 @@ html[data-theme="midnight"] {
 /* ── Splash Screen ── */
 #splash {
   position: fixed; inset: 0; z-index: 9999;
-  background: #0c0e12;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(232,160,32,.14) 0%, rgba(232,160,32,.08) 12%, transparent 34%),
+    radial-gradient(circle at 50% 60%, rgba(30,143,255,.11) 0%, rgba(30,143,255,.05) 18%, transparent 40%),
+    linear-gradient(180deg, #04070f 0%, #050910 45%, #03050b 100%);
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  gap: 0;
-  transition: opacity .6s ease, visibility .6s ease;
+  overflow: hidden;
+  transition: opacity .65s ease, visibility .65s ease;
 }
+#splash::before,
+#splash::after {
+  content: '';
+  position: absolute; inset: -10%;
+  pointer-events: none;
+}
+#splash::before {
+  background:
+    radial-gradient(circle, rgba(232,160,32,.95) 0 1px, transparent 1.6px) 5% 12%/130px 130px,
+    radial-gradient(circle, rgba(232,160,32,.75) 0 1.2px, transparent 1.8px) 24% 18%/170px 170px,
+    radial-gradient(circle, rgba(232,160,32,.65) 0 1px, transparent 1.7px) 68% 12%/150px 150px,
+    radial-gradient(circle, rgba(232,160,32,.55) 0 1px, transparent 1.7px) 82% 20%/180px 180px,
+    radial-gradient(circle, rgba(232,160,32,.5) 0 1px, transparent 1.7px) 54% 6%/200px 200px;
+  opacity: .8;
+  filter: blur(.25px);
+  animation: splashStars 10s linear infinite;
+}
+#splash::after {
+  background:
+    radial-gradient(ellipse at center, rgba(232,160,32,.18) 0%, transparent 52%) center 20%/56% 32% no-repeat,
+    radial-gradient(ellipse at center, rgba(30,143,255,.12) 0%, transparent 60%) center 54%/44% 24% no-repeat;
+  animation: splashGlow 3.2s ease-in-out infinite;
+}
+
 #splash.hiding { opacity: 0; visibility: hidden; }
 #splash.hidden { display: none; }
 
+.splash-stage {
+  position: relative;
+  z-index: 2;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 28px 20px;
+  width: min(92vw, 760px);
+}
 .splash-logo {
-  width: 96px; height: 96px;
-  animation: splashPop .5s cubic-bezier(.34,1.56,.64,1) both;
+  width: min(42vw, 250px);
+  height: auto;
+  max-width: 250px;
+  filter: drop-shadow(0 12px 34px rgba(232,160,32,.18)) drop-shadow(0 18px 48px rgba(0,0,0,.55));
+  animation: splashLogoFloat 2.6s ease-in-out infinite, splashPop .65s cubic-bezier(.34,1.56,.64,1) both;
 }
 .splash-brand {
-  margin-top: 24px;
+  margin-top: 26px;
   font-family: var(--sans);
-  font-size: 36px; font-weight: 800;
-  letter-spacing: -1px; color: #f0f2f8;
-  animation: splashFadeUp .5s ease .15s both;
+  font-size: clamp(42px, 7vw, 88px);
+  line-height: .96;
+  font-weight: 800;
+  letter-spacing: -2px;
+  color: #f5f7fc;
+  text-align: center;
+  text-shadow: 0 8px 34px rgba(0,0,0,.45);
+  animation: splashFadeUp .55s ease .12s both;
 }
-.splash-brand span { color: #e8a020; }
+.splash-brand span {
+  background: linear-gradient(180deg, #fff8da 0%, #f5c24d 52%, #cf8610 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
 .splash-tagline {
-  margin-top: 10px;
+  margin-top: 14px;
   font-family: var(--sans);
-  font-size: 14px; font-weight: 500;
-  color: #4a5470; letter-spacing: .5px;
-  animation: splashFadeUp .5s ease .3s both;
+  font-size: clamp(13px, 2vw, 18px);
+  font-weight: 600;
+  color: rgba(236,240,248,.78);
+  letter-spacing: .7px;
+  text-align: center;
+  animation: splashFadeUp .55s ease .24s both;
 }
 .splash-bar-wrap {
-  margin-top: 48px; width: 160px; height: 3px;
-  background: rgba(255,255,255,.07); border-radius: 99px; overflow: hidden;
-  animation: splashFadeUp .4s ease .4s both;
+  position: relative;
+  margin-top: 44px;
+  width: min(56vw, 420px);
+  height: 6px;
+  background: linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,.12), rgba(255,255,255,.06));
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.05), 0 0 30px rgba(232,160,32,.08);
+  animation: splashFadeUp .5s ease .34s both;
 }
 .splash-bar {
-  height: 100%; width: 0%; border-radius: 99px;
-  background: linear-gradient(90deg, #1e8fff, #e8a020);
-  animation: splashProgress 2.6s cubic-bezier(.4,0,.2,1) .4s forwards;
+  height: 100%; width: 0%; border-radius: 999px;
+  background: linear-gradient(90deg, #b77709 0%, #efba39 28%, #fff4c5 48%, #efba39 68%, #b77709 100%);
+  box-shadow: 0 0 14px rgba(232,160,32,.5), 0 0 28px rgba(232,160,32,.25);
+  animation: splashProgress 2.8s cubic-bezier(.4,0,.2,1) .36s forwards;
+}
+.splash-bar::after {
+  content:'';
+  position:absolute; top:0; bottom:0; width:110px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.9), transparent);
+  filter: blur(5px);
+  animation: splashScan 1.9s ease-in-out .4s infinite;
+}
+.splash-floor {
+  width: min(44vw, 300px);
+  height: 24px;
+  margin-top: 10px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(232,160,32,.32) 0%, rgba(232,160,32,.1) 34%, transparent 72%);
+  filter: blur(8px);
+  opacity: .9;
+  animation: splashGlow 2.8s ease-in-out infinite;
+}
+@media (max-width: 640px) {
+  .splash-stage { width: min(92vw, 520px); }
+  .splash-logo { width: min(54vw, 220px); }
+  .splash-bar-wrap { width: min(70vw, 300px); margin-top: 34px; }
 }
 @keyframes splashPop {
-  from { opacity: 0; transform: scale(.7); }
+  from { opacity: 0; transform: scale(.76); }
   to   { opacity: 1; transform: scale(1); }
 }
 @keyframes splashFadeUp {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes splashLogoFloat {
+  0%,100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-8px) scale(1.012); }
 }
 @keyframes splashProgress {
   0%   { width: 0%; }
-  60%  { width: 75%; }
-  90%  { width: 92%; }
+  55%  { width: 72%; }
+  82%  { width: 91%; }
   100% { width: 100%; }
+}
+@keyframes splashScan {
+  0% { left: -30%; opacity: 0; }
+  22% { opacity: .95; }
+  100% { left: 100%; opacity: 0; }
+}
+@keyframes splashGlow {
+  0%,100% { transform: scale(1); opacity: .88; }
+  50% { transform: scale(1.05); opacity: 1; }
+}
+@keyframes splashStars {
+  from { transform: translateY(0); }
+  to { transform: translateY(10px); }
 }
 
 .toast-container { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }
@@ -698,7 +795,22 @@ html[data-theme="midnight"] {
 .fita-copy .line1 { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
 .fita-copy .line2 { font-size: 12px; color: var(--text2); line-height: 1.45; }
 
-
+.fita-guide-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+@media(max-width:520px){ .fita-guide-grid{ grid-template-columns:1fr; } }
+.fita-btn {
+  padding: 14px; border-radius: 12px; border: 1px solid var(--border); cursor: pointer;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  color: #111; font-weight: 700; min-height: 74px;
+  display:flex; flex-direction:column; justify-content:center;
+}
+.fita-btn span { font-size:12px; color: rgba(0,0,0,.72); font-weight:600; margin-top:4px; }
+.fita-btn:hover { transform: translateY(-1px) scale(1.01); box-shadow: 0 10px 28px rgba(0,0,0,.22); border-color: rgba(255,255,255,.22); }
+.fita-btn:active { transform: scale(.99); }
+.fita-guide-note { margin-top:12px; font-size:12px; color:var(--text2); line-height:1.55; }
+.fita-ref-chip { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; background:var(--bg3); border:1px solid var(--border); font-size:11px; font-weight:700; color:var(--text2); }
+.fita-swatch { width:34px; height:18px; border-radius:6px; border:1px solid rgba(0,0,0,.12); display:inline-block; }
+.scenario-table tr.row-click { cursor:pointer; transition: background .15s ease; }
+.scenario-table tr.row-click:hover { background: rgba(255,255,255,.03); }
 
 /* ═══════════════════════════════════════════
    LAYOUT — Shell, Sidebar, Topbar, Nav
@@ -913,6 +1025,76 @@ header { display: none; }
 .view { display: none; padding: 24px; }
 .view.active { display: block; }
 
+
+/* ── Painel de prazos & rotina guiada ── */
+.deadline-panel {
+  background: linear-gradient(135deg, rgba(232,160,32,.08), rgba(30,143,255,.05));
+  border: 1px solid var(--border2); border-radius: var(--r); padding: 18px; margin-bottom: 16px;
+}
+.deadline-head { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+.deadline-title { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); }
+.deadline-sub { font-size: 13px; color: var(--text2); margin-top: 4px; }
+.deadline-grid { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:10px; }
+@media(max-width:900px){ .deadline-grid { grid-template-columns: 1fr 1fr; } }
+@media(max-width:520px){ .deadline-grid { grid-template-columns: 1fr; } }
+.deadline-item { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--r2); padding: 14px; }
+.deadline-item .k { font-size: 10px; letter-spacing: 1.3px; text-transform: uppercase; color: var(--text3); margin-bottom: 6px; font-weight: 700; }
+.deadline-item .v { font-size: 20px; font-weight: 800; color: var(--text); line-height: 1; }
+.deadline-item .s { margin-top: 6px; font-size: 12px; color: var(--text2); line-height: 1.45; }
+.deadline-item.ok { border-color: rgba(34,197,94,.24); }
+.deadline-item.warn { border-color: rgba(245,158,11,.24); }
+.deadline-item.danger { border-color: rgba(239,68,68,.24); }
+.routine-guide { background: linear-gradient(135deg, rgba(0,212,255,.06), rgba(0,153,204,.03)); border: 1px solid var(--border2); border-radius: var(--r); padding: 16px; margin-top: 14px; }
+.routine-guide-grid { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:10px; }
+@media(max-width:900px){ .routine-guide-grid { grid-template-columns: 1fr 1fr; } }
+@media(max-width:520px){ .routine-guide-grid { grid-template-columns: 1fr; } }
+.routine-step { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--r2); padding: 12px; }
+.routine-step.done { border-color: rgba(34,197,94,.24); }
+.routine-step .k { font-size: 10px; letter-spacing: 1.3px; text-transform: uppercase; color: var(--text3); margin-bottom: 6px; font-weight: 700; }
+.routine-step .v { font-size: 15px; font-weight: 700; color: var(--text); }
+.routine-step .s { margin-top: 6px; font-size: 12px; color: var(--text2); line-height: 1.45; }
+.routine-bar { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+.smart-panel {
+  background: linear-gradient(135deg, rgba(34,197,94,.08), rgba(30,143,255,.05));
+  border: 1px solid var(--border2); border-radius: var(--r); padding: 18px; margin-bottom: 16px;
+}
+.smart-panel-head { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+.smart-panel-title { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); }
+.smart-panel-sub { font-size: 13px; color: var(--text2); margin-top: 4px; }
+.smart-grid { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:10px; }
+@media(max-width:900px){ .smart-grid { grid-template-columns: 1fr 1fr; } }
+@media(max-width:520px){ .smart-grid { grid-template-columns: 1fr; } }
+.smart-item { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--r2); padding: 14px; }
+.smart-item .k { font-size: 10px; letter-spacing: 1.3px; text-transform: uppercase; color: var(--text3); margin-bottom: 6px; font-weight: 700; }
+.smart-item .v { font-size: 20px; font-weight: 800; color: var(--text); line-height: 1; }
+.smart-item .s { margin-top: 6px; font-size: 12px; color: var(--text2); line-height: 1.45; }
+.smart-item.ok { border-color: rgba(34,197,94,.28); background: linear-gradient(135deg, rgba(34,197,94,.10), rgba(34,197,94,.04)); }
+.smart-item.warn { border-color: rgba(245,158,11,.28); background: linear-gradient(135deg, rgba(245,158,11,.12), rgba(245,158,11,.04)); }
+.smart-item.danger { border-color: rgba(239,68,68,.28); background: linear-gradient(135deg, rgba(239,68,68,.12), rgba(239,68,68,.04)); }
+.smart-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+.deadline-item.ok, .routine-step.done, .metric-card.good {
+  background: linear-gradient(135deg, rgba(34,197,94,.10), rgba(34,197,94,.03));
+}
+.deadline-item.warn {
+  background: linear-gradient(135deg, rgba(245,158,11,.12), rgba(245,158,11,.03));
+}
+.deadline-item.danger {
+  background: linear-gradient(135deg, rgba(239,68,68,.12), rgba(239,68,68,.03));
+}
+.metric-card.warn {
+  background: linear-gradient(135deg, rgba(245,158,11,.10), rgba(245,158,11,.03));
+}
+.metric-card.danger {
+  background: linear-gradient(135deg, rgba(239,68,68,.12), rgba(239,68,68,.03));
+}
+.metric-card.good {
+  background: linear-gradient(135deg, rgba(34,197,94,.10), rgba(34,197,94,.03));
+}
+.alert.alert-danger { box-shadow: inset 0 0 0 1px rgba(239,68,68,.08); }
+.alert.alert-warn { box-shadow: inset 0 0 0 1px rgba(245,158,11,.08); }
+.alert.alert-info { box-shadow: inset 0 0 0 1px rgba(0,212,255,.08); }
+
+
 /* ═══════════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════════ */
@@ -970,45 +1152,246 @@ header { display: none; }
 
 
 </style>
+
+<style id="aurum-reference-layout-overrides">
+/* ── Aurum-inspired splash + dynamic layout refinements ── */
+body{
+  background:
+    radial-gradient(1200px 680px at 14% -8%, rgba(36,122,255,.12), transparent 58%),
+    radial-gradient(900px 540px at 88% 110%, rgba(232,160,32,.10), transparent 54%),
+    linear-gradient(180deg,#060b14 0%, #091120 36%, #07101a 100%) !important;
+}
+body::before{
+  background:
+    radial-gradient(ellipse 76% 52% at 18% 0%, rgba(64,152,255,.13) 0%, rgba(64,152,255,.07) 24%, transparent 60%),
+    radial-gradient(ellipse 44% 30% at 82% 8%, rgba(255,214,120,.08) 0%, transparent 60%),
+    radial-gradient(ellipse 56% 38% at 74% 100%, rgba(232,160,32,.08) 0%, transparent 56%),
+    radial-gradient(ellipse 40% 24% at 50% 55%, rgba(255,255,255,.015) 0%, transparent 80%) !important;
+  opacity:.98;
+  animation: cpLayoutDrift 18s ease-in-out infinite alternate;
+}
+body::after{
+  content:'';
+  position:fixed;
+  inset:-12%;
+  pointer-events:none;
+  z-index:0;
+  background:
+    radial-gradient(circle, rgba(255,255,255,.05) 0 1.2px, transparent 1.8px) 8% 12%/180px 180px,
+    radial-gradient(circle, rgba(255,210,110,.06) 0 1px, transparent 1.7px) 30% 20%/220px 220px,
+    radial-gradient(circle, rgba(90,170,255,.05) 0 1px, transparent 1.7px) 74% 14%/210px 210px,
+    radial-gradient(circle, rgba(255,255,255,.04) 0 1px, transparent 1.7px) 85% 26%/200px 200px;
+  opacity:.55;
+  filter: blur(.2px);
+  animation: cpStarsFloat 22s linear infinite;
+}
+@keyframes cpLayoutDrift{
+  0%{transform:translate3d(0,0,0) scale(1)}
+  50%{transform:translate3d(0,-6px,0) scale(1.015)}
+  100%{transform:translate3d(0,4px,0) scale(1.03)}
+}
+@keyframes cpStarsFloat{
+  from{transform:translate3d(0,0,0)}
+  to{transform:translate3d(-20px,18px,0)}
+}
+
+.main-panel{
+  background:transparent !important;
+  position:relative;
+}
+.main-panel::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(180deg, rgba(255,255,255,.015), transparent 22%, transparent 78%, rgba(255,255,255,.01));
+  z-index:0;
+}
+.app,.topbar-clean,.view{position:relative; z-index:1;}
+
+.topbar-clean{
+  background:linear-gradient(180deg, rgba(7,17,32,.92), rgba(7,17,32,.78)) !important;
+  border-bottom:1px solid rgba(116,170,255,.16) !important;
+  box-shadow:0 16px 34px rgba(4,10,20,.28), inset 0 1px 0 rgba(255,255,255,.04) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.top-chip{
+  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)) !important;
+  border-color: rgba(255,255,255,.08) !important;
+  color:#dfe8f7 !important;
+}
+.top-chip strong{color:#fff !important;}
+
+.sidebar{
+  background:linear-gradient(180deg, rgba(6,13,25,.97) 0%, rgba(7,17,32,.95) 38%, rgba(7,20,38,.92) 100%) !important;
+  border-right:1px solid rgba(116,170,255,.14) !important;
+  box-shadow:8px 0 28px rgba(0,0,0,.22) !important;
+}
+.brand-card,.side-group{border-color:rgba(116,170,255,.10) !important;}
+.side-nav-btn{
+  border:1px solid transparent;
+  background:linear-gradient(180deg, rgba(255,255,255,.018), rgba(255,255,255,0)) !important;
+}
+.side-nav-btn:hover{
+  border-color:rgba(255,255,255,.08) !important;
+  box-shadow:0 8px 18px rgba(3,10,22,.18);
+}
+.side-nav-btn.active{
+  background:linear-gradient(180deg, rgba(232,160,32,.16), rgba(232,160,32,.08)) !important;
+  border-color:rgba(232,160,32,.22) !important;
+}
+
+.metrics-grid .metric-card,
+.ops-card,
+.drum-card,
+.config-card,
+.result-card,
+.chart-card,
+.scenario-card,
+.day-summary,
+.hist-item,
+.fita-panel{
+  background:linear-gradient(180deg, rgba(13,21,36,.92), rgba(10,16,28,.88)) !important;
+  border:1px solid rgba(116,170,255,.14) !important;
+  box-shadow:0 14px 30px rgba(4,10,20,.22), inset 0 1px 0 rgba(255,255,255,.04) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.metric-card::after,
+.drum-card::before{
+  opacity:.9;
+}
+.info-cell,
+.ops-mini,
+.quick-card,
+.scenario-box{
+  background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03)) !important;
+  border:1px solid rgba(255,255,255,.06) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
+}
+.field input, .field select{
+  background:linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.03)) !important;
+  border-color:rgba(116,170,255,.18) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+}
+.field input:focus, .field select:focus{
+  border-color:rgba(232,160,32,.48) !important;
+  box-shadow:0 0 0 3px rgba(232,160,32,.10);
+}
+.btn-primary{
+  background:linear-gradient(135deg, #c57e0d 0%, #efba39 36%, #f6dd8a 50%, #efba39 68%, #b46e06 100%) !important;
+  box-shadow:0 12px 24px rgba(232,160,32,.20);
+}
+.btn-primary:hover{filter:brightness(1.04); transform:translateY(-1px);}
+.btn-secondary{
+  background:linear-gradient(180deg, rgba(90,158,232,.12), rgba(90,158,232,.06)) !important;
+  border-color:rgba(90,158,232,.24) !important;
+}
+.btn-danger{
+  background:linear-gradient(180deg, rgba(239,68,68,.18), rgba(239,68,68,.09)) !important;
+}
+
+#splash{
+  background:
+    radial-gradient(circle at 50% 22%, rgba(232,160,32,.10) 0%, rgba(232,160,32,.05) 14%, transparent 34%),
+    radial-gradient(circle at 50% 58%, rgba(30,143,255,.10) 0%, rgba(30,143,255,.04) 20%, transparent 42%),
+    linear-gradient(180deg, #03060d 0%, #050810 45%, #03050a 100%) !important;
+}
+.splash-stage{
+  width:min(92vw, 620px) !important;
+}
+.splash-logo{
+  width:min(24vw, 132px) !important;
+  max-width:132px !important;
+  height:auto !important;
+  display:block !important;
+  filter: drop-shadow(0 8px 22px rgba(232,160,32,.20)) drop-shadow(0 12px 32px rgba(0,0,0,.50)) !important;
+}
+.splash-floor{
+  width:min(34vw, 170px) !important;
+  height:16px !important;
+  margin-top:8px !important;
+}
+.splash-brand{
+  margin-top:16px !important;
+  font-size: clamp(26px, 4.6vw, 48px) !important;
+  letter-spacing:-1px !important;
+}
+.splash-tagline{
+  margin-top:10px !important;
+  font-size: clamp(11px, 1.5vw, 14px) !important;
+  letter-spacing:.4px !important;
+}
+.splash-bar-wrap{
+  margin-top:28px !important;
+  width:min(42vw, 260px) !important;
+}
+@media (max-width:640px){
+  .splash-logo{ width:min(28vw, 116px) !important; max-width:116px !important; }
+  .splash-brand{ font-size: clamp(24px, 7vw, 34px) !important; }
+  .splash-bar-wrap{ width:min(54vw, 220px) !important; }
+}
+@media (max-width:780px){
+  .topbar-clean{
+    background:linear-gradient(180deg, rgba(7,17,32,.96), rgba(7,17,32,.84)) !important;
+  }
+  .metrics-grid .metric-card,
+  .ops-card,
+  .drum-card,
+  .config-card,
+  .result-card,
+  .chart-card,
+  .scenario-card,
+  .day-summary,
+  .hist-item,
+  .fita-panel{
+    border-radius:18px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
 <!-- ── Splash Screen ── -->
-<div id="splash">
-  <svg class="splash-logo" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <radialGradient id="sp-bg" cx="50%" cy="40%" r="60%">
-        <stop offset="0%" stop-color="#1a1e28"/>
-        <stop offset="100%" stop-color="#0c0e12"/>
-      </radialGradient>
-      <linearGradient id="sp-drop" x1="30%" y1="0%" x2="70%" y2="100%">
-        <stop offset="0%" stop-color="#1e8fff"/>
-        <stop offset="100%" stop-color="#0a4fa8"/>
-      </linearGradient>
-      <linearGradient id="sp-gold" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#f5c842"/>
-        <stop offset="100%" stop-color="#e8a020"/>
-      </linearGradient>
-      <filter id="sp-glow">
-        <feGaussianBlur stdDeviation="12" result="b"/>
-        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-      </filter>
-    </defs>
-    <rect width="512" height="512" rx="112" fill="url(#sp-bg)"/>
-    <ellipse cx="256" cy="290" rx="140" ry="150" fill="#1e8fff" opacity="0.07"/>
-    <path d="M256 108 C256 108 158 232 158 302 C158 358 202 396 256 396 C310 396 354 358 354 302 C354 232 256 108 256 108Z"
-          fill="url(#sp-drop)" filter="url(#sp-glow)"/>
-    <path d="M256 148 C256 148 188 248 188 302 C188 340 218 368 256 370"
-          fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="4" stroke-linecap="round"/>
-    <text x="256" y="320" text-anchor="middle" dominant-baseline="middle"
-          font-family="'Inter',Arial,sans-serif" font-weight="800" font-size="98"
-          letter-spacing="-4" fill="url(#sp-gold)">CP</text>
-    <circle cx="256" cy="120" r="11" fill="#e8a020" opacity="0.9"/>
-    <rect x="196" y="412" width="120" height="5" rx="2.5" fill="url(#sp-gold)" opacity="0.65"/>
-  </svg>
-  <div class="splash-brand">Cloro<span>Prime</span></div>
-  <div class="splash-tagline">Controle total da qualidade da água</div>
-  <div class="splash-bar-wrap"><div class="splash-bar"></div></div>
+<div id="splash" aria-label="Tela de abertura do app">
+  <div class="splash-stage">
+    <svg class="splash-logo" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <linearGradient id="cp-gold-2" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fff6d7"/>
+          <stop offset="28%" stop-color="#f3cb66"/>
+          <stop offset="68%" stop-color="#d89014"/>
+          <stop offset="100%" stop-color="#8b4e00"/>
+        </linearGradient>
+        <linearGradient id="cp-blue-2" x1="30%" y1="0%" x2="70%" y2="100%">
+          <stop offset="0%" stop-color="#50d0ff"/>
+          <stop offset="48%" stop-color="#1676ff"/>
+          <stop offset="100%" stop-color="#0a2a92"/>
+        </linearGradient>
+        <radialGradient id="cp-core-2" cx="50%" cy="30%" r="60%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity=".95"/>
+          <stop offset="45%" stop-color="#9de8ff" stop-opacity=".22"/>
+          <stop offset="100%" stop-color="#9de8ff" stop-opacity="0"/>
+        </radialGradient>
+        <filter id="cp-shadow-2" x="-30%" y="-30%" width="160%" height="160%">
+          <feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#000000" flood-opacity=".35"/>
+        </filter>
+      </defs>
+      <circle cx="256" cy="256" r="178" fill="#071321" opacity=".82"/>
+      <circle cx="256" cy="256" r="170" fill="none" stroke="url(#cp-gold-2)" stroke-width="10" opacity=".95"/>
+      <circle cx="256" cy="256" r="150" fill="rgba(9,25,46,.86)"/>
+      <path d="M256 118 C256 118 176 228 176 304 C176 367 212 414 256 414 C300 414 336 367 336 304 C336 228 256 118 256 118Z" fill="url(#cp-blue-2)" filter="url(#cp-shadow-2)"/>
+      <path d="M256 98 C256 98 162 226 162 309 C162 389 214 446 256 446 C298 446 350 389 350 309 C350 226 256 98 256 98Z" fill="none" stroke="url(#cp-gold-2)" stroke-width="16" stroke-linejoin="round"/>
+      <ellipse cx="278" cy="210" rx="56" ry="78" fill="url(#cp-core-2)"/>
+      <path d="M214 154 C194 190 182 232 182 268" fill="none" stroke="#ffffff" stroke-opacity=".26" stroke-width="8" stroke-linecap="round"/>
+    </svg>
+    <div class="splash-floor"></div>
+    <div class="splash-brand">Cloro<span>Prime</span></div>
+    <div class="splash-tagline">Controle total da qualidade da água</div>
+    <div class="splash-bar-wrap"><div class="splash-bar"></div></div>
+  </div>
 </div>
 <div class="toast-container" id="toast-container"></div>
 <input type="file" id="fita-camera-input" accept="image/*" capture="environment" style="display:none">
@@ -1192,6 +1575,9 @@ header { display: none; }
             <button class="side-nav-btn" data-view="historico" data-tip="Histórico" onclick="showView('historico',this)">
               <div class="left"><span class="ico">↺</span><span class="txt"><strong>Histórico</strong><span>Rastro de operação</span></span></div><span class="go">›</span>
             </button>
+            <button class="side-nav-btn" data-view="relatorios" data-tip="Relatórios" onclick="showView('relatorios',this)">
+              <div class="left"><span class="ico">🗂</span><span class="txt"><strong>Relatórios</strong><span>Filtros, rotina e backup</span></span></div><span class="go">›</span>
+            </button>
           </div>
         </div>
         <div class="side-group">
@@ -1265,6 +1651,7 @@ header { display: none; }
         <div class="mnav-more-dropdown" id="mnav-more-dropdown">
           <button class="mnav-dd-btn" data-view="calcular" onclick="showView('calcular',this);closeMoreMenu()">∑ Calcular</button>
           <button class="mnav-dd-btn" data-view="historico" onclick="showView('historico',this);closeMoreMenu()">↺ Histórico</button>
+          <button class="mnav-dd-btn" data-view="relatorios" onclick="showView('relatorios',this);closeMoreMenu()">🗂 Relatórios</button>
           <button class="mnav-dd-btn" data-view="config" onclick="showView('config',this);closeMoreMenu()">⚙ Config</button>
           <button class="mnav-dd-btn" data-view="personalizar" onclick="showView('personalizar',this);closeMoreMenu()">🎨 Visual</button>
           <button class="mnav-dd-btn" data-view="faq" onclick="showView('faq',this);closeMoreMenu()">❓ FAQ</button>
@@ -1280,6 +1667,7 @@ header { display: none; }
     <button class="nav-btn" data-view="calcular" onclick="showView('calcular', this)">Calcular</button>
     <button class="nav-btn" data-view="abastecer" onclick="showView('abastecer', this)">Abastecer</button>
     <button class="nav-btn" data-view="historico" onclick="showView('historico', this)">Histórico</button>
+    <button class="nav-btn" data-view="relatorios" onclick="showView('relatorios', this)">Relatórios</button>
     <button class="nav-btn" data-view="config" onclick="showView('config', this)">Config</button>
     <button class="nav-btn" data-view="personalizar" onclick="showView('personalizar', this)">🎨 Visual</button>
     <button class="nav-btn" data-view="faq" onclick="showView('faq', this)">❓ FAQ</button>
@@ -1415,12 +1803,209 @@ header { display: none; }
         </div>
       </div>
     </div>
+
+    <div class="config-card" style="margin-top:16px">
+      <div class="config-title">🎯 Limite no primeiro ponto</div>
+      <div style="font-size:13px;color:var(--text2);margin:-4px 0 14px;line-height:1.55">Informe apenas o residual do último ponto. O app estima a faixa operacional aceitável no primeiro ponto e sugere um ajuste inicial do FCE sem exagerar perto da origem.</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Último ponto (mg/L)</label>
+          <input type="number" id="ops-ultimo-ponto" min="0" max="10" step="0.1" placeholder="Ex: 0.3" oninput="renderOperacao()">
+        </div>
+        <div class="field">
+          <label>FCE atual para simulação (%)</label>
+          <input type="number" id="ops-fce-base" min="0" max="100" step="1" oninput="renderOperacao()">
+        </div>
+      </div>
+      <div class="result-card" id="ops-limite-box">
+        <div class="result-row">
+          <span class="result-label">1º ponto ideal</span>
+          <span class="result-val" id="ops-limite-faixa">--</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">Máximo aceitável no 1º ponto</span>
+          <span class="result-val" id="ops-limite-max">--</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">Ajuste inicial do FCE</span>
+          <span class="result-val" id="ops-limite-fce">--</span>
+        </div>
+      </div>
+      <div class="fita-copy" style="margin-top:14px">
+        <div class="line1">Leitura guiada da origem</div>
+        <div class="line2" id="ops-limite-copy">Preencha o último ponto para o app calcular a margem prática no primeiro ponto.</div>
+      </div>
+      <div class="ops-action-bar" style="margin-top:14px">
+        <button class="btn btn-primary ops-action-btn" onclick="aplicarSugestaoUltimoPonto()">Aplicar ajuste sugerido</button>
+        <button class="btn btn-secondary ops-action-btn" onclick="copiarFaixaOrigem()">Copiar faixa do 1º ponto</button>
+      </div>
+    </div>
+
+    <div class="config-card" style="margin-top:16px">
+      <div class="config-title">🎨 Guia rápida da fita · clique para usar</div>
+      <div style="font-size:13px;color:var(--text2);margin:-4px 0 14px;line-height:1.55">Clique na cor aproximada da fita e o app já preenche o último ponto, ajusta a leitura operacional na ponta e roda a análise automaticamente.</div>
+      <div class="fita-guide-grid">
+        <div class="fita-btn" onclick="usarValorFita(0.1)" style="background:#f5f5dc">
+          <strong>0,0 – 0,1 mg/L</strong><span>Muito baixo · ação imediata</span>
+        </div>
+        <div class="fita-btn" onclick="usarValorFita(0.3)" style="background:#fff3a0">
+          <strong>0,2 – 0,3 mg/L</strong><span>Mínimo aceitável</span>
+        </div>
+        <div class="fita-btn" onclick="usarValorFita(0.5)" style="background:#ffe066">
+          <strong>0,4 – 0,6 mg/L</strong><span>Faixa ideal</span>
+        </div>
+        <div class="fita-btn" onclick="usarValorFita(1.0)" style="background:#ffd43b">
+          <strong>0,8 – 1,0 mg/L</strong><span>Alto · observar</span>
+        </div>
+        <div class="fita-btn" onclick="usarValorFita(1.5)" style="background:#f59f00;grid-column:1/-1">
+          <strong>1,5+ mg/L</strong><span>Excesso provável · aliviar dosagem</span>
+        </div>
+      </div>
+      <div class="fita-guide-note">Referência visual aproximada. Sempre confirme com a escala original da embalagem da sua fita e com o tempo correto de leitura.</div>
+    </div>
+
+    <div class="config-card" style="margin-top:16px">
+      <div class="config-title">🧪 Guia completa de interpretação</div>
+      <div style="font-size:13px;color:var(--text2);margin:-4px 0 14px;line-height:1.55">Use como referência profissional de campo. Também é clicável: qualquer linha da tabela preenche a leitura e dispara a análise.</div>
+      <table class="scenario-table">
+        <thead>
+          <tr>
+            <th>Cor aproximada</th>
+            <th>Faixa</th>
+            <th>Situação</th>
+            <th>Ação recomendada</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="row-click" onclick="usarValorFita(0.1)">
+            <td><span class="fita-swatch" style="background:#f5f5dc"></span></td>
+            <td>0,0 – 0,1 mg/L</td>
+            <td>Crítico</td>
+            <td>Subir dosagem em pequeno passo e reavaliar a ponta.</td>
+          </tr>
+          <tr class="row-click" onclick="usarValorFita(0.3)">
+            <td><span class="fita-swatch" style="background:#fff3a0"></span></td>
+            <td>0,2 – 0,3 mg/L</td>
+            <td>Mínimo aceitável</td>
+            <td>Boa faixa mínima. Se oscilar, buscar um pouco mais de margem.</td>
+          </tr>
+          <tr class="row-click" onclick="usarValorFita(0.5)">
+            <td><span class="fita-swatch" style="background:#ffe066"></span></td>
+            <td>0,4 – 0,6 mg/L</td>
+            <td>Ideal</td>
+            <td>Manter a configuração atual.</td>
+          </tr>
+          <tr class="row-click" onclick="usarValorFita(1.0)">
+            <td><span class="fita-swatch" style="background:#ffd43b"></span></td>
+            <td>0,8 – 1,0 mg/L</td>
+            <td>Alto</td>
+            <td>Monitorar a origem. Pode aliviar o FCE se a ponta continuar forte.</td>
+          </tr>
+          <tr class="row-click" onclick="usarValorFita(1.5)">
+            <td><span class="fita-swatch" style="background:#f59f00"></span></td>
+            <td>1,5+ mg/L</td>
+            <td>Excesso</td>
+            <td>Reduzir FCE ou enfraquecer a mistura do tambor.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px">
+        <span class="fita-ref-chip">🎯 Ajuste sempre pela ponta mais distante</span>
+        <span class="fita-ref-chip">⚠️ Não busque deixar todos os pontos iguais</span>
+        <span class="fita-ref-chip">📦 10 µm = equilíbrio bom no seu cenário</span>
+      </div>
+    </div>
+
+    <div class="config-card" style="margin-top:16px">
+      <div class="config-title">🗓️ Rotina diária</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Último ponto (ppm)</label>
+          <input type="number" step="0.1" id="rotina-ppm" placeholder="Ex: 0.3">
+        </div>
+        <div class="field">
+          <label>FCE aplicado (%)</label>
+          <input type="number" step="1" id="rotina-fce" placeholder="Ex: 15">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Água da rua hoje</label>
+          <select id="rotina-rua">
+            <option value="nao">Não entrou</option>
+            <option value="sim">Entrou</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Ponto de coleta</label>
+          <select id="rotina-ponto">
+            <option value="ponta">Último ponto</option>
+            <option value="secundario">Reservatório secundário</option>
+            <option value="principal">Reservatório principal</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Observação do dia</label>
+        <input type="text" id="rotina-obs" placeholder="Ex: sujeira da rua, torneira entupida, ajuste aplicado...">
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-primary" style="flex:1" onclick="salvarRotinaDiaria()">Salvar rotina do dia</button>
+        <button class="btn btn-secondary" style="flex:1" onclick="preencherRotinaDaOperacao()">Usar leitura atual</button>
+      </div>
+      <div id="rotina-status" style="font-size:12px;color:var(--text2);margin-top:10px"></div>
+
+      <div class="routine-guide">
+        <div class="config-title" style="margin-bottom:12px">✅ Rotina guiada</div>
+        <div class="routine-guide-grid" id="routine-guide-grid"></div>
+        <div class="routine-bar">
+          <button class="btn btn-secondary btn-sm" onclick="preencherRotinaDaOperacao();setRotinaStep('medicao')">1. Usar leitura atual</button>
+          <button class="btn btn-secondary btn-sm" onclick="marcarTamborConferido()">2. Confirmar tambor</button>
+          <button class="btn btn-secondary btn-sm" onclick="marcarFiltrosConferidos()">3. Confirmar filtros</button>
+          <button class="btn btn-primary btn-sm" onclick="salvarRotinaDiaria()">4. Fechar rotina</button>
+        </div>
+        <div id="routine-guide-status" style="font-size:12px;color:var(--text2);margin-top:10px"></div>
+      </div>
+    </div>
   </div>
 
   <!-- DASHBOARD -->
   <div class="view" id="view-dashboard">
 
     <div id="alert-zone"></div>
+
+    <div class="smart-panel">
+      <div class="smart-panel-head">
+        <div>
+          <div class="smart-panel-title">⚡ Painel simplificado</div>
+          <div class="smart-panel-sub">O que olhar primeiro hoje: leitura, dosador, tambor e pendência crítica.</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary btn-sm" onclick="executarRotina1Clique()">Rotina 1 clique</button>
+          <button class="btn btn-secondary btn-sm" onclick="showView('operacao')">Abrir operação</button>
+        </div>
+      </div>
+      <div class="smart-grid" id="smart-grid"></div>
+      <div class="smart-actions">
+        <button class="btn btn-secondary btn-sm" onclick="preencherRotinaDaOperacao();showView('operacao')">Usar leitura atual</button>
+        <button class="btn btn-secondary btn-sm" onclick="marcarTamborConferido()">Tambor conferido</button>
+        <button class="btn btn-secondary btn-sm" onclick="marcarFiltrosConferidos()">Filtros conferidos</button>
+      </div>
+    </div>
+
+    <div class="deadline-panel">
+      <div class="deadline-head">
+        <div>
+          <div class="deadline-title">⏱ Painel de prazos</div>
+          <div class="deadline-sub">Hoje você vê em um só lugar filtros, tambor, verificação da fita e desinfecção das caixas.</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-secondary btn-sm" onclick="showView('relatorios')">Abrir relatórios</button>
+          <button class="btn btn-secondary btn-sm" onclick="showView('operacao')">Rotina do dia</button>
+        </div>
+      </div>
+      <div class="deadline-grid" id="deadline-grid"></div>
+    </div>
 
     <!-- Resumo do dia -->
     <div class="day-summary">
@@ -1859,6 +2444,135 @@ header { display: none; }
     <div id="hist-list"></div>
   </div>
 
+
+  <!-- RELATÓRIOS -->
+  <div class="view" id="view-relatorios">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:12px;flex-wrap:wrap">
+      <div>
+        <div class="sec-title" style="margin:0">Relatórios e backup</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:4px">Controle de filtros, rotina diária e exportação dos dados do app.</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-secondary btn-sm" onclick="exportarRelatorioCompleto()">📥 Backup JSON</button>
+        <button class="btn btn-secondary btn-sm" onclick="exportarRelatorioTexto()">📝 Relatório TXT</button>
+      </div>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="m-label">Filtro SABESP</div>
+        <div class="m-value accent" id="rep-sabesp-dias">--</div>
+        <div class="m-sub" id="rep-sabesp-sub">Sem limpeza registrada</div>
+      </div>
+      <div class="metric-card">
+        <div class="m-label">Filtro Poço</div>
+        <div class="m-value accent" id="rep-poco-dias">--</div>
+        <div class="m-sub" id="rep-poco-sub">Sem limpeza registrada</div>
+      </div>
+    </div>
+
+    <div class="config-card">
+      <div class="config-title">🧴 Controle de filtros</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Filtro SABESP</label>
+          <select id="rep-sabesp-micra" onchange="salvarConfigFiltros()">
+            <option value="1000">1000 µm</option>
+            <option value="800">800 µm</option>
+            <option value="500">500 µm</option>
+            <option value="300">300 µm</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Limpeza alvo SABESP (dias)</label>
+          <input type="number" id="rep-sabesp-intervalo" min="1" max="60" onchange="salvarConfigFiltros()">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Filtro do poço</label>
+          <select id="rep-poco-micra" onchange="salvarConfigFiltros()">
+            <option value="20">20 µm</option>
+            <option value="10">10 µm</option>
+            <option value="5">5 µm</option>
+            <option value="1">1 µm</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Limpeza alvo poço (dias)</label>
+          <input type="number" id="rep-poco-intervalo" min="1" max="60" onchange="salvarConfigFiltros()">
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-primary" style="flex:1" onclick="registrarLimpezaFiltro('sabesp')">Registrar limpeza SABESP</button>
+        <button class="btn btn-primary" style="flex:1" onclick="registrarLimpezaFiltro('poco')">Registrar limpeza Poço</button>
+      </div>
+      <div id="rel-filtros-alertas" style="margin-top:12px"></div>
+    </div>
+
+    <div class="config-card">
+      <div class="config-title">♻️ Filtro plissado do poço</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Reutilizações seguras</label>
+          <input type="number" id="rep-plissado-max" min="1" max="5" onchange="salvarConfigFiltros()">
+        </div>
+        <div class="field">
+          <label>Reusos atuais</label>
+          <input type="number" id="rep-plissado-reusos" readonly>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-secondary" style="flex:1" onclick="registrarLavagemPlissado()">Registrar lavagem / reaproveitamento</button>
+        <button class="btn btn-primary" style="flex:1" onclick="registrarTrocaPlissado()">Registrar troca do elemento</button>
+      </div>
+      <div id="rel-plissado-alertas" style="margin-top:12px"></div>
+      <div id="rel-plissado-historico" style="margin-top:12px"></div>
+    </div>
+
+    <div class="config-card">
+      <div class="config-title">🚰 Controle operacional</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Água da rua hoje</label>
+          <select id="rep-rua-hoje" onchange="salvarRuaHoje(this.value)">
+            <option value="nao">Não entrou</option>
+            <option value="sim">Entrou</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Último ponto registrado</label>
+          <input type="text" id="rep-ultima-rotina" readonly>
+        </div>
+      </div>
+      <div id="rep-resumo-operacao" style="font-size:12px;color:var(--text2)"></div>
+    </div>
+
+    <div class="config-card">
+      <div class="config-title">🧼 Desinfecção semestral das caixas</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Periodicidade alvo (dias)</label>
+          <input type="number" id="rep-desinf-intervalo" min="30" max="365" onchange="salvarConfigDesinfeccao()">
+        </div>
+        <div class="field">
+          <label>Última desinfecção</label>
+          <input type="text" id="rep-desinf-ultima" readonly>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-primary" style="flex:1" onclick="registrarDesinfeccaoCaixas()">Registrar desinfecção das caixas</button>
+        <button class="btn btn-secondary" style="flex:1" onclick="copiarResumoDesinfeccao()">Copiar resumo</button>
+      </div>
+      <div id="rel-desinf-status" style="margin-top:12px"></div>
+    </div>
+
+    <div class="config-card">
+      <div class="config-title">📋 Relatório resumido</div>
+      <div id="rel-resumo-list"></div>
+    </div>
+  </div>
+
   <!-- CONFIG -->
   <div class="view" id="view-config">
     <div class="sec-title">Configurações do sistema</div>
@@ -1960,13 +2674,22 @@ header { display: none; }
       <div class="config-title">🔧 Filtro plissado</div>
       <div class="field-row">
         <div class="field">
+          <label>Micragem em uso</label>
+          <select id="cfg-filtro-micra" onchange="saveConfig()">
+            <option value="20">20 micras</option>
+            <option value="10" selected>10 micras</option>
+            <option value="5">5 micras</option>
+            <option value="1">1 micra</option>
+          </select>
+        </div>
+        <div class="field">
           <label>Última troca do filtro</label>
           <input type="date" id="cfg-filtro-troca" onchange="saveConfig()">
         </div>
-        <div class="field">
-          <label>Intervalo de troca (dias)</label>
-          <input type="number" id="cfg-filtro-intervalo" value="60" min="7" max="365" onchange="saveConfig()">
-        </div>
+      </div>
+      <div class="field">
+        <label>Intervalo de troca (dias)</label>
+        <input type="number" id="cfg-filtro-intervalo" value="60" min="7" max="365" onchange="saveConfig()">
       </div>
       <div id="cfg-filtro-info" style="font-size:12px;color:var(--text3);margin-top:4px"></div>
     </div>
@@ -1998,6 +2721,63 @@ header { display: none; }
       </div>
     </div>
 
+
+    <div class="config-card">
+      <div class="config-title">🚰 Linha SABESP + filtros de manutenção</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Filtro SABESP (µm)</label>
+          <select id="cfg-sabesp-micra" onchange="salvarConfigFiltros()">
+            <option value="1000">1000 µm</option>
+            <option value="800">800 µm</option>
+            <option value="500">500 µm</option>
+            <option value="300">300 µm</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Limpeza alvo SABESP (dias)</label>
+          <input type="number" id="cfg-sabesp-intervalo" min="1" max="60" onchange="salvarConfigFiltros()">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Filtro do poço (µm)</label>
+          <select id="cfg-poco-micra" onchange="salvarConfigFiltros()">
+            <option value="20">20 µm</option>
+            <option value="10">10 µm</option>
+            <option value="5">5 µm</option>
+            <option value="1">1 µm</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Limpeza alvo poço (dias)</label>
+          <input type="number" id="cfg-poco-intervalo" min="1" max="60" onchange="salvarConfigFiltros()">
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-secondary" style="flex:1" onclick="registrarLimpezaFiltro('sabesp')">Registrar limpeza SABESP</button>
+        <button class="btn btn-secondary" style="flex:1" onclick="registrarLimpezaFiltro('poco')">Registrar limpeza Poço</button>
+      </div>
+      <div class="divider"></div>
+      <div class="config-title">♻️ Filtro plissado do poço</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Reutilizações seguras</label>
+          <input type="number" id="cfg-plissado-max" min="1" max="5" onchange="salvarConfigFiltros()">
+        </div>
+        <div class="field">
+          <label>Reusos atuais</label>
+          <input type="number" id="cfg-plissado-reusos" readonly>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-secondary" style="flex:1" onclick="registrarLavagemPlissado()">Registrar lavagem / reaproveitamento</button>
+        <button class="btn btn-primary" style="flex:1" onclick="registrarTrocaPlissado()">Registrar troca do elemento</button>
+      </div>
+      <div id="cfg-plissado-info" style="font-size:12px;color:var(--text2);margin-top:10px"></div>
+      <div id="cfg-filtros-extra-info" style="font-size:12px;color:var(--text2);margin-top:10px"></div>
+    </div>
+
     <button class="btn btn-primary" onclick="saveConfig();toast('Configurações salvas! ✅','ok')">💾 Salvar tudo</button>
     <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
       <button class="btn btn-secondary" style="flex:1" onclick="abrirWizard()">🧙 Refazer configuração inicial</button>
@@ -2006,7 +2786,7 @@ header { display: none; }
 
     <div class="divider"></div>
     <div style="text-align:center;color:var(--text3);font-size:12px;padding:8px 0">
-      CloroPrime v3.6 · Condomínio · <span id="cfg-info"></span>
+      CloroPrime v5.0 · Condomínio · <span id="cfg-info"></span>
     </div>
   </div>
 
@@ -2270,15 +3050,22 @@ const KEY = 'cloroprime_v1';
 let state = {
   nivel: 50,
   hist: [],
+  dailyLogs: [],
+  ruaHoje: 'nao',
+  filtros: {
+    poco: { micra: 10, ultimaLimpeza: '', intervalo: 10, plissado: { reusos: 0, maxReusos: 2, ultimaLavagem: '', ultimaTroca: '' } },
+    sabesp: { micra: 500, ultimaLimpeza: '', intervalo: 7 }
+  },
   latestRead: { valor: '', ponto: 'ponta' },
   proximaVerif: null,
+  desinfeccao: { ultima: '', intervalo: 180 },
   custoTotal: 0,
   config: {
     reserv: 30000, reservSec: 9000, caixas: 8, volCaixa: 2000,
     unidades: 80, pessoas: 240, vazao: 1500,
     fce: 18, hipoct: 12, tambor: 100, bombaMax: 1.5,
     alvoDose: 1.0, alertaBaixo: 20, alertaCrit: 10,
-    modeloBomba: '', filtroTroca: '', filtroIntervalo: 60,
+    modeloBomba: '', filtroTroca: '', filtroIntervalo: 60, filterMicron: 10,
     precoProduto: 0, volGalao: 20
   }
 };
@@ -2290,6 +3077,21 @@ function save() {
   localStorage.setItem(KEY, JSON.stringify(state));
 }
 load();
+if(state.config.filterMicron == null) state.config.filterMicron = 10;
+if(!Array.isArray(state.dailyLogs)) state.dailyLogs = [];
+if(!state.ruaHoje) state.ruaHoje = 'nao';
+if(!state.filtros || typeof state.filtros !== 'object') state.filtros = {};
+if(!state.filtros.poco) state.filtros.poco = { micra: 10, ultimaLimpeza: '', intervalo: 10, plissado: { reusos: 0, maxReusos: 2, ultimaLavagem: '', ultimaTroca: '' } };
+if(!state.filtros.sabesp) state.filtros.sabesp = { micra: 500, ultimaLimpeza: '', intervalo: 7 };
+if(state.filtros.poco.micra == null) state.filtros.poco.micra = 10;
+if(state.filtros.sabesp.micra == null) state.filtros.sabesp.micra = 500;
+if(state.filtros.poco.intervalo == null) state.filtros.poco.intervalo = 10;
+if(!state.filtros.poco.plissado || typeof state.filtros.poco.plissado !== 'object') state.filtros.poco.plissado = { reusos: 0, maxReusos: 2, ultimaLavagem: '', ultimaTroca: '' };
+if(state.filtros.poco.plissado.reusos == null) state.filtros.poco.plissado.reusos = 0;
+if(state.filtros.poco.plissado.maxReusos == null) state.filtros.poco.plissado.maxReusos = 2;
+if(!state.desinfeccao || typeof state.desinfeccao !== 'object') state.desinfeccao = { ultima: '', intervalo: 180 };
+if(state.desinfeccao.intervalo == null) state.desinfeccao.intervalo = 180;
+if(state.filtros.sabesp.intervalo == null) state.filtros.sabesp.intervalo = 7;
 
 // ─── Navigation ────────────────────────────────────────────────────
 function activateView(id){ const trigger=document.querySelector(`[data-view="${id}"]`); showView(id, trigger); }
@@ -2307,6 +3109,7 @@ function showView(id, triggerEl=null) {
   if(id==='historico') renderHistorico();
   if(id==='calcular') { syncCalcFromConfig(); calcular(); }
   if(id==='config') loadConfig();
+  if(id==='relatorios') renderRelatorios();
   if(id==='personalizar') carregarPersonalizacao();
   if(id==='faq') {} // static
 }
@@ -2374,6 +3177,144 @@ function analyzeReading(valor, point, fcePct, productPct) {
   return { faixa, mix, cls, badge, resumo, acao, fator, fceNovo, cloro, agua, statusText: badge + (Number.isFinite(valor) ? ` · ${fmtBR(valor,1)} mg/L` : '') };
 }
 
+
+function calculateFirstPointGuidance(lastPoint, fceAtual) {
+  const ultimo = Number(lastPoint);
+  const fce = parseFloat(fceAtual || state.config.fce || 15);
+  const maxPrimeiro = 1.2;
+  if(!Number.isFinite(ultimo)) {
+    return {
+      faixa: '--',
+      maxTxt: fmtBR(maxPrimeiro,1) + ' mg/L',
+      fceTxt: fmtBR(fce,0) + '% atual',
+      copy: 'Preencha o último ponto para o app estimar a faixa de trabalho no primeiro ponto.'
+    };
+  }
+  const idealMin = Math.max(0.2, +(ultimo + 0.2).toFixed(2));
+  const idealMaxBruto = +(ultimo + 0.5).toFixed(2);
+  const idealMax = Math.min(maxPrimeiro, idealMaxBruto);
+  let novoFce = fce;
+  let status = 'Sistema em faixa boa.';
+
+  if(ultimo < 0.2) {
+    novoFce = Math.min(100, Math.round(fce + 3));
+    status = 'Último ponto abaixo do mínimo. Suba o FCE em pequeno passo e confira se a origem ainda fica abaixo de 1,2 mg/L.';
+  } else if(ultimo > 0.5) {
+    novoFce = Math.max(0, Math.round(fce - 3));
+    status = 'Último ponto já está forte. Vale aliviar um pouco a dosagem para não pesar na origem.';
+  }
+
+  const bloqueio = idealMaxBruto > maxPrimeiro
+    ? 'Para sustentar esse residual na ponta, o primeiro ponto tenderia a passar de 1,2 mg/L. Antes de subir mais, verifique consumo de cloro na rede, mistura e filtro.'
+    : 'Essa faixa tende a segurar residual na ponta sem exagerar perto do reservatório principal.';
+
+  return {
+    faixa: fmtBR(idealMin,1) + ' a ' + fmtBR(idealMax,1) + ' mg/L',
+    maxTxt: fmtBR(maxPrimeiro,1) + ' mg/L',
+    fceTxt: novoFce === fce ? (fmtBR(fce,0) + '% · manter') : (fmtBR(fce,0) + '% → ' + fmtBR(novoFce,0) + '%'),
+    copy: status + ' ' + bloqueio
+  };
+}
+
+function renderLastPointAdvisor(fceAtual) {
+  const ultimoInput = document.getElementById('ops-ultimo-ponto');
+  const fceBaseInput = document.getElementById('ops-fce-base');
+  if(fceBaseInput && document.activeElement !== fceBaseInput) fceBaseInput.value = Number.parseFloat(fceAtual || state.config.fce || 15);
+  const ultimo = parseFloat(ultimoInput?.value || '');
+  const guide = calculateFirstPointGuidance(ultimo, fceBaseInput?.value || fceAtual || state.config.fce || 15);
+  const faixaEl = document.getElementById('ops-limite-faixa');
+  const maxEl = document.getElementById('ops-limite-max');
+  const fceEl = document.getElementById('ops-limite-fce');
+  const copyEl = document.getElementById('ops-limite-copy');
+  if(faixaEl) faixaEl.textContent = guide.faixa;
+  if(maxEl) maxEl.textContent = guide.maxTxt;
+  if(fceEl) fceEl.textContent = guide.fceTxt;
+  if(copyEl) copyEl.textContent = guide.copy;
+}
+
+function aplicarSugestaoUltimoPonto() {
+  const ultimo = parseFloat(document.getElementById('ops-ultimo-ponto')?.value || '');
+  const fceBaseInput = document.getElementById('ops-fce-base');
+  const fceBase = parseFloat(fceBaseInput?.value || state.config.fce || 15);
+
+  if(!Number.isFinite(ultimo)) {
+    toast('Informe a leitura do último ponto antes de aplicar o ajuste.','warn');
+    return;
+  }
+
+  const guide = calculateFirstPointGuidance(ultimo, fceBase);
+  const suggestionText = guide.fceTxt || '';
+  const match = suggestionText.match(/→\s*(\d+)%/);
+  const novoFce = match ? parseFloat(match[1]) : fceBase;
+
+  state.config.fce = novoFce;
+  if(fceBaseInput) fceBaseInput.value = novoFce;
+  const opsFce = document.getElementById('ops-fce');
+  if(opsFce) opsFce.value = novoFce;
+  const cfgFce = document.getElementById('cfg-fce');
+  if(cfgFce) cfgFce.value = novoFce;
+  const calcFce = document.getElementById('fce');
+  if(calcFce) calcFce.value = novoFce;
+
+  save();
+  syncCalcFromConfig();
+  calcular();
+  renderOperacao();
+  addHistorico('config', 'Ajuste aplicado pelo último ponto', `Último ponto ${fmtBR(ultimo,1)} mg/L · FCE ${fmtBR(fceBase,0)}% → ${fmtBR(novoFce,0)}%`);
+  toast(`Ajuste aplicado: FCE ${fmtBR(fceBase,0)}% → ${fmtBR(novoFce,0)}%.`,'ok');
+}
+
+function copiarFaixaOrigem() {
+  const faixa = document.getElementById('ops-limite-faixa')?.textContent?.trim();
+  const maximo = document.getElementById('ops-limite-max')?.textContent?.trim();
+  if(!faixa || faixa === '--') {
+    toast('Preencha o último ponto para gerar a faixa do 1º ponto.','warn');
+    return;
+  }
+  const texto = `1º ponto ideal: ${faixa} | Máximo aceitável: ${maximo}`;
+  if(navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(texto)
+      .then(() => toast('Faixa do 1º ponto copiada.','ok'))
+      .catch(() => toast(texto,'info'));
+  } else {
+    toast(texto,'info');
+  }
+}
+
+function usarValorFita(valor) {
+  const numero = parseFloat(valor);
+  if(!Number.isFinite(numero)) {
+    toast('Valor da fita inválido.','warn');
+    return;
+  }
+
+  const ultimo = document.getElementById('ops-ultimo-ponto');
+  if(ultimo) ultimo.value = numero.toFixed(1);
+
+  const opsValor = document.getElementById('ops-fita-valor');
+  if(opsValor) opsValor.value = numero.toFixed(1);
+
+  const fitaValor = document.getElementById('fita-valor');
+  if(fitaValor) fitaValor.value = numero.toFixed(1);
+
+  const opsPonto = document.getElementById('ops-fita-ponto');
+  if(opsPonto) opsPonto.value = 'ponta';
+
+  const fitaPonto = document.getElementById('fita-ponto');
+  if(fitaPonto) fitaPonto.value = 'ponta';
+
+  state.latestRead = state.latestRead || {};
+  state.latestRead.valor = numero.toFixed(1);
+  state.latestRead.ponto = 'ponta';
+
+  renderOperacao();
+  avaliarFita();
+  renderSidebarSummary();
+
+  const etiqueta = numero >= 1.5 ? '1,5+' : fmtBR(numero,1);
+  toast(`Leitura ${etiqueta} mg/L aplicada e analisada.`, 'ok');
+}
+
 function syncOperacaoFromUI() {
   state.latestRead.valor = document.getElementById('ops-fita-valor')?.value ?? '';
   state.latestRead.ponto = document.getElementById('ops-fita-ponto')?.value || 'ponta';
@@ -2428,6 +3369,8 @@ function renderOperacao(forceFce=null, forceConc=null) {
   state.latestRead.ponto = ponto;
   renderSidebarSummary();
   renderTopbarAndCards(analysis, plan, cloro, agua, fce, conc);
+  renderLastPointAdvisor(fce);
+  renderFiltroStatus();
   validarCruzado();
 }
 
@@ -2480,6 +3423,180 @@ function renderTopbarAndCards(analysis, plan, cloro, agua, fce, conc) {
   document.getElementById('card-mistura-sub').textContent = 'Produto ' + String(conc).replace('.', ',') + '% + ' + fmtBR(agua,1) + ' L de água';
 }
 
+
+function getTodayKey() {
+  const d = new Date();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${d.getFullYear()}-${m}-${day}`;
+}
+
+function ensureRoutineGuideState() {
+  if(!state.routineGuide || state.routineGuide.date !== getTodayKey()) {
+    state.routineGuide = { date: getTodayKey(), medicao:false, tambor:false, filtros:false, salva:false };
+    save();
+  }
+  return state.routineGuide;
+}
+
+function setRotinaStep(step, value=true) {
+  const rg = ensureRoutineGuideState();
+  rg[step] = value;
+  save();
+  renderRotinaGuiada();
+  renderPainelPrazos();
+}
+
+function marcarTamborConferido() {
+  setRotinaStep('tambor', true);
+  toast('Tambor conferido na rotina de hoje.','ok');
+}
+
+function marcarFiltrosConferidos() {
+  setRotinaStep('filtros', true);
+  toast('Filtros conferidos na rotina de hoje.','ok');
+}
+
+function renderRotinaGuiada() {
+  const box = document.getElementById('routine-guide-grid');
+  const status = document.getElementById('routine-guide-status');
+  if(!box || !status) return;
+  const rg = ensureRoutineGuideState();
+  const passos = [
+    { key:'medicao', t:'Leitura', v: rg.medicao ? 'ok' : 'pendente', s: rg.medicao ? 'Leitura/apoio visual já trazido para a rotina.' : 'Use a leitura atual ou clique na cor da fita.' },
+    { key:'tambor', t:'Tambor', v: rg.tambor ? 'ok' : 'pendente', s: rg.tambor ? 'Nível do tambor foi conferido hoje.' : 'Confirme visualmente o nível e a autonomia.' },
+    { key:'filtros', t:'Filtros', v: rg.filtros ? 'ok' : 'pendente', s: rg.filtros ? 'Conferência de filtros registrada hoje.' : 'Cheque filtros SABESP e poço antes de fechar a rotina.' },
+    { key:'salva', t:'Fechamento', v: rg.salva ? 'ok' : 'pendente', s: rg.salva ? 'Rotina diária salva com sucesso.' : 'Salve a rotina do dia para manter o histórico útil.' }
+  ];
+  box.innerHTML = passos.map(p => `<div class="routine-step ${rg[p.key] ? 'done' : ''}"><div class="k">${p.t}</div><div class="v">${p.v}</div><div class="s">${p.s}</div></div>`).join('');
+  const concluidos = passos.filter(p => rg[p.key]).length;
+  status.textContent = concluidos === passos.length ? 'Rotina de hoje fechada. Sistema pronto para acompanhamento.' : `Rotina guiada: ${concluidos}/${passos.length} etapa(s) concluída(s) hoje.`;
+}
+
+
+function executarRotina1Clique() {
+  const valOps = parseFloat(document.getElementById('ops-fita-valor')?.value || '');
+  const valUlt = parseFloat(state.latestRead?.valor || '');
+  const leitura = Number.isFinite(valOps) ? valOps : valUlt;
+  const fceAtual = parseFloat(document.getElementById('ops-fce')?.value || state.config.fce || '');
+  const ruaAtual = state.ruaHoje || 'nao';
+
+  if(!Number.isFinite(leitura)) {
+    toast('Primeiro registre uma leitura da fita ou clique na cor correspondente.','warn');
+    showView('operacao');
+    return;
+  }
+
+  const ppmEl = document.getElementById('rotina-ppm');
+  const fceEl = document.getElementById('rotina-fce');
+  const ruaEl = document.getElementById('rotina-rua');
+  const pontoEl = document.getElementById('rotina-ponto');
+  if(ppmEl) ppmEl.value = leitura;
+  if(fceEl) fceEl.value = Number.isFinite(fceAtual) ? fceAtual : state.config.fce;
+  if(ruaEl) ruaEl.value = ruaAtual;
+  if(pontoEl) pontoEl.value = state.latestRead?.ponto || 'ponta';
+
+  setRotinaStep('medicao', true);
+  setRotinaStep('tambor', true);
+  setRotinaStep('filtros', true);
+  salvarRotinaDiaria();
+  toast('Rotina do dia fechada em 1 clique.','ok');
+}
+
+function renderPainelSimplificado() {
+  const box = document.getElementById('smart-grid');
+  if(!box) return;
+  const cfg = state.config || {};
+  const latestVal = parseFloat(state.latestRead?.valor || '');
+  const latestPoint = state.latestRead?.ponto || 'ponta';
+  const analysis = analyzeReading(latestVal, latestPoint, cfg.fce, cfg.hipoct);
+  const consumoH = getPumpFlowLH(cfg.fce || 0, cfg.bombaMax || 1.5);
+  const consumoD = consumoH * 24;
+  const diasTambor = consumoD > 0 ? (Number(state.nivel || 0) / consumoD) : 999;
+  const sab = getFiltroMeta('sabesp');
+  const poc = getFiltroMeta('poco');
+  const pli = getPlissadoMeta();
+  const des = getDesinfeccaoMeta();
+  const pendencias = [sab.cls, poc.cls, pli.cls, des.cls].filter(v => v === 'danger').length;
+  const pendWarn = [sab.cls, poc.cls, pli.cls, des.cls].filter(v => v === 'warn').length;
+  let pendCls = 'ok', pendVal = 'em dia', pendTxt = 'Nenhuma pendência crítica aberta.';
+  if(pendencias > 0) {
+    pendCls = 'danger';
+    pendVal = `${pendencias} crítica(s)`;
+    pendTxt = 'Há itens vencidos exigindo ação hoje.';
+  } else if(pendWarn > 0 || diasTambor <= 3) {
+    pendCls = 'warn';
+    pendVal = 'atenção';
+    pendTxt = 'Existem conferências ou prazos próximos para hoje.';
+  }
+  const cards = [
+    {
+      k:'Leitura atual',
+      v:Number.isFinite(latestVal) ? `${fmtBR(latestVal,1)} mg/L` : '--',
+      s:Number.isFinite(latestVal) ? `${analysis.badge} · ${analysis.faixa.alvo}` : 'Clique na cor da fita ou registre a leitura.',
+      cls:Number.isFinite(latestVal) ? analysis.cls : 'warn'
+    },
+    {
+      k:'Dosador',
+      v:`${fmtBR(cfg.fce || 0,0)}%`,
+      s:`Produto ${String(cfg.hipoct || 10).replace('.', ',')}% · ${fmtBR(consumoD,2)} L/dia`,
+      cls:(cfg.fce || 0) === 0 ? 'danger' : ((cfg.fce || 0) >= 18 ? 'warn' : 'ok')
+    },
+    {
+      k:'Tambor',
+      v:diasTambor < 999 ? `${fmtBR(diasTambor,1)}d` : '∞',
+      s:`${fmtBR(state.nivel || 0,1)} L restantes · alvo é conferir visualmente`,
+      cls:diasTambor <= 1 ? 'danger' : diasTambor <= 3 ? 'warn' : 'ok'
+    },
+    {
+      k:'Pendências',
+      v:pendVal,
+      s:pendTxt,
+      cls:pendCls
+    }
+  ];
+  box.innerHTML = cards.map(c => `<div class="smart-item ${c.cls}"><div class="k">${c.k}</div><div class="v">${c.v}</div><div class="s">${c.s}</div></div>`).join('');
+}
+
+function renderPainelPrazos() {
+  const box = document.getElementById('deadline-grid');
+  if(!box) return;
+  const sab = getFiltroMeta('sabesp');
+  const poc = getFiltroMeta('poco');
+  const des = getDesinfeccaoMeta();
+  const pli = getPlissadoMeta();
+  const rg = ensureRoutineGuideState();
+  const cfg = state.config || {};
+  const n = Number(state.nivel || 0);
+  const consumoH = getPumpFlowLH(cfg.fce || 0, cfg.bombaMax || 1.5);
+  const consumoD = consumoH * 24;
+  const diasTambor = consumoD > 0 ? (n / consumoD) : 999;
+  const verif = state.proximaVerif ? new Date(state.proximaVerif) : null;
+  let verifCls = 'ok', verifTxt = 'Sem verificação agendada', verifVal = 'livre';
+  if(verif) {
+    const diff = Math.ceil((verif - new Date()) / (1000*60*60*24));
+    verifVal = diff < 0 ? `${Math.abs(diff)}d atrasada` : `${diff}d`;
+    verifTxt = diff < 0 ? `fita pendente desde ${verif.toLocaleDateString('pt-BR')}` : `verificação em ${verif.toLocaleDateString('pt-BR')}`;
+    verifCls = diff < 0 ? 'danger' : diff <= 1 ? 'warn' : 'ok';
+  }
+  const rotinaCls = rg.salva ? 'ok' : (rg.medicao || rg.tambor || rg.filtros ? 'warn' : 'danger');
+  const rotinaVal = rg.salva ? 'fechada' : `${[rg.medicao,rg.tambor,rg.filtros,rg.salva].filter(Boolean).length}/4`;
+  const rotinaTxt = rg.salva ? 'rotina diária concluída hoje' : 'use a rotina guiada para fechar o processo do dia';
+  const tamborCls = diasTambor <= 1 ? 'danger' : diasTambor <= 3 ? 'warn' : 'ok';
+  const tamborVal = diasTambor < 999 ? `${fmtBR(diasTambor,1)}d` : '∞';
+  const tamborTxt = consumoD > 0 ? `${fmtBR(n,1)} L no tambor · confira visualmente` : 'dosador parado ou sem consumo estimado';
+  const cards = [
+    {k:'Filtro SABESP', v:sab.dias == null ? '--' : `${sab.dias}d`, s:`${sab.texto} · ${sab.micra} µm`, cls:sab.cls || 'ok'},
+    {k:'Filtro poço', v:poc.dias == null ? '--' : `${poc.dias}d`, s:`${poc.texto} · ${poc.micra} µm`, cls:poc.cls || 'ok'},
+    {k:'Plissado', v:`${pli.reusos}/${pli.maxReusos}`, s:`${pli.texto} · ${pli.obs}`, cls:pli.cls || 'ok'},
+    {k:'Tambor', v:tamborVal, s:tamborTxt, cls:tamborCls},
+    {k:'Verificação fita', v:verifVal, s:verifTxt, cls:verifCls},
+    {k:'Desinfecção', v:des.ultima ? des.ultima.toLocaleDateString('pt-BR') : '--', s:`${des.texto} · alvo ${des.intervalo}d`, cls:des.cls || 'ok'},
+    {k:'Rotina do dia', v:rotinaVal, s:rotinaTxt, cls:rotinaCls}
+  ];
+  box.innerHTML = cards.map(c => `<div class="deadline-item ${c.cls}"><div class="k">${c.k}</div><div class="v">${c.v}</div><div class="s">${c.s}</div></div>`).join('');
+}
+
 function renderDashboard() {
   const cfg = state.config;
   const n = state.nivel;
@@ -2523,7 +3640,20 @@ function renderDashboard() {
     az.innerHTML = '';
     if(pct <= cfg.alertaCrit) az.innerHTML += `<div class="alert alert-danger">🚨 Tambor CRÍTICO (${pct}%) — Abasteça imediatamente! Autonomia: ${days.toFixed(1)} dia(s).</div>`;
     else if(pct <= cfg.alertaBaixo) az.innerHTML += `<div class="alert alert-warn">⚠️ Nível baixo (${pct}%) — Autonomia: ${days.toFixed(1)} dias.</div>`;
+    else if(days <= 3) az.innerHTML += `<div class="alert alert-warn">🛢️ Verifique o nível do tambor hoje. Autonomia estimada: ${days.toFixed(1)} dia(s).</div>`;
     if(cfg.fce === 0) az.innerHTML += `<div class="alert alert-warn">⚠️ Dosador FCE em 0% — nenhum cloro sendo injetado.</div>`;
+    const sab = getFiltroMeta('sabesp');
+    const poc = getFiltroMeta('poco');
+    const pli = getPlissadoMeta();
+    const des = getDesinfeccaoMeta();
+    if(sab.cls === 'danger') az.innerHTML += `<div class="alert alert-danger">🧴 Filtro SABESP acima do prazo de limpeza (${sab.texto}).</div>`;
+    else if(sab.cls === 'warn') az.innerHTML += `<div class="alert alert-warn">🧴 Filtro SABESP requer conferência (${sab.texto}).</div>`;
+    if(poc.cls === 'danger') az.innerHTML += `<div class="alert alert-danger">🧴 Filtro do poço acima do prazo de limpeza (${poc.texto}).</div>`;
+    else if(poc.cls === 'warn') az.innerHTML += `<div class="alert alert-warn">🧴 Filtro do poço requer conferência (${poc.texto}).</div>`;
+    if(pli.cls === 'danger') az.innerHTML += `<div class="alert alert-danger">♻️ Filtro plissado acima do limite de reaproveitamento (${pli.texto}).</div>`;
+    else if(pli.cls === 'warn') az.innerHTML += `<div class="alert alert-warn">♻️ Filtro plissado no último reaproveitamento recomendado.</div>`;
+    if(des.cls === 'danger') az.innerHTML += `<div class="alert alert-danger">🧼 Desinfecção das caixas vencida (${des.texto}).</div>`;
+    else if(des.cls === 'warn') az.innerHTML += `<div class="alert alert-warn">🧼 Desinfecção das caixas se aproxima do prazo (${des.texto}).</div>`;
   }
 
   // Date chip
@@ -2540,8 +3670,19 @@ function renderDashboard() {
     Number.isFinite(analysis.agua)?analysis.agua:getMixPlan(cfg.fce,cfg.hipoct).water,
     cfg.fce, cfg.hipoct);
 
+  // Cores mais inteligentes no dashboard
+  const tamborCard = document.getElementById('card-tambor-value')?.closest('.metric-card');
+  if(tamborCard) tamborCard.className = 'metric-card ' + (days <= 1 ? 'danger' : days <= 3 ? 'warn' : 'good');
+  const dosadorCard = document.getElementById('card-dosador-value')?.closest('.metric-card');
+  if(dosadorCard) dosadorCard.className = 'metric-card ' + ((fce || 0) === 0 ? 'danger' : (fce >= 18 ? 'warn' : 'good'));
+  const misturaCard = document.getElementById('card-mistura-value')?.closest('.metric-card');
+  if(misturaCard) misturaCard.className = 'metric-card ' + (analysis.cls === 'danger' ? 'danger' : analysis.cls === 'warn' ? 'warn' : 'good');
+
   renderSidebarSummary();
   renderResumoDia();
+  renderPainelSimplificado();
+  renderPainelPrazos();
+  renderRotinaGuiada();
 
   // Charts — defer slightly so canvas is visible
   setTimeout(() => {
@@ -2806,13 +3947,309 @@ function atualizarNivel() {
   toast(`Nível atualizado para ${v.toFixed(1)} L`,'ok');
 }
 
+
+// ─── Rotina diária, filtros e relatórios ──────────────────────────
+function getFiltroMeta(tipo) {
+  const f = state.filtros?.[tipo] || {};
+  const intervalo = parseInt(f.intervalo || (tipo === 'sabesp' ? 7 : 10)) || 7;
+  const micra = parseInt(f.micra || (tipo === 'sabesp' ? 500 : 10)) || 0;
+  const ultima = f.ultimaLimpeza ? new Date(f.ultimaLimpeza) : null;
+  const dias = ultima ? Math.floor((Date.now() - ultima.getTime()) / 86400000) : null;
+  let cls = 'ok';
+  let texto = 'Sem limpeza registrada';
+  if(dias == null) cls = 'warn';
+  else if(dias > intervalo * 1.5) { cls = 'danger'; texto = `${dias} dia(s) sem limpeza`; }
+  else if(dias > intervalo) { cls = 'warn'; texto = `${dias} dia(s) sem limpeza`; }
+  else texto = `${dias} dia(s) desde a limpeza`;
+  return { micra, intervalo, ultima, dias, cls, texto };
+}
+
+function getPlissadoMeta() {
+  const p = state.filtros?.poco?.plissado || {};
+  const reusos = parseInt(p.reusos || 0) || 0;
+  const maxReusos = parseInt(p.maxReusos || 2) || 2;
+  const ultimaLavagem = p.ultimaLavagem ? new Date(p.ultimaLavagem) : null;
+  const ultimaTroca = p.ultimaTroca ? new Date(p.ultimaTroca) : null;
+  let cls = 'ok';
+  let texto = reusos === 0 ? 'Elemento novo ou recém-trocado' : `${reusos} reutilização(ões) registrada(s)`;
+  let obs = `Recomendado até ${maxReusos} reutilização(ões) segura(s)`;
+  if(reusos >= maxReusos + 1) { cls = 'danger'; obs = 'Troca obrigatória do elemento plissado'; }
+  else if(reusos >= maxReusos) { cls = 'warn'; obs = 'Último reaproveitamento recomendado'; }
+  return { reusos, maxReusos, ultimaLavagem, ultimaTroca, cls, texto, obs };
+}
+
+function getDesinfeccaoMeta() {
+  const d = state.desinfeccao || {};
+  const intervalo = parseInt(d.intervalo || 180) || 180;
+  const ultima = d.ultima ? new Date(d.ultima) : null;
+  const dias = ultima ? Math.floor((Date.now() - ultima.getTime()) / 86400000) : null;
+  let cls = 'ok';
+  let texto = 'Sem desinfecção registrada';
+  if(dias == null) cls = 'warn';
+  else if(dias > intervalo) { cls = 'danger'; texto = `${dias} dia(s) desde a desinfecção`; }
+  else if(dias >= intervalo - 15) { cls = 'warn'; texto = `${dias} dia(s) desde a desinfecção`; }
+  else texto = `${dias} dia(s) desde a desinfecção`;
+  return { intervalo, ultima, dias, cls, texto };
+}
+
+function salvarRuaHoje(valor) {
+  state.ruaHoje = valor;
+  save();
+  const a = document.getElementById('rotina-rua'); if(a) a.value = valor;
+  const b = document.getElementById('rep-rua-hoje'); if(b) b.value = valor;
+  renderRelatorios();
+}
+
+function salvarConfigFiltros() {
+  const sabespMicra = document.getElementById('cfg-sabesp-micra')?.value || document.getElementById('rep-sabesp-micra')?.value || state.filtros.sabesp.micra;
+  const sabespInt = document.getElementById('cfg-sabesp-intervalo')?.value || document.getElementById('rep-sabesp-intervalo')?.value || state.filtros.sabesp.intervalo;
+  const pocoMicra = document.getElementById('cfg-poco-micra')?.value || document.getElementById('rep-poco-micra')?.value || state.filtros.poco.micra;
+  const pocoInt = document.getElementById('cfg-poco-intervalo')?.value || document.getElementById('rep-poco-intervalo')?.value || state.filtros.poco.intervalo;
+  const plissadoMax = document.getElementById('cfg-plissado-max')?.value || document.getElementById('rep-plissado-max')?.value || state.filtros.poco.plissado?.maxReusos || 2;
+  state.filtros.sabesp.micra = parseInt(sabespMicra) || 500;
+  state.filtros.sabesp.intervalo = parseInt(sabespInt) || 7;
+  state.filtros.poco.micra = parseInt(pocoMicra) || 10;
+  state.filtros.poco.intervalo = parseInt(pocoInt) || 10;
+  if(!state.filtros.poco.plissado) state.filtros.poco.plissado = { reusos: 0, maxReusos: 2, ultimaLavagem: '', ultimaTroca: '' };
+  state.filtros.poco.plissado.maxReusos = parseInt(plissadoMax) || 2;
+  save();
+  renderFiltrosExtras();
+  renderRelatorios();
+}
+
+function registrarLimpezaFiltro(tipo) {
+  if(!state.filtros[tipo]) state.filtros[tipo] = {};
+  state.filtros[tipo].ultimaLimpeza = new Date().toISOString();
+  save();
+  addHistorico('filtro', `Limpeza filtro ${tipo === 'sabesp' ? 'SABESP' : 'poço'}`, `Registrada em ${new Date().toLocaleString('pt-BR')}`);
+  renderFiltrosExtras();
+  renderRelatorios();
+  renderDashboard();
+  toast(`Limpeza do filtro ${tipo === 'sabesp' ? 'SABESP' : 'poço'} registrada.`,'ok');
+}
+
+function registrarLavagemPlissado() {
+  if(!state.filtros.poco.plissado) state.filtros.poco.plissado = { reusos: 0, maxReusos: 2, ultimaLavagem: '', ultimaTroca: '' };
+  state.filtros.poco.plissado.reusos = (parseInt(state.filtros.poco.plissado.reusos || 0) || 0) + 1;
+  state.filtros.poco.plissado.ultimaLavagem = new Date().toISOString();
+  state.filtros.poco.ultimaLimpeza = state.filtros.poco.plissado.ultimaLavagem;
+  save();
+  addHistorico('filtro', 'Lavagem do filtro plissado', `Reaproveitamento nº ${state.filtros.poco.plissado.reusos}`);
+  renderFiltrosExtras();
+  renderRelatorios();
+  renderPainelPrazos();
+  renderDashboard();
+  const meta = getPlissadoMeta();
+  toast(meta.cls === 'danger' ? 'Lavagem registrada, mas o plissado já pede troca.' : `Lavagem do plissado registrada. Reuso atual: ${meta.reusos}.`, meta.cls === 'danger' ? 'warn' : 'ok');
+}
+
+function registrarTrocaPlissado() {
+  if(!state.filtros.poco.plissado) state.filtros.poco.plissado = { reusos: 0, maxReusos: 2, ultimaLavagem: '', ultimaTroca: '' };
+  const agora = new Date().toISOString();
+  state.filtros.poco.plissado.reusos = 0;
+  state.filtros.poco.plissado.ultimaTroca = agora;
+  state.filtros.poco.plissado.ultimaLavagem = agora;
+  state.filtros.poco.ultimaLimpeza = agora;
+  save();
+  addHistorico('filtro', 'Troca do filtro plissado', `Elemento do poço substituído em ${new Date(agora).toLocaleString('pt-BR')}`);
+  renderFiltrosExtras();
+  renderRelatorios();
+  renderPainelPrazos();
+  renderDashboard();
+  toast('Troca do plissado registrada. Contador zerado.','ok');
+}
+
+function salvarConfigDesinfeccao() {
+  const intervalo = parseInt(document.getElementById('rep-desinf-intervalo')?.value || state.desinfeccao?.intervalo || 180);
+  state.desinfeccao.intervalo = Number.isFinite(intervalo) && intervalo > 0 ? intervalo : 180;
+  save();
+  renderRelatorios();
+  renderRotinaGuiada();
+  renderPainelPrazos();
+  renderDashboard();
+}
+
+function registrarDesinfeccaoCaixas() {
+  state.desinfeccao.ultima = new Date().toISOString();
+  save();
+  addHistorico('config', 'Desinfecção das caixas registrada', `Nova referência semestral em ${new Date().toLocaleString('pt-BR')}`);
+  renderRelatorios();
+  renderDashboard();
+  toast('Desinfecção das caixas registrada.','ok');
+}
+
+function copiarResumoDesinfeccao() {
+  const meta = getDesinfeccaoMeta();
+  const txt = meta.ultima
+    ? `Última desinfecção das caixas: ${meta.ultima.toLocaleDateString('pt-BR')} · ${meta.texto} · periodicidade alvo ${meta.intervalo} dia(s).`
+    : `Sem desinfecção registrada ainda. Periodicidade alvo: ${meta.intervalo} dia(s).`;
+  if(navigator.clipboard?.writeText) navigator.clipboard.writeText(txt).then(()=>toast('Resumo da desinfecção copiado.','ok')).catch(()=>toast(txt,'info'));
+  else toast(txt,'info');
+}
+
+function preencherRotinaDaOperacao() {
+  const val = parseFloat(document.getElementById('ops-fita-valor')?.value || '');
+  const fce = parseFloat(document.getElementById('ops-fce')?.value || state.config.fce || '');
+  const ponto = document.getElementById('ops-fita-ponto')?.value || 'ponta';
+  const ppmEl = document.getElementById('rotina-ppm');
+  const fceEl = document.getElementById('rotina-fce');
+  const pontoEl = document.getElementById('rotina-ponto');
+  if(ppmEl && Number.isFinite(val)) ppmEl.value = val;
+  if(fceEl && Number.isFinite(fce)) fceEl.value = fce;
+  if(pontoEl) pontoEl.value = ponto;
+  const st = document.getElementById('rotina-status');
+  if(st) st.textContent = 'Leitura operacional copiada para a rotina diária.';
+  setRotinaStep('medicao', true);
+  renderPainelSimplificado();
+}
+
+function salvarRotinaDiaria() {
+  const ppm = parseFloat(document.getElementById('rotina-ppm')?.value || '');
+  const fce = parseFloat(document.getElementById('rotina-fce')?.value || state.config.fce || '');
+  const ponto = document.getElementById('rotina-ponto')?.value || 'ponta';
+  const rua = document.getElementById('rotina-rua')?.value || state.ruaHoje || 'nao';
+  const obs = document.getElementById('rotina-obs')?.value?.trim() || '';
+  if(!Number.isFinite(ppm)) { toast('Informe a leitura em ppm para salvar a rotina.','warn'); return; }
+  const entry = { ts: new Date().toISOString(), ppm, fce: Number.isFinite(fce) ? fce : state.config.fce, ponto, rua, obs };
+  state.dailyLogs.unshift(entry);
+  if(state.dailyLogs.length > 180) state.dailyLogs = state.dailyLogs.slice(0,180);
+  state.ruaHoje = rua;
+  save();
+  addHistorico('calc', 'Rotina diária salva', `${fmtBR(ppm,1)} mg/L · FCE ${entry.fce}% · ${rua === 'sim' ? 'água da rua entrou' : 'sem água da rua'}${obs ? ' · ' + obs : ''}`);
+  const st = document.getElementById('rotina-status');
+  if(st) st.textContent = `Rotina salva em ${new Date(entry.ts).toLocaleString('pt-BR')}.`;
+  setRotinaStep('salva', true);
+  renderRelatorios();
+  renderHistorico();
+  renderPainelSimplificado();
+  toast('Rotina diária registrada.','ok');
+}
+
+function renderFiltrosExtras() {
+  const sab = getFiltroMeta('sabesp');
+  const poc = getFiltroMeta('poco');
+  const pli = getPlissadoMeta();
+  const pairs = [
+    ['cfg-sabesp-micra', sab.micra], ['rep-sabesp-micra', sab.micra],
+    ['cfg-sabesp-intervalo', sab.intervalo], ['rep-sabesp-intervalo', sab.intervalo],
+    ['cfg-poco-micra', poc.micra], ['rep-poco-micra', poc.micra],
+    ['cfg-poco-intervalo', poc.intervalo], ['rep-poco-intervalo', poc.intervalo],
+    ['cfg-plissado-max', pli.maxReusos], ['rep-plissado-max', pli.maxReusos],
+    ['cfg-plissado-reusos', pli.reusos], ['rep-plissado-reusos', pli.reusos],
+    ['rotina-rua', state.ruaHoje || 'nao'], ['rep-rua-hoje', state.ruaHoje || 'nao']
+  ];
+  pairs.forEach(([id,val]) => { const el = document.getElementById(id); if(el) el.value = String(val); });
+  const cfgInfo = document.getElementById('cfg-filtros-extra-info');
+  if(cfgInfo) cfgInfo.textContent = `SABESP: ${sab.micra} µm · ${sab.texto}. Poço: ${poc.micra} µm · ${poc.texto}. Plissado: ${pli.texto} · ${pli.obs}.`;
+  const pliCfg = document.getElementById('cfg-plissado-info');
+  if(pliCfg) pliCfg.textContent = `${pli.texto}. ${pli.obs}. ${pli.ultimaTroca ? 'Última troca em ' + pli.ultimaTroca.toLocaleDateString('pt-BR') + '.' : 'Sem troca registrada.'}`;
+  const alertEl = document.getElementById('rel-filtros-alertas');
+  if(alertEl) {
+    const mk = (titulo, meta) => `<div class="valida-item ${meta.cls}"><div class="vi-icon">🧴</div><div><strong>${titulo}:</strong> ${meta.micra} µm · ${meta.texto} · alvo ${meta.intervalo} dia(s)</div></div>`;
+    alertEl.innerHTML = mk('Filtro SABESP', sab) + mk('Filtro do poço', poc);
+  }
+  const pliEl = document.getElementById('rel-plissado-alertas');
+  if(pliEl) {
+    pliEl.innerHTML = `<div class="valida-item ${pli.cls}"><div class="vi-icon">♻️</div><div><strong>Plissado do poço:</strong> ${pli.texto}. ${pli.obs}.${pli.ultimaLavagem ? ' Última lavagem em ' + pli.ultimaLavagem.toLocaleDateString('pt-BR') + '.' : ''}</div></div>`;
+  }
+  const pliHist = document.getElementById('rel-plissado-historico');
+  if(pliHist) {
+    const itens = (state.hist || []).filter(h => /plissado/i.test((h.title||'') + ' ' + (h.subtitle||''))).slice(0,4);
+    pliHist.innerHTML = itens.length
+      ? itens.map(h => `<div class="hist-item"><span class="hist-icon">♻️</span><div class="hist-info"><div class="hist-title">${h.title}</div><div class="hist-sub">${h.subtitle || ''}</div></div><div class="hist-val">${h.when || ''}</div></div>`).join('')
+      : '<div class="empty" style="padding:18px 12px"><p>Sem histórico do filtro plissado ainda.</p></div>';
+  }
+}
+
+function renderRelatorios() {
+  renderFiltrosExtras();
+  const sab = getFiltroMeta('sabesp');
+  const poc = getFiltroMeta('poco');
+  const dailyLogs = Array.isArray(state.dailyLogs) ? state.dailyLogs : [];
+  const ultimo = dailyLogs[0];
+  const des = getDesinfeccaoMeta();
+  const setText = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+  setText('rep-sabesp-dias', sab.dias == null ? '--' : sab.dias + 'd');
+  setText('rep-sabesp-sub', `${sab.micra} µm · alvo ${sab.intervalo} dia(s)`);
+  setText('rep-poco-dias', poc.dias == null ? '--' : poc.dias + 'd');
+  setText('rep-poco-sub', `${poc.micra} µm · alvo ${poc.intervalo} dia(s)`);
+  const ultimaRot = document.getElementById('rep-ultima-rotina');
+  if(ultimaRot) ultimaRot.value = ultimo ? `${fmtBR(ultimo.ppm,1)} mg/L · FCE ${ultimo.fce}%` : 'Sem rotina registrada';
+  const resumoOp = document.getElementById('rep-resumo-operacao');
+  if(resumoOp) resumoOp.textContent = ultimo ? `Última rotina em ${new Date(ultimo.ts).toLocaleString('pt-BR')} · ${ultimo.rua === 'sim' ? 'com entrada de água da rua' : 'sem entrada de água da rua'}${ultimo.obs ? ' · ' + ultimo.obs : ''}` : 'Nenhuma rotina diária registrada ainda.';
+  const desInt = document.getElementById('rep-desinf-intervalo'); if(desInt) desInt.value = des.intervalo;
+  const desUlt = document.getElementById('rep-desinf-ultima'); if(desUlt) desUlt.value = des.ultima ? `${des.ultima.toLocaleDateString('pt-BR')} · ${des.texto}` : 'Sem desinfecção registrada';
+  const desBox = document.getElementById('rel-desinf-status');
+  if(desBox) desBox.innerHTML = `<div class="valida-item ${des.cls}"><div class="vi-icon">🧼</div><div><strong>Caixas d'água:</strong> ${des.texto} · alvo ${des.intervalo} dia(s)</div></div>`;
+  const box = document.getElementById('rel-resumo-list');
+  if(box) {
+    const ultimos = dailyLogs.slice(0,5);
+    if(!ultimos.length) box.innerHTML = '<div class="empty"><div class="e-icon">🗂</div><p>Sem dados de rotina para montar o relatório.</p></div>';
+    else box.innerHTML = ultimos.map(r => {
+      const dt = new Date(r.ts).toLocaleString('pt-BR');
+      return `<div class="hist-item"><span class="hist-icon">🗓️</span><div class="hist-info"><div class="hist-title">${fmtBR(r.ppm,1)} mg/L · FCE ${r.fce}%</div><div class="hist-sub">${r.ponto} · ${r.rua === 'sim' ? 'água da rua entrou' : 'sem água da rua'}${r.obs ? ' · ' + r.obs : ''}</div></div><div class="hist-val">${dt}</div></div>`;
+    }).join('');
+  }
+}
+
+function exportarRelatorioCompleto() {
+  const payload = {
+    exportadoEm: new Date().toISOString(),
+    config: state.config,
+    filtros: state.filtros,
+    desinfeccao: state.desinfeccao,
+    ruaHoje: state.ruaHoje,
+    historico: state.hist,
+    rotinas: state.dailyLogs,
+    nivelTambor: state.nivel
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `CloroPrime_backup_${new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Backup completo exportado em JSON.','ok');
+}
+
+function exportarRelatorioTexto() {
+  const sab = getFiltroMeta('sabesp');
+  const poc = getFiltroMeta('poco');
+  const ult = state.dailyLogs[0];
+  const linhas = [
+    'CLOROPRIME — RELATÓRIO RESUMIDO',
+    '',
+    `Exportado em: ${new Date().toLocaleString('pt-BR')}`,
+    `Água da rua hoje: ${state.ruaHoje === 'sim' ? 'sim' : 'não'}`,
+    '',
+    `Filtro SABESP: ${sab.micra} µm · ${sab.texto} · alvo ${sab.intervalo} dia(s)`,
+    `Filtro Poço: ${poc.micra} µm · ${poc.texto} · alvo ${poc.intervalo} dia(s)`,
+    `Plissado do poço: ${getPlissadoMeta().texto} · ${getPlissadoMeta().obs}`,
+    `Desinfecção das caixas: ${getDesinfeccaoMeta().ultima ? getDesinfeccaoMeta().ultima.toLocaleDateString('pt-BR') : 'sem registro'} · ${getDesinfeccaoMeta().texto} · alvo ${getDesinfeccaoMeta().intervalo} dia(s)`,
+    ''
+  ];
+  if(ult) {
+    linhas.push(`Última rotina: ${new Date(ult.ts).toLocaleString('pt-BR')} · ${fmtBR(ult.ppm,1)} mg/L · FCE ${ult.fce}% · ${ult.ponto} · ${ult.rua === 'sim' ? 'água da rua entrou' : 'sem água da rua'}${ult.obs ? ' · ' + ult.obs : ''}`);
+    linhas.push('');
+  }
+  linhas.push('Últimas 5 rotinas:');
+  state.dailyLogs.slice(0,5).forEach((r,i) => linhas.push(`${i+1}. ${new Date(r.ts).toLocaleString('pt-BR')} · ${fmtBR(r.ppm,1)} mg/L · FCE ${r.fce}% · ${r.ponto} · ${r.rua === 'sim' ? 'rua sim' : 'rua não'}${r.obs ? ' · ' + r.obs : ''}`));
+  const blob = new Blob([linhas.join('\n')], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `CloroPrime_relatorio_${new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Relatório resumido exportado.','ok');
+}
+
 // ─── Histórico ─────────────────────────────────────────────────────
 function addHistorico(tipo, titulo, sub) {
-  const icons = { abast: '🛢️', nivel: '📏', config: '⚙️', calc: '🧮' };
+  const icons = { abast: '🛢️', nivel: '📏', config: '⚙️', calc: '🧮', rotina: '🗓️', filtro: '🧴' };
   state.hist.unshift({
     tipo, titulo, sub, ts: new Date().toISOString()
   });
-  if(state.hist.length > 100) state.hist = state.hist.slice(0, 100);
+  if(state.hist.length > 180) state.hist = state.hist.slice(0, 180);
   save();
 }
 
@@ -2822,7 +4259,7 @@ function renderHistorico() {
     el.innerHTML = '<div class="empty"><div class="e-icon">📋</div><p>Nenhum registro ainda.<br>Faça seu primeiro abastecimento!</p></div>';
     return;
   }
-  const icons = { abast: '🛢️', nivel: '📏', config: '⚙️', calc: '🧮' };
+  const icons = { abast: '🛢️', nivel: '📏', config: '⚙️', calc: '🧮', rotina: '🗓️', filtro: '🧴' };
   el.innerHTML = state.hist.map(h => {
     const d = new Date(h.ts);
     const fmt = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
@@ -2860,6 +4297,7 @@ function loadConfig() {
   document.getElementById('cfg-alerta-baixo').value = c.alertaBaixo;
   document.getElementById('cfg-alerta-crit').value = c.alertaCrit;
   const mb = document.getElementById('cfg-modelo-bomba'); if(mb) mb.value = c.modeloBomba || '';
+  const fm = document.getElementById('cfg-filtro-micra'); if(fm) fm.value = c.filterMicron || 10;
   const ft = document.getElementById('cfg-filtro-troca'); if(ft) ft.value = c.filtroTroca || '';
   const fi = document.getElementById('cfg-filtro-intervalo'); if(fi) fi.value = c.filtroIntervalo || 60;
   const pp = document.getElementById('cfg-preco-produto'); if(pp) pp.value = c.precoProduto || '';
@@ -2868,6 +4306,7 @@ function loadConfig() {
   document.getElementById('cfg-info').textContent = `${c.unidades} apt · ${c.pessoas} pessoas · ${fmtBR(total,0)}k L`;
   renderFiltroStatus();
   renderCustoInfo();
+  renderFiltrosExtras();
 }
 
 function saveConfig() {
@@ -2888,6 +4327,7 @@ function saveConfig() {
   c.alertaBaixo = parseInt(document.getElementById('cfg-alerta-baixo').value) || 20;
   c.alertaCrit = parseInt(document.getElementById('cfg-alerta-crit').value) || 10;
   const mb = document.getElementById('cfg-modelo-bomba'); if(mb) c.modeloBomba = mb.value;
+  const fm = document.getElementById('cfg-filtro-micra'); if(fm) c.filterMicron = parseInt(fm.value) || 10;
   const ft = document.getElementById('cfg-filtro-troca'); if(ft) c.filtroTroca = ft.value;
   const fi = document.getElementById('cfg-filtro-intervalo'); if(fi) c.filtroIntervalo = parseInt(fi.value) || 60;
   const pp = document.getElementById('cfg-preco-produto'); if(pp && pp.value) c.precoProduto = parseFloat(pp.value);
@@ -2896,12 +4336,29 @@ function saveConfig() {
   renderOperacao();
   renderFiltroStatus();
   renderCustoInfo();
+  renderFiltrosExtras();
+  renderRelatorios();
 }
 
 function resetApp() {
   if(confirm('Isso apagará TODOS os dados. Confirma?')) {
     localStorage.removeItem(KEY);
     location.reload();
+if(state.config.filterMicron == null) state.config.filterMicron = 10;
+if(!Array.isArray(state.dailyLogs)) state.dailyLogs = [];
+if(!state.ruaHoje) state.ruaHoje = 'nao';
+if(!state.filtros || typeof state.filtros !== 'object') state.filtros = {};
+if(!state.filtros.poco) state.filtros.poco = { micra: 10, ultimaLimpeza: '', intervalo: 10, plissado: { reusos: 0, maxReusos: 2, ultimaLavagem: '', ultimaTroca: '' } };
+if(!state.filtros.sabesp) state.filtros.sabesp = { micra: 500, ultimaLimpeza: '', intervalo: 7 };
+if(state.filtros.poco.micra == null) state.filtros.poco.micra = 10;
+if(state.filtros.sabesp.micra == null) state.filtros.sabesp.micra = 500;
+if(state.filtros.poco.intervalo == null) state.filtros.poco.intervalo = 10;
+if(!state.filtros.poco.plissado || typeof state.filtros.poco.plissado !== 'object') state.filtros.poco.plissado = { reusos: 0, maxReusos: 2, ultimaLavagem: '', ultimaTroca: '' };
+if(state.filtros.poco.plissado.reusos == null) state.filtros.poco.plissado.reusos = 0;
+if(state.filtros.poco.plissado.maxReusos == null) state.filtros.poco.plissado.maxReusos = 2;
+if(!state.desinfeccao || typeof state.desinfeccao !== 'object') state.desinfeccao = { ultima: '', intervalo: 180 };
+if(state.desinfeccao.intervalo == null) state.desinfeccao.intervalo = 180;
+if(state.filtros.sabesp.intervalo == null) state.filtros.sabesp.intervalo = 7;
   }
 }
 
@@ -3054,57 +4511,130 @@ document.getElementById('fita-camera-input').addEventListener('change', async fu
   loading.classList.add('visible');
   resultBox.classList.remove('visible');
   try {
-    const base64 = await fileToBase64(file);
-    const result = await interpretarFitaComIA(base64, file.type || 'image/jpeg');
+    const result = await interpretarFitaPorFotoLocal(file);
     loading.classList.remove('visible');
     if(result && result.valor !== null) {
       document.getElementById('ai-result-val').textContent = fmtBR(result.valor, 1) + ' mg/L';
       document.getElementById('ai-result-desc').textContent = result.descricao + (result.confianca ? ' · Confiança: ' + result.confianca : '');
       resultBox.classList.add('visible');
-      document.getElementById('ops-fita-valor').value = result.valor;
-      syncOperacaoFromUI();
-      toast('📷 Fita interpretada pela IA! Confira o valor e registre.', 'ok', 4000);
+      usarValorFita(result.valor);
+      toast('📷 Foto analisada e leitura aplicada. Confirme visualmente com a escala da fita.', 'ok', 4200);
     } else {
-      toast('Não consegui identificar a cor da fita. Tente iluminar melhor e refotografar.', 'warn', 4500);
+      toast('Não consegui estimar a cor da fita. Tente aproximar mais, centralizar a área reagente e melhorar a luz.', 'warn', 4800);
     }
   } catch(err) {
     loading.classList.remove('visible');
-    console.error('Erro IA fita:', err);
-    toast('Erro ao analisar a foto. Verifique a conexão e tente novamente.', 'err');
+    console.error('Erro na análise local da fita:', err);
+    toast('Erro ao analisar a foto. Tente novamente com a fita mais próxima e fundo neutro.', 'err');
   }
   this.value = '';
 });
 
-function fileToBase64(file) {
+function loadImageFromFile(file) {
   return new Promise((resolve, reject) => {
-    const r = new FileReader();
-    r.onload = () => resolve(r.result.split(',')[1]);
-    r.onerror = reject;
-    r.readAsDataURL(file);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = reader.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
   });
 }
 
-async function interpretarFitaComIA(base64, mediaType) {
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 300,
-      system: 'Você é um especialista em análise de fitas de teste de cloro para água. Sua tarefa é interpretar a cor de uma fita de teste e estimar a concentração de cloro residual livre em mg/L. Responda SOMENTE com um objeto JSON válido, sem texto antes ou depois, sem markdown. Formato: {"valor": 0.5, "confianca": "alta", "descricao": "Cor levemente amarelada, indica baixa concentração"}. Se não conseguir identificar, retorne {"valor": null, "confianca": "nenhuma", "descricao": "Não foi possível identificar"}.',
-      messages: [{
-        role: 'user',
-        content: [
-          { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
-          { type: 'text', text: 'Analise a cor desta fita de teste de cloro. A fita geralmente tem uma escala de cores do branco/amarelo claro (baixo cloro ~0,2 mg/L) ao roxo/violeta escuro (cloro alto ~5 mg/L). Identifique a cor do bloco indicador de cloro livre e estime o valor em mg/L.' }
-        ]
-      }]
-    })
-  });
-  const data = await response.json();
-  const text = data.content?.find(b => b.type === 'text')?.text || '';
-  const clean = text.replace(/```json|```/g, '').trim();
-  return JSON.parse(clean);
+function rgbToHsv(r, g, b) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  const d = max - min;
+  let h = 0;
+  const s = max === 0 ? 0 : d / max;
+  const v = max;
+  if (d !== 0) {
+    switch (max) {
+      case r: h = ((g - b) / d) % 6; break;
+      case g: h = (b - r) / d + 2; break;
+      default: h = (r - g) / d + 4; break;
+    }
+    h *= 60;
+    if (h < 0) h += 360;
+  }
+  return { h, s, v };
+}
+
+function colorDistance(a, b) {
+  return Math.sqrt(
+    Math.pow(a.r - b.r, 2) +
+    Math.pow(a.g - b.g, 2) +
+    Math.pow(a.b - b.b, 2)
+  );
+}
+
+async function interpretarFitaPorFotoLocal(file) {
+  const img = await loadImageFromFile(file);
+  const canvas = document.createElement('canvas');
+  const maxSide = 320;
+  const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+  canvas.width = Math.max(40, Math.round(img.width * scale));
+  canvas.height = Math.max(40, Math.round(img.height * scale));
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+  const x0 = Math.round(canvas.width * 0.2);
+  const y0 = Math.round(canvas.height * 0.2);
+  const w = Math.round(canvas.width * 0.6);
+  const h = Math.round(canvas.height * 0.6);
+  const data = ctx.getImageData(x0, y0, w, h).data;
+
+  const pixels = [];
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
+    if (a < 200) continue;
+    const hsv = rgbToHsv(r, g, b);
+    const isWarm = hsv.h >= 25 && hsv.h <= 70;
+    const hasColor = hsv.s >= 0.12 && hsv.v >= 0.45;
+    const notTooDark = r + g + b > 120;
+    if (isWarm && hasColor && notTooDark) {
+      pixels.push({ r, g, b, score: hsv.s * 0.65 + hsv.v * 0.35 });
+    }
+  }
+
+  let sample = pixels;
+  if (pixels.length >= 20) {
+    sample = pixels.sort((a, b) => b.score - a.score).slice(0, Math.max(20, Math.round(pixels.length * 0.25)));
+  }
+
+  if (!sample.length) {
+    return { valor: null, confianca: 'baixa', descricao: 'Não encontrei área reagente suficiente na foto.' };
+  }
+
+  const avg = sample.reduce((acc, p) => {
+    acc.r += p.r; acc.g += p.g; acc.b += p.b; return acc;
+  }, { r: 0, g: 0, b: 0 });
+  avg.r /= sample.length; avg.g /= sample.length; avg.b /= sample.length;
+
+  const refs = [
+    { valor: 0.1, label: '0–0,1 mg/L', rgb: { r: 245, g: 245, b: 220 } },
+    { valor: 0.3, label: '0,2–0,3 mg/L', rgb: { r: 255, g: 243, b: 160 } },
+    { valor: 0.5, label: '0,5 mg/L', rgb: { r: 255, g: 224, b: 102 } },
+    { valor: 1.0, label: '1,0 mg/L', rgb: { r: 255, g: 212, b: 59 } },
+    { valor: 1.5, label: '1,5+ mg/L', rgb: { r: 245, g: 159, b: 0 } }
+  ];
+
+  const ranked = refs
+    .map(ref => ({ ...ref, dist: colorDistance(avg, ref.rgb) }))
+    .sort((a, b) => a.dist - b.dist);
+
+  const best = ranked[0];
+  const second = ranked[1];
+  let confianca = 'baixa';
+  if (best.dist < 42 && (!second || (second.dist - best.dist) > 12)) confianca = 'alta';
+  else if (best.dist < 65) confianca = 'média';
+
+  const descricao = `Estimativa assistida por foto: cor mais próxima de ${best.label}. Use como apoio e confirme com a escala da embalagem, porque luz e marca da fita influenciam a leitura.`;
+
+  return { valor: best.valor, confianca, descricao };
 }
 
 // ─── Agendar próxima verificação ───────────────────────────────────
@@ -3147,14 +4677,30 @@ function renderProximaVerif() {
 }
 
 // ─── Filtro plissado ───────────────────────────────────────────────
+function getFilterMicronAssessment(micron = state.config.filterMicron) {
+  const m = parseInt(micron || 10);
+  if(m >= 20) return { cls:'ok', short:`${m} µm · folga maior`, detail:'Mais tolerante para água com sedimento mais pesado. Menor risco de saturar cedo, porém segura menos partícula fina.' };
+  if(m === 10) return { cls:'ok', short:'10 µm · equilíbrio', detail:'Boa configuração para poço quando você quer retenção fina sem subir demais a manutenção. É o melhor meio-termo para o seu cenário.' };
+  if(m === 5) return { cls:'warn', short:'5 µm · retenção alta', detail:'Filtra mais fino, mas costuma exigir mais manutenção e atenção à perda de carga.' };
+  return { cls:'warn', short:`${m} µm · muito fino`, detail:'Só vale a pena com água já bem limpa ou com pré-filtração. Pode saturar rápido em poço.' };
+}
+
 function renderFiltroStatus() {
   const el = document.getElementById('ops-filtro-status');
   const infoEl = document.getElementById('cfg-filtro-info');
+  const dsFiltro = document.getElementById('ds-filtro');
+  const dsFiltroS = document.getElementById('ds-filtro-s');
   const troca = state.config.filtroTroca;
   const intervalo = parseInt(state.config.filtroIntervalo) || 60;
+  const micronInfo = getFilterMicronAssessment(state.config.filterMicron);
+  let trocaInfo = '';
+
   if(!troca) {
-    if(el) { el.className = 'filter-badge warn'; el.textContent = 'Data não informada'; }
-    if(infoEl) infoEl.textContent = 'Informe a data da última troca para monitorar.';
+    if(el) { el.className = 'filter-badge ' + micronInfo.cls; el.textContent = micronInfo.short; }
+    trocaInfo = 'Informe a data da última troca para monitorar o vencimento.';
+    if(infoEl) infoEl.textContent = `${micronInfo.detail} ${trocaInfo}`;
+    if(dsFiltro) dsFiltro.textContent = micronInfo.short;
+    if(dsFiltroS) dsFiltroS.textContent = 'Sem data da última troca';
     return;
   }
   const ultima = new Date(troca);
@@ -3164,15 +4710,22 @@ function renderFiltroStatus() {
   const diasRestantes = Math.ceil((proxima - hoje) / (1000*60*60*24));
   const proxFmt = proxima.toLocaleDateString('pt-BR');
   if(diasRestantes < 0) {
-    if(el) { el.className = 'filter-badge danger'; el.textContent = `Vencido há ${Math.abs(diasRestantes)}d`; }
-    if(infoEl) infoEl.textContent = `⚠️ Troca vencida! Próxima deveria ter sido em ${proxFmt}. Troque o filtro.`;
+    if(el) { el.className = 'filter-badge danger'; el.textContent = `${micronInfo.short} · vencido`; }
+    trocaInfo = `Troca vencida! Próxima deveria ter sido em ${proxFmt}.`;
+    if(dsFiltro) dsFiltro.textContent = `${state.config.filterMicron} µm`;
+    if(dsFiltroS) dsFiltroS.textContent = `Vencido há ${Math.abs(diasRestantes)} dia(s)`;
   } else if(diasRestantes <= 14) {
-    if(el) { el.className = 'filter-badge warn'; el.textContent = `Trocar em ${diasRestantes}d`; }
-    if(infoEl) infoEl.textContent = `⚠️ Filtro próximo do vencimento. Troca em ${proxFmt}.`;
+    if(el) { el.className = 'filter-badge warn'; el.textContent = `${micronInfo.short} · ${diasRestantes}d`; }
+    trocaInfo = `Filtro próximo do vencimento. Troca em ${proxFmt}.`;
+    if(dsFiltro) dsFiltro.textContent = `${state.config.filterMicron} µm`;
+    if(dsFiltroS) dsFiltroS.textContent = `Trocar em ${diasRestantes} dia(s)`;
   } else {
-    if(el) { el.className = 'filter-badge ok'; el.textContent = `OK — ${diasRestantes}d restantes`; }
-    if(infoEl) infoEl.textContent = `✅ Filtro OK. Próxima troca em ${proxFmt} (${diasRestantes} dias).`;
+    if(el) { el.className = 'filter-badge ' + micronInfo.cls; el.textContent = `${micronInfo.short} · OK`; }
+    trocaInfo = `Próxima troca em ${proxFmt} (${diasRestantes} dias).`;
+    if(dsFiltro) dsFiltro.textContent = `${state.config.filterMicron} µm`;
+    if(dsFiltroS) dsFiltroS.textContent = `${diasRestantes} dia(s) restantes`;
   }
+  if(infoEl) infoEl.textContent = `${micronInfo.detail} ${trocaInfo}`;
 }
 
 // ─── Custo do produto ──────────────────────────────────────────────
@@ -3684,6 +5237,9 @@ function validarCruzado() {
     alertas.push({ tipo:'info', icon:'💡', msg:'Produto 2,5% (água sanitária doméstica): volume necessário é muito maior. Considere hipoclorito 10-12%.' });
   }
 
+  const micronInfo = getFilterMicronAssessment(cfg.filterMicron);
+  alertas.push({ tipo: micronInfo.cls === 'ok' ? 'info' : 'warn', icon:'🧵', msg:`Filtro plissado em ${cfg.filterMicron || 10} µm — ${micronInfo.detail}` });
+
   if(cfg.filtroTroca) {
     const proxima = new Date(cfg.filtroTroca);
     proxima.setDate(proxima.getDate() + (cfg.filtroIntervalo || 60));
@@ -3696,6 +5252,14 @@ function validarCruzado() {
     const diff = Math.ceil((new Date(state.proximaVerif) - new Date()) / (1000*60*60*24));
     if(diff < 0) alertas.push({ tipo:'warn', icon:'📅', msg:`Verificação da fita pendente desde ${new Date(state.proximaVerif).toLocaleDateString('pt-BR')}.` });
   }
+
+  const sabMeta = getFiltroMeta('sabesp');
+  const pocoMeta = getFiltroMeta('poco');
+  const desMeta = getDesinfeccaoMeta();
+  if(sabMeta.cls === 'danger') alertas.push({ tipo:'warn', icon:'🧴', msg:`Filtro SABESP acima do prazo: ${sabMeta.texto}.` });
+  if(pocoMeta.cls === 'danger') alertas.push({ tipo:'warn', icon:'🧴', msg:`Filtro do poço acima do prazo: ${pocoMeta.texto}.` });
+  if(desMeta.cls === 'danger') alertas.push({ tipo:'warn', icon:'🧼', msg:`Desinfecção das caixas vencida: ${desMeta.texto}.` });
+  if(days <= 3) alertas.push({ tipo: days <= 1 ? 'warn' : 'info', icon:'🛢️', msg:`Confira o nível do tambor: autonomia estimada em ${fmtBR(days,1)} dia(s).` });
 
   zona.innerHTML = alertas.map(a =>
     `<div class="valida-item ${a.tipo}"><span class="vi-icon">${a.icon}</span><span>${a.msg}</span></div>`
@@ -3743,6 +5307,11 @@ function initExtras() {
   renderProximaVerif();
   renderFiltroStatus();
   renderCustoInfo();
+  renderFiltrosExtras();
+  renderRelatorios();
+  renderPainelSimplificado();
+  renderPainelPrazos();
+  renderRotinaGuiada();
   validarCruzado();
   // Wizard no primeiro uso
   if(!state.wizardConcluido) {
@@ -3766,40 +5335,66 @@ function initExtras() {
 }
 
 
-syncCalcFromConfig();
-const opsFita = document.getElementById('ops-fita-valor'); if(opsFita && state.latestRead?.valor) opsFita.value = state.latestRead.valor;
-const opsPonto = document.getElementById('ops-fita-ponto'); if(opsPonto && state.latestRead?.ponto) opsPonto.value = state.latestRead.ponto;
-const opsFce = document.getElementById('ops-fce'); if(opsFce) opsFce.value = state.config.fce;
-const opsConc = document.getElementById('ops-conc'); if(opsConc) opsConc.value = state.config.hipoct;
-renderOperacao();
-renderDashboard();
-showView('operacao');
-initExtras();
-
-['fita-valor','fita-ponto'].forEach(id => { const el=document.getElementById(id); if(el) el.addEventListener('input', renderSidebarSummary); if(el) el.addEventListener('change', renderSidebarSummary); });
-calcularMisturaCenarios();
-
-// Slider sync
-document.getElementById('calc-fce').addEventListener('input', function() {
-  document.getElementById('calc-fce-val').textContent = this.value + '%';
-  calcular();
-});
+function hideSplash(force=false) {
+  const splash = document.getElementById('splash');
+  if(!splash) return;
+  splash.classList.add('hiding');
+  setTimeout(() => splash.classList.add('hidden'), force ? 50 : 650);
+}
 
 // ── Splash screen ──────────────────────────────────────────────────
 (function() {
   const splash = document.getElementById('splash');
   if(!splash) return;
-  // Hide after 3s
-  setTimeout(() => {
-    splash.classList.add('hiding');
-    setTimeout(() => splash.classList.add('hidden'), 650);
-  }, 3000);
-  // Also hide on tap/click (impatient users)
-  splash.addEventListener('click', () => {
-    splash.classList.add('hiding');
-    setTimeout(() => splash.classList.add('hidden'), 650);
-  });
+  setTimeout(() => hideSplash(false), 3000);
+  splash.addEventListener('click', () => hideSplash(true));
 })();
+
+function safeBoot() {
+  try {
+    if(typeof syncCalcFromConfig === 'function') syncCalcFromConfig();
+    const opsFita = document.getElementById('ops-fita-valor'); if(opsFita && state.latestRead?.valor != null) opsFita.value = state.latestRead.valor;
+    const opsPonto = document.getElementById('ops-fita-ponto'); if(opsPonto && state.latestRead?.ponto) opsPonto.value = state.latestRead.ponto;
+    const opsFce = document.getElementById('ops-fce'); if(opsFce) opsFce.value = state?.config?.fce ?? 15;
+    const opsConc = document.getElementById('ops-conc'); if(opsConc) opsConc.value = state?.config?.hipoct ?? 10;
+    const rotinaRua = document.getElementById('rotina-rua'); if(rotinaRua) rotinaRua.value = state?.ruaHoje || 'nao';
+    if(typeof renderOperacao === 'function') renderOperacao();
+    if(typeof renderDashboard === 'function') renderDashboard();
+    if(typeof showView === 'function') showView('operacao');
+    if(typeof initExtras === 'function') initExtras();
+    ['fita-valor','fita-ponto'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) {
+        if(typeof renderSidebarSummary === 'function') {
+          el.addEventListener('input', renderSidebarSummary);
+          el.addEventListener('change', renderSidebarSummary);
+        }
+      }
+    });
+    if(typeof calcularMisturaCenarios === 'function') calcularMisturaCenarios();
+    const calcFce = document.getElementById('calc-fce');
+    const calcFceVal = document.getElementById('calc-fce-val');
+    if(calcFce) {
+      calcFce.addEventListener('input', function() {
+        if(calcFceVal) calcFceVal.textContent = this.value + '%';
+        if(typeof calcular === 'function') calcular();
+      });
+    }
+  } catch(err) {
+    console.error('CloroPrime boot error:', err);
+    hideSplash(true);
+  } finally {
+    setTimeout(() => hideSplash(false), 400);
+  }
+}
+
+safeBoot();
+
+
+window.addEventListener('error', function(ev) {
+  console.error('Runtime error:', ev.error || ev.message);
+  hideSplash(true);
+});
 
 // ── Deep-link shortcuts (PWA shortcuts) ───────────────────────────
 (function() {
