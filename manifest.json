@@ -1,32 +1,27 @@
 {
-  "name": "CloroPrime — Gestão de Cloração",
+  "name": "CloroPrime",
   "short_name": "CloroPrime",
-  "description": "PWA para controle de cloração, filtros, rotina diária, relatórios e backups.",
-  "lang": "pt-BR",
-  "start_url": "./",
-  "scope": "./",
+  "description": "Controle total da qualidade da água — gestão de cloração para condomínios",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#050b16",
+  "orientation": "any",
+  "background_color": "#0c0e12",
   "theme_color": "#0c0e12",
-  "orientation": "portrait-primary",
+  "lang": "pt-BR",
+  "categories": ["utilities", "productivity"],
   "icons": [
     {
       "src": "icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
       "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icons/maskable-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     },
     {
       "src": "icons/apple-touch-icon.png",
@@ -34,10 +29,19 @@
       "type": "image/png"
     }
   ],
-  "id": "./",
-  "display_override": [
-    "standalone",
-    "minimal-ui"
-  ],
-  "prefer_related_applications": false
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Operação",
+      "short_name": "Operação",
+      "description": "Leitura diária e ação imediata",
+      "url": "/?view=operacao"
+    },
+    {
+      "name": "Abastecer",
+      "short_name": "Abastecer",
+      "description": "Registrar abastecimento do tambor",
+      "url": "/?view=abastecer"
+    }
+  ]
 }

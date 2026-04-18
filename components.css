@@ -1,0 +1,157 @@
+/* CloroPrime — components.css */
+
+/* ── Splash Screen ── */
+#splash {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #080a0f;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  transition: opacity .7s ease, visibility .7s ease;
+  overflow: hidden;
+}
+#splash.hiding { opacity: 0; visibility: hidden; }
+#splash.hidden { display: none; }
+
+/* Luzes de fundo */
+.sp-light {
+  position: absolute; border-radius: 50%;
+  filter: blur(70px); pointer-events: none;
+  animation: sp-pulse 4s ease-in-out infinite;
+}
+.sp-l1 { width: 55vw; height: 55vw; max-width: 500px; max-height: 500px;
+  background: rgba(30,143,255,0.13); top: -10vh; left: -10vw; animation-delay: 0s; }
+.sp-l2 { width: 45vw; height: 45vw; max-width: 420px; max-height: 420px;
+  background: rgba(232,160,32,0.10); bottom: -8vh; right: -8vw; animation-delay: 1.6s; }
+.sp-l3 { width: 35vw; height: 35vw; max-width: 340px; max-height: 340px;
+  background: rgba(30,143,255,0.07); bottom: 10vh; left: -5vw; animation-delay: 0.9s; }
+.sp-l4 { width: 28vw; height: 28vw; max-width: 280px; max-height: 280px;
+  background: rgba(232,160,32,0.06); top: 8vh; right: -4vw; animation-delay: 2.3s; }
+
+/* Grid sutil */
+.sp-grid {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(30,143,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30,143,255,0.04) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+
+/* Partículas flutuantes */
+.sp-particles { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.sp-p {
+  position: absolute; border-radius: 50%;
+  animation: sp-float linear infinite;
+}
+.sp-p:nth-child(1){width:3px;height:3px;background:#1e8fff;opacity:.5;left:18%;animation-duration:7s;animation-delay:0s}
+.sp-p:nth-child(2){width:2px;height:2px;background:#e8a020;opacity:.45;left:68%;animation-duration:9s;animation-delay:1.2s}
+.sp-p:nth-child(3){width:2px;height:2px;background:#1e8fff;opacity:.35;left:42%;animation-duration:8s;animation-delay:2.1s}
+.sp-p:nth-child(4){width:3px;height:3px;background:#e8a020;opacity:.4;left:82%;animation-duration:6s;animation-delay:0.6s}
+.sp-p:nth-child(5){width:2px;height:2px;background:#1e8fff;opacity:.4;left:28%;animation-duration:10s;animation-delay:3.2s}
+.sp-p:nth-child(6){width:2px;height:2px;background:rgba(255,255,255,.55);left:58%;animation-duration:7.5s;animation-delay:1.8s}
+.sp-p:nth-child(7){width:1px;height:1px;background:#e8a020;opacity:.5;left:12%;animation-duration:8.5s;animation-delay:4.1s}
+.sp-p:nth-child(8){width:2px;height:2px;background:#1e8fff;opacity:.3;left:88%;animation-duration:9.5s;animation-delay:2.8s}
+.sp-p:nth-child(9){width:2px;height:2px;background:#e8a020;opacity:.35;left:50%;animation-duration:6.5s;animation-delay:0.3s}
+.sp-p:nth-child(10){width:1px;height:1px;background:#1e8fff;opacity:.45;left:75%;animation-duration:11s;animation-delay:5s}
+
+/* Scanlines */
+.sp-scan {
+  position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 3px,
+    rgba(255,255,255,0.012) 3px, rgba(255,255,255,0.012) 4px
+  );
+}
+
+/* Conteúdo */
+.sp-content {
+  position: relative; z-index: 10;
+  display: flex; flex-direction: column;
+  align-items: center;
+}
+
+/* Escudo */
+.sp-shield-wrap {
+  position: relative;
+  margin-bottom: 32px;
+  animation: sp-pop .8s cubic-bezier(.34,1.56,.64,1) both;
+}
+.sp-glow-ring {
+  position: absolute; inset: -22px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(30,143,255,0.2), transparent 68%);
+  animation: sp-glow-pulse 3s ease-in-out infinite;
+}
+.sp-orbit {
+  position: absolute; inset: -20px; border-radius: 50%;
+  border: 1px dashed rgba(30,143,255,0.22);
+  animation: sp-spin 14s linear infinite;
+}
+.sp-orbit-dot {
+  position: absolute; width: 6px; height: 6px; border-radius: 50%;
+  background: #e8a020; top: -3px; left: 50%; transform: translateX(-50%);
+  box-shadow: 0 0 6px rgba(232,160,32,0.6);
+}
+.sp-shield-svg {
+  width: 104px; height: 104px;
+  filter: drop-shadow(0 0 16px rgba(30,143,255,0.35));
+  animation: sp-float-shield 4s ease-in-out infinite;
+}
+
+/* Textos */
+.sp-brand {
+  font-family: var(--sans);
+  font-size: 38px; font-weight: 800; letter-spacing: -1px;
+  color: #f0f2f8;
+  animation: sp-fade-up .6s ease .4s both;
+}
+.sp-brand em { color: #e8a020; font-style: normal; }
+
+.sp-tagline {
+  margin-top: 10px;
+  font-family: var(--sans);
+  font-size: 12px; font-weight: 500;
+  color: #4a5470; letter-spacing: 2px; text-transform: uppercase;
+  animation: sp-fade-up .6s ease .6s both;
+}
+
+/* Barra */
+.sp-bar-wrap {
+  margin-top: 52px; width: 148px; height: 3px;
+  background: rgba(255,255,255,.07); border-radius: 99px; overflow: hidden;
+  animation: sp-fade-up .5s ease .8s both;
+}
+.sp-bar {
+  height: 100%; width: 0; border-radius: 99px;
+  background: linear-gradient(90deg, #1e8fff, #e8a020);
+  animation: sp-progress 2.6s cubic-bezier(.4,0,.2,1) .8s forwards;
+}
+
+/* Keyframes */
+@keyframes sp-pulse { 0%,100%{opacity:.75;transform:scale(1)} 50%{opacity:1;transform:scale(1.1)} }
+@keyframes sp-float { 0%{transform:translateY(105vh) scale(0);opacity:0} 8%{opacity:1} 92%{opacity:.3} 100%{transform:translateY(-5vh) scale(1);opacity:0} }
+@keyframes sp-pop { from{opacity:0;transform:scale(.55) translateY(16px)} to{opacity:1;transform:scale(1) translateY(0)} }
+@keyframes sp-glow-pulse { 0%,100%{opacity:.6;transform:scale(1)} 50%{opacity:1;transform:scale(1.12)} }
+@keyframes sp-spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+@keyframes sp-float-shield { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+@keyframes sp-fade-up { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+@keyframes sp-progress { 0%{width:0} 60%{width:76%} 88%{width:92%} 100%{width:100%} }
+
+.toast-container { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }
+.toast { padding: 12px 20px; border-radius: 14px; font-size: 14px; font-weight: 700; font-family: var(--sans); max-width: 340px; text-align: center; pointer-events: auto; animation: toastIn .25s ease; box-shadow: 0 8px 32px rgba(0,0,0,.4); }
+.toast.ok   { background: rgba(34,197,94,.18); border: 1px solid rgba(34,197,94,.4); color: var(--success); }
+.toast.warn { background: rgba(245,158,11,.18); border: 1px solid rgba(245,158,11,.4); color: var(--warn); }
+.toast.info { background: rgba(0,212,255,.14); border: 1px solid rgba(0,212,255,.3); color: var(--accent); }
+.toast.err  { background: rgba(239,68,68,.18); border: 1px solid rgba(239,68,68,.4); color: var(--danger); }
+@keyframes toastIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── Camera / AI leitura ── */
+.ai-foto-btn { display: flex; align-items: center; gap: 8px; padding: 11px 16px; background: linear-gradient(135deg, rgba(0,212,255,.15), rgba(0,153,204,.08)); border: 1px solid var(--accent2); border-radius: var(--r2); color: var(--accent); font-family: var(--sans); font-size: 13px; font-weight: 700; cursor: pointer; width: 100%; justify-content: center; margin-bottom: 14px; transition: all .2s; }
+.ai-foto-btn:hover { background: linear-gradient(135deg, rgba(0,212,255,.25), rgba(0,153,204,.15)); }
+.ai-foto-btn .ai-icon { font-size: 18px; }
+.ai-loading { display: none; align-items: center; gap: 10px; padding: 12px 16px; background: rgba(0,212,255,.08); border: 1px solid var(--border); border-radius: var(--r2); font-size: 13px; color: var(--text2); margin-bottom: 14px; }
+.ai-loading.visible { display: flex; }
+.ai-spinner { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.ai-result-box { display: none; background: linear-gradient(135deg, rgba(0,212,255,.08), rgba(0,153,204,.04)); border: 1px solid var(--accent2); border-radius: var(--r2); padding: 12px 16px; margin-bottom: 14px; }
+.ai-result-box.visible { display: block; }
+.ai-result-box .ai-val { font-family: var(--mono); font-size: 28px; font-weight: 700; color: var(--accent); }
+.ai-result-box .ai-desc { font-size: 12px; color: var(--text2); margin-top: 4px; }
