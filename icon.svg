@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="#0c0e12"/>
+
+  <!-- Subtle gradient overlay -->
+  <defs>
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1270cc" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#e8a020" stop-opacity="0.08"/>
+    </linearGradient>
+    <linearGradient id="drop-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e8fff"/>
+      <stop offset="100%" stop-color="#1270cc"/>
+    </linearGradient>
+    <linearGradient id="ring-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e8a020"/>
+      <stop offset="100%" stop-color="#c8830a"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="96" fill="url(#bg-grad)"/>
+
+  <!-- Gold ring / arc (circle) around drop -->
+  <circle cx="256" cy="252" r="148" fill="none" stroke="url(#ring-grad)" stroke-width="12" stroke-dasharray="620 200" stroke-dashoffset="80" stroke-linecap="round" opacity="0.6"/>
+
+  <!-- Water drop body -->
+  <path d="M256 120 C256 120 170 220 170 292 C170 338.8 208.8 376 256 376 C303.2 376 342 338.8 342 292 C342 220 256 120 256 120Z"
+        fill="url(#drop-grad)" filter="url(#glow)" opacity="0.95"/>
+
+  <!-- Drop highlight -->
+  <ellipse cx="232" cy="260" rx="18" ry="28" fill="white" opacity="0.18" transform="rotate(-20 232 260)"/>
+
+  <!-- Cl text inside drop -->
+  <text x="256" y="322" text-anchor="middle" font-family="'JetBrains Mono', 'Courier New', monospace"
+        font-size="72" font-weight="700" fill="white" opacity="0.92" letter-spacing="-2">Cl</text>
+
+  <!-- Gold accent dot top -->
+  <circle cx="256" cy="118" r="10" fill="#e8a020" opacity="0.9"/>
+</svg>

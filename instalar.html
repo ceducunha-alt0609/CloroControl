@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CloroPrime — Guia de Instalação</title>
+<style>
+  :root {
+    --bg: #0c0e12; --bg2: #13161d; --bg3: #1a1e28;
+    --accent: #1e8fff; --gold: #e8a020;
+    --text: #f0f2f8; --text2: #8891a8; --text3: #4a5470;
+    --success: #22c55e; --warn: #f59e0b;
+    --r: 14px; --mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, sans-serif;
+         font-size: 15px; line-height: 1.6; min-height: 100vh; }
+
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse 80% 50% at 20% 0%, rgba(30,143,255,.06), transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 100%, rgba(232,160,32,.04), transparent 55%);
+  }
+
+  .container { max-width: 860px; margin: 0 auto; padding: 40px 20px 80px; position: relative; }
+
+  /* Header */
+  .hero { text-align: center; padding: 60px 0 48px; }
+  .hero-icon {
+    width: 80px; height: 80px; border-radius: 22px;
+    background: linear-gradient(135deg, #1270cc, #1e8fff);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 40px; margin-bottom: 20px;
+    box-shadow: 0 8px 32px rgba(30,143,255,.3);
+  }
+  .hero h1 { font-size: 36px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; }
+  .hero h1 span { color: var(--accent); }
+  .hero p { color: var(--text2); font-size: 17px; max-width: 500px; margin: 0 auto; }
+
+  /* Section */
+  .section { margin-bottom: 40px; }
+  .section-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 20px 24px; border-radius: var(--r) var(--r) 0 0;
+    background: var(--bg2); border: 1px solid rgba(255,255,255,.07);
+    border-bottom: none;
+  }
+  .section-icon { font-size: 28px; }
+  .section-title { font-size: 20px; font-weight: 800; }
+  .section-sub { font-size: 13px; color: var(--text2); margin-top: 2px; }
+
+  /* Steps */
+  .steps {
+    background: var(--bg3); border: 1px solid rgba(255,255,255,.07);
+    border-radius: 0 0 var(--r) var(--r); padding: 0;
+    overflow: hidden;
+  }
+  .step {
+    display: flex; align-items: flex-start; gap: 16px;
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+    transition: background .15s;
+  }
+  .step:last-child { border-bottom: none; }
+  .step:hover { background: rgba(255,255,255,.02); }
+  .step-num {
+    width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+    background: var(--accent); color: #0c0e12;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 14px; margin-top: 1px;
+  }
+  .step-body {}
+  .step-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+  .step-desc { color: var(--text2); font-size: 14px; line-height: 1.55; }
+
+  /* Platform tabs */
+  .platform-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+  .ptab {
+    padding: 10px 18px; border-radius: 24px; border: 1px solid rgba(255,255,255,.1);
+    background: var(--bg2); color: var(--text2); font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all .2s; text-decoration: none; display: inline-flex;
+    align-items: center; gap: 6px;
+  }
+  .ptab:hover { border-color: var(--accent); color: var(--accent); background: rgba(30,143,255,.08); }
+  .ptab.pwa { border-color: var(--success); color: var(--success); background: rgba(34,197,94,.08); }
+
+  /* Badge */
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700;
+  }
+  .badge-ok  { background: rgba(34,197,94,.15); color: var(--success); border: 1px solid rgba(34,197,94,.25); }
+  .badge-info { background: rgba(30,143,255,.15); color: var(--accent); border: 1px solid rgba(30,143,255,.25); }
+
+  /* Note box */
+  .note {
+    background: rgba(232,160,32,.08); border: 1px solid rgba(232,160,32,.2);
+    border-radius: 10px; padding: 14px 16px; margin: 12px 0;
+    font-size: 13px; color: var(--warn); display: flex; gap: 10px; align-items: flex-start;
+  }
+  .note-icon { flex-shrink: 0; font-size: 16px; }
+
+  /* CTA */
+  .cta { text-align: center; margin-top: 56px; }
+  .cta-btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 16px 32px; border-radius: 999px;
+    background: linear-gradient(135deg, #f4c150, var(--gold), #c8830a);
+    color: #1a1410; font-weight: 800; font-size: 16px; text-decoration: none;
+    box-shadow: 0 4px 20px rgba(232,160,32,.35);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(232,160,32,.45); }
+  .cta-sub { color: var(--text3); font-size: 13px; margin-top: 12px; }
+
+  /* Divider */
+  .divider { height: 1px; background: rgba(255,255,255,.06); margin: 48px 0; }
+
+  /* Footer */
+  footer { text-align: center; color: var(--text3); font-size: 13px; margin-top: 60px; }
+
+  /* Code */
+  code {
+    font-family: var(--mono); font-size: 13px;
+    background: rgba(30,143,255,.1); color: var(--accent);
+    padding: 2px 6px; border-radius: 4px;
+  }
+
+  @media(max-width: 600px) {
+    .hero h1 { font-size: 28px; }
+    .section-header { padding: 16px 18px; }
+    .step { padding: 16px 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-icon">💧</div>
+    <h1>Cloro<span>Prime</span></h1>
+    <p>Guia completo para instalar o app em qualquer dispositivo ou sistema operacional.</p>
+  </div>
+
+  <!-- Quick links -->
+  <div class="platform-tabs" style="justify-content:center; margin-bottom:40px;">
+    <a class="ptab" href="#android">🤖 Android</a>
+    <a class="ptab" href="#ios">🍎 iOS</a>
+    <a class="ptab" href="#windows">🪟 Windows</a>
+    <a class="ptab" href="#mac">🍏 macOS</a>
+    <a class="ptab" href="#linux">🐧 Linux</a>
+    <a class="ptab pwa" href="#offline">📶 Offline</a>
+  </div>
+
+  <!-- ─── ANDROID ─── -->
+  <div class="section" id="android">
+    <div class="section-header">
+      <div class="section-icon">🤖</div>
+      <div>
+        <div class="section-title">Android</div>
+        <div class="section-sub">Chrome, Edge, Samsung Internet, Firefox — qualquer versão Android 8+</div>
+      </div>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Abra o Chrome (recomendado)</div>
+          <div class="step-desc">Acesse a URL do CloroPrime no Chrome. Você também pode usar Edge ou Samsung Internet.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Banner automático de instalação</div>
+          <div class="step-desc">O Chrome mostrará automaticamente um banner <strong>"Instalar CloroPrime"</strong> na parte inferior da tela. Toque em <strong>Instalar</strong>.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Ou instale pelo menu</div>
+          <div class="step-desc">Toque no menu <strong>⋮</strong> (três pontos) no canto superior direito → <strong>"Adicionar à tela inicial"</strong> → <strong>Adicionar</strong>.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <div class="step-title">Pronto! 🎉</div>
+          <div class="step-desc">O ícone do CloroPrime aparece na sua tela inicial. O app abre em tela cheia, como um app nativo, sem barra do navegador.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── iOS ─── -->
+  <div class="section" id="ios">
+    <div class="section-header">
+      <div class="section-icon">🍎</div>
+      <div>
+        <div class="section-title">iPhone &amp; iPad (iOS / iPadOS)</div>
+        <div class="section-sub">Obrigatório usar Safari — iOS 16.4+ recomendado</div>
+      </div>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Abra o Safari</div>
+          <div class="step-desc">No iPhone/iPad, a instalação de PWA só funciona pelo <strong>Safari</strong>. Abra a URL do CloroPrime.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Toque em Compartilhar</div>
+          <div class="step-desc">Toque no ícone <strong>↑ Compartilhar</strong> (retângulo com seta para cima) na barra inferior do Safari.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Adicionar à Tela de Início</div>
+          <div class="step-desc">Role a lista de ações e toque em <strong>"Adicionar à Tela de Início"</strong>. Confirme o nome e toque em <strong>Adicionar</strong>.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <div class="step-title">Abra pela tela inicial</div>
+          <div class="step-desc">O ícone do CloroPrime aparece na sua tela inicial. Abrindo por ele, o app roda em tela cheia sem a interface do Safari.</div>
+        </div>
+      </div>
+    </div>
+    <div class="note">
+      <span class="note-icon">⚠️</span>
+      <span><strong>iOS 15 e anterior:</strong> PWAs têm suporte limitado. Use iOS 16.4+ para melhor experiência e suporte ao Service Worker.</span>
+    </div>
+  </div>
+
+  <!-- ─── WINDOWS ─── -->
+  <div class="section" id="windows">
+    <div class="section-header">
+      <div class="section-icon">🪟</div>
+      <div>
+        <div class="section-title">Windows</div>
+        <div class="section-sub">Chrome ou Edge — Windows 10 e 11</div>
+      </div>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Abra no Chrome ou Edge</div>
+          <div class="step-desc">Acesse a URL do CloroPrime. O Edge tem suporte nativo a PWA e oferece a melhor experiência no Windows.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Clique no ícone de instalar</div>
+          <div class="step-desc">Na barra de endereço, aparece um ícone <strong>🖥️ Instalar CloroPrime</strong> (ou <strong>+</strong>). Clique nele.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Confirme a instalação</div>
+          <div class="step-desc">Na janela que aparece, clique em <strong>Instalar</strong>. Opcionalmente, marque para fixar na barra de tarefas e criar atalho na área de trabalho.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <div class="step-title">App instalado</div>
+          <div class="step-desc">O CloroPrime abre em janela própria, sem barra do navegador. Você o encontra no Menu Iniciar, na barra de tarefas e na área de trabalho.</div>
+        </div>
+      </div>
+    </div>
+    <div class="note">
+      <span class="note-icon">💡</span>
+      <span>Via <strong>Edge</strong>: menu <strong>⋯ → Aplicativos → Instalar este site como aplicativo</strong>.</span>
+    </div>
+  </div>
+
+  <!-- ─── macOS ─── -->
+  <div class="section" id="mac">
+    <div class="section-header">
+      <div class="section-icon">🍏</div>
+      <div>
+        <div class="section-title">macOS</div>
+        <div class="section-sub">Chrome, Edge ou Safari (macOS Sonoma+)</div>
+      </div>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Chrome ou Edge (recomendado)</div>
+          <div class="step-desc">Acesse a URL do CloroPrime. Clique no ícone <strong>⊕</strong> ou <strong>🖥️</strong> na barra de endereço e selecione <strong>Instalar</strong>.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Ou use o Safari (macOS Sonoma 14+)</div>
+          <div class="step-desc">No Safari, acesse a URL e vá em <strong>Arquivo → Adicionar ao Dock</strong>. O app aparece no Dock e abre em janela standalone.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Acesse pelo Launchpad</div>
+          <div class="step-desc">Após instalar via Chrome/Edge, o CloroPrime aparece no Launchpad e pode ser adicionado ao Dock como qualquer app nativo.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── LINUX ─── -->
+  <div class="section" id="linux">
+    <div class="section-header">
+      <div class="section-icon">🐧</div>
+      <div>
+        <div class="section-title">Linux</div>
+        <div class="section-sub">Chrome, Chromium ou Edge — Ubuntu, Debian, Fedora, Arch…</div>
+      </div>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Abra no Chrome ou Chromium</div>
+          <div class="step-desc">Acesse a URL do CloroPrime. O Firefox não suporta instalação de PWA — use Chrome/Chromium para esta funcionalidade.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Clique em instalar</div>
+          <div class="step-desc">Na barra de endereço, clique no ícone <strong>🖥️ Instalar CloroPrime</strong> → <strong>Instalar</strong>.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">App disponível no sistema</div>
+          <div class="step-desc">O app é instalado em <code>~/.local/share/applications/</code> e fica disponível no menu de apps do seu ambiente gráfico (GNOME, KDE, XFCE…).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── OFFLINE ─── -->
+  <div class="section" id="offline">
+    <div class="section-header">
+      <div class="section-icon">📶</div>
+      <div>
+        <div class="section-title">Funcionamento Offline</div>
+        <div class="section-sub">O CloroPrime funciona 100% sem internet após a primeira visita</div>
+      </div>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">✓</div>
+        <div class="step-body">
+          <div class="step-title">Como funciona?</div>
+          <div class="step-desc">O Service Worker cacheia automaticamente o app completo (HTML, fontes, Chart.js, ícones) na primeira visita online. Nas próximas visitas, tudo carrega do cache, mesmo sem internet.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">✓</div>
+        <div class="step-body">
+          <div class="step-title">Dados sempre salvos</div>
+          <div class="step-desc">Configurações, histórico e registros ficam no <code>localStorage</code> do dispositivo — não são apagados ao ficar offline.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">✓</div>
+        <div class="step-body">
+          <div class="step-title">Backup manual</div>
+          <div class="step-desc">Na aba <strong>Configuração</strong>, use os botões <strong>Exportar backup</strong> e <strong>Importar backup</strong> para salvar seus dados em arquivo JSON.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta">
+    <a class="cta-btn" href="index.html">💧 Abrir o CloroPrime</a>
+    <div class="cta-sub">Acesse o app e instale diretamente pelo navegador</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <footer>
+    CloroPrime — Gestão de Cloração &nbsp;·&nbsp; PWA &nbsp;·&nbsp; Funciona offline &nbsp;·&nbsp; Dados 100% locais
+  </footer>
+
+</div>
+</body>
+</html>

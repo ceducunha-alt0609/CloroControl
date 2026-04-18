@@ -1,21 +1,60 @@
 {
-  "name": "CloroPrime",
+  "name": "CloroPrime — Gestão de Cloração",
   "short_name": "CloroPrime",
-  "description": "Controle total da qualidade da água — gestão de cloração para condomínios",
-  "start_url": "/",
-  "scope": "/",
+  "description": "Sistema de gestão e monitoramento de cloração para tratamento de água. Controle dosagem, autonomia do tambor e histórico de verificações.",
+  "start_url": "./index.html?source=pwa",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "orientation": "any",
   "background_color": "#0c0e12",
   "theme_color": "#0c0e12",
   "lang": "pt-BR",
+  "dir": "ltr",
+  "scope": "./",
   "categories": ["utilities", "productivity"],
+  "prefer_related_applications": false,
   "icons": [
+    {
+      "src": "icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "icons/icon-512.png",
@@ -26,22 +65,65 @@
     {
       "src": "icons/apple-touch-icon.png",
       "sizes": "180x180",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     }
   ],
-  "screenshots": [],
+  "screenshots": [
+    {
+      "src": "icons/screenshot-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Painel de Operação CloroPrime"
+    },
+    {
+      "src": "icons/screenshot-desktop.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Dashboard CloroPrime"
+    }
+  ],
   "shortcuts": [
     {
       "name": "Operação",
       "short_name": "Operação",
-      "description": "Leitura diária e ação imediata",
-      "url": "/?view=operacao"
+      "description": "Painel principal de operação",
+      "url": "./index.html?view=operacao",
+      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
     },
     {
-      "name": "Abastecer",
-      "short_name": "Abastecer",
-      "description": "Registrar abastecimento do tambor",
-      "url": "/?view=abastecer"
+      "name": "Calculadora",
+      "short_name": "Calculadora",
+      "description": "Calculadora de dosagem de cloro",
+      "url": "./index.html?view=calc",
+      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Histórico",
+      "short_name": "Histórico",
+      "description": "Histórico de verificações",
+      "url": "./index.html?view=hist",
+      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Visão geral e métricas",
+      "url": "./index.html?view=dash",
+      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
     }
-  ]
+  ],
+  "related_applications": [],
+  "protocol_handlers": [],
+  "edge_side_panel": {
+    "preferred_width": 480
+  }
 }
