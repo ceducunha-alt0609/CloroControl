@@ -1,169 +1,146 @@
-/**
- * CloroPrime — Service Worker
- * Estratégia: Cache-First para assets estáticos, Network-First para runtime.
- * Versão: incrementar CACHE_VERSION ao deploy para forçar atualização.
- */
+// ─────────────────────────────────────────────────────────────────────────────
+// CloroPrime Service Worker  v2.0
+// Estratégia: Cache-First para o app shell, Network-First para dados externos
+// ─────────────────────────────────────────────────────────────────────────────
 
-const CACHE_VERSION = 'v1.2.0';
-const CACHE_STATIC  = `cloroprime-static-${CACHE_VERSION}`;
-const CACHE_DYNAMIC = `cloroprime-dynamic-${CACHE_VERSION}`;
+const APP_VERSION   = 'v2.0';
+const CACHE_STATIC  = `cloroprime-static-${APP_VERSION}`;
+const CACHE_RUNTIME = `cloroprime-runtime-${APP_VERSION}`;
 
-// Assets que SEMPRE ficam em cache (shell do app)
+// Arquivos do app shell — cacheados no install
 const STATIC_ASSETS = [
-  './',
-  './index.html',
+  './CloroPrime.html',
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
+  './icons/icon-maskable-512.png',
   './icons/apple-touch-icon.png',
-  './icons/icon.svg',
-  // Chart.js via CDN — cacheia na primeira visita
-  'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js'
+  './icons/favicon.ico',
 ];
 
-// Fontes do Google — cache separado de longa duração
-const FONT_CACHE = `cloroprime-fonts-${CACHE_VERSION}`;
-const FONT_ORIGINS = ['https://fonts.googleapis.com', 'https://fonts.gstatic.com'];
+// CDN externos — cacheados em runtime (Stale-While-Revalidate)
+const CDN_PATTERNS = [
+  'cdnjs.cloudflare.com',
+  'fonts.googleapis.com',
+  'fonts.gstatic.com',
+];
 
-// ── Install: pré-cache do shell ─────────────────────────────────────────────
+// ── INSTALL ───────────────────────────────────────────────────────────────────
 self.addEventListener('install', event => {
-  console.log('[SW] Installing CloroPrime', CACHE_VERSION);
+  console.log('[SW] Install', APP_VERSION);
   event.waitUntil(
     caches.open(CACHE_STATIC)
-      .then(cache => cache.addAll(STATIC_ASSETS))
+      .then(cache =>
+        Promise.allSettled(
+          STATIC_ASSETS.map(url =>
+            cache.add(url).catch(err => console.warn('[SW] Failed to cache:', url, err))
+          )
+        )
+      )
       .then(() => self.skipWaiting())
-      .catch(err => console.warn('[SW] Precache parcial:', err))
   );
 });
 
-// ── Activate: limpa caches antigos ──────────────────────────────────────────
+// ── ACTIVATE ──────────────────────────────────────────────────────────────────
 self.addEventListener('activate', event => {
-  console.log('[SW] Activating CloroPrime', CACHE_VERSION);
-  const keepCaches = [CACHE_STATIC, CACHE_DYNAMIC, FONT_CACHE];
+  console.log('[SW] Activate', APP_VERSION);
   event.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(
-        keys
-          .filter(key => !keepCaches.includes(key))
-          .map(key => {
-            console.log('[SW] Deletando cache antigo:', key);
-            return caches.delete(key);
-          })
-      ))
-      .then(() => self.clients.claim())
+      .then(keys =>
+        Promise.all(
+          keys
+            .filter(key => key !== CACHE_STATIC && key !== CACHE_RUNTIME)
+            .map(key => {
+              console.log('[SW] Deleting old cache:', key);
+              return caches.delete(key);
+            })
+        )
+      )
+      .then(() => clients.claim())
   );
 });
 
-// ── Fetch: estratégias por tipo de recurso ──────────────────────────────────
+// ── FETCH ─────────────────────────────────────────────────────────────────────
 self.addEventListener('fetch', event => {
   const { request } = event;
+  if (request.method !== 'GET') return;
+
   const url = new URL(request.url);
 
-  // Ignora requests não-GET e chrome-extension
-  if (request.method !== 'GET') return;
-  if (url.protocol === 'chrome-extension:') return;
+  // Ignora chrome-extension e outros esquemas
+  if (!['http:', 'https:'].includes(url.protocol)) return;
 
-  // Fontes Google → Cache-First de longa duração
-  if (FONT_ORIGINS.some(o => url.origin === new URL(o).origin)) {
-    event.respondWith(cacheFirst(request, FONT_CACHE));
-    return;
+  const isCDN    = CDN_PATTERNS.some(p => url.hostname.includes(p));
+  const isStatic = STATIC_ASSETS.some(a => request.url.endsWith(a.replace('./', '')));
+  const isMain   = url.pathname.endsWith('CloroPrime.html') || url.pathname === '/';
+
+  if (isMain || isStatic) {
+    // Cache-First com atualização em background
+    event.respondWith(cacheFirstWithRefresh(request, CACHE_STATIC));
+  } else if (isCDN) {
+    // Stale-While-Revalidate para fontes e CDN
+    event.respondWith(staleWhileRevalidate(request, CACHE_RUNTIME));
   }
-
-  // CDN de libs → Cache-First
-  if (url.hostname === 'cdnjs.cloudflare.com') {
-    event.respondWith(cacheFirst(request, CACHE_DYNAMIC));
-    return;
-  }
-
-  // App Shell (index.html, manifest, ícones) → Cache-First
-  if (url.origin === self.location.origin) {
-    event.respondWith(cacheFirst(request, CACHE_STATIC));
-    return;
-  }
-
-  // Qualquer outra coisa → Network-First com fallback
-  event.respondWith(networkFirst(request, CACHE_DYNAMIC));
+  // Demais: passa direto sem interceptar
 });
 
-// ── Estratégia Cache-First ───────────────────────────────────────────────────
-async function cacheFirst(request, cacheName) {
-  try {
-    const cache    = await caches.open(cacheName);
-    const cached   = await cache.match(request);
-    if (cached) return cached;
+// ── Estratégias ───────────────────────────────────────────────────────────────
 
-    const response = await fetch(request);
-    if (response.ok) cache.put(request, response.clone());
-    return response;
-  } catch {
-    // Fallback para index.html em caso de navegação offline
-    if (request.mode === 'navigate') {
-      const cache = await caches.open(CACHE_STATIC);
-      return cache.match('./index.html');
-    }
-    return new Response('Offline', { status: 503 });
-  }
-}
+async function cacheFirstWithRefresh(request, cacheName) {
+  const cache  = await caches.open(cacheName);
+  const cached = await cache.match(request);
 
-// ── Estratégia Network-First ─────────────────────────────────────────────────
-async function networkFirst(request, cacheName) {
-  try {
-    const response = await fetch(request);
-    if (response.ok) {
-      const cache = await caches.open(cacheName);
-      cache.put(request, response.clone());
-    }
-    return response;
-  } catch {
-    const cache  = await caches.open(cacheName);
-    const cached = await cache.match(request);
-    if (cached) return cached;
-    if (request.mode === 'navigate') {
-      const staticCache = await caches.open(CACHE_STATIC);
-      return staticCache.match('./index.html');
-    }
-    return new Response('Offline', { status: 503 });
-  }
-}
-
-// ── Background Sync (futuro) ─────────────────────────────────────────────────
-self.addEventListener('sync', event => {
-  if (event.tag === 'sync-readings') {
-    console.log('[SW] Background sync: sync-readings');
-    // Placeholder para sincronização futura
-  }
-});
-
-// ── Push Notifications (futuro) ──────────────────────────────────────────────
-self.addEventListener('push', event => {
-  if (!event.data) return;
-  const data = event.data.json();
-  event.waitUntil(
-    self.registration.showNotification(data.title || 'CloroPrime', {
-      body:    data.body    || 'Verificação pendente.',
-      icon:    './icons/icon-192.png',
-      badge:   './icons/icon-72.png',
-      vibrate: [200, 100, 200],
-      data:    data.url ? { url: data.url } : {},
-      actions: [
-        { action: 'open',    title: 'Abrir App' },
-        { action: 'dismiss', title: 'Fechar'    }
-      ]
+  const networkFetch = fetch(request)
+    .then(resp => {
+      if (resp.ok) cache.put(request, resp.clone());
+      return resp;
     })
-  );
-});
+    .catch(() => null);
 
-self.addEventListener('notificationclick', event => {
-  event.notification.close();
-  if (event.action === 'dismiss') return;
-  const targetUrl = event.notification.data?.url || './index.html';
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true })
-      .then(clientList => {
-        for (const client of clientList) {
-          if (client.url === targetUrl && 'focus' in client) return client.focus();
-        }
-        if (clients.openWindow) return clients.openWindow(targetUrl);
-      })
-  );
+  if (cached) {
+    // Retorna cache imediatamente, atualiza em background
+    networkFetch; // fire-and-forget
+    return cached;
+  }
+
+  // Sem cache: tenta a rede
+  const fresh = await networkFetch;
+  if (fresh) return fresh;
+
+  // Fallback offline: retorna o HTML principal
+  const fallback = await cache.match('./CloroPrime.html');
+  if (fallback) return fallback;
+
+  return new Response('Offline — CloroPrime não disponível', {
+    status: 503,
+    headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+  });
+}
+
+async function staleWhileRevalidate(request, cacheName) {
+  const cache  = await caches.open(cacheName);
+  const cached = await cache.match(request);
+
+  const networkFetch = fetch(request)
+    .then(resp => {
+      if (resp.ok) cache.put(request, resp.clone());
+      return resp;
+    })
+    .catch(() => cached || null);
+
+  return cached || networkFetch;
+}
+
+// ── Mensagens do cliente ──────────────────────────────────────────────────────
+self.addEventListener('message', event => {
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
+
+  if (event.data?.type === 'GET_VERSION') {
+    event.ports[0]?.postMessage({ version: APP_VERSION });
+  }
+
+  if (event.data?.type === 'CLEAR_CACHE') {
+    caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))))
+      .then(() => event.ports[0]?.postMessage({ ok: true }));
+  }
 });
