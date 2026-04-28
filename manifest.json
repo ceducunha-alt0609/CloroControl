@@ -1,83 +1,31 @@
 {
   "name": "CloroPrime — Gestão de Cloração",
   "short_name": "CloroPrime",
-  "description": "Monitoramento e gestão inteligente de cloração de água. Calcule doses, acompanhe o tambor, registre leituras e garanta água segura.",
-  "start_url": "./CloroPrime.html",
-  "id": "cloroprime-app",
+  "description": "Gestão de cloração, dosagem, histórico e operação em PC, mobile e web.",
+  "id": "./",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone"],
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "background_color": "#0c0e12",
   "theme_color": "#0c0e12",
   "orientation": "portrait-primary",
-  "lang": "pt-BR",
-  "dir": "ltr",
   "categories": ["utilities", "productivity"],
+  "lang": "pt-BR",
   "icons": [
-    {
-      "src": "icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icons/icon-maskable-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "icons/apple-touch-icon.png",
-      "sizes": "180x180",
-      "type": "image/png",
-      "purpose": "any"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "CloroPrime — Painel de Operação"
-    }
+    { "src": "./icons/icon-72.png", "sizes": "72x72", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-96.png", "sizes": "96x96", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-128.png", "sizes": "128x128", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-144.png", "sizes": "144x144", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-152.png", "sizes": "152x152", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-180.png", "sizes": "180x180", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "./icons/icon-384.png", "sizes": "384x384", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ],
   "shortcuts": [
-    {
-      "name": "Operação",
-      "short_name": "Operação",
-      "description": "Leitura diária e ação imediata",
-      "url": "./CloroPrime.html?view=operacao",
-      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "Dashboard",
-      "short_name": "Dashboard",
-      "description": "Visão geral e gráficos",
-      "url": "./CloroPrime.html?view=dashboard",
-      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "Calculadora",
-      "short_name": "Calc",
-      "description": "Calcular dose e autonomia",
-      "url": "./CloroPrime.html?view=calc",
-      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "Abastecer",
-      "short_name": "Abastecer",
-      "description": "Registrar abastecimento do tambor",
-      "url": "./CloroPrime.html?view=abastecer",
-      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
-    }
-  ],
-  "related_applications": [],
-  "prefer_related_applications": false
+    { "name": "Operação", "short_name": "Operação", "url": "./index.html?view=operacao", "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Calcular", "short_name": "Calcular", "url": "./index.html?view=calcular", "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Histórico", "short_name": "Histórico", "url": "./index.html?view=historico", "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }] }
+  ]
 }

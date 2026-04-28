@@ -1,18 +1,21 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-pwa-build="corrigido">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0c0e12">
+<meta name="description" content="CloroPrime — Gestão de cloração, dosagem, histórico e operação em PC, mobile e web.">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="CloroPrime">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="msapplication-TileColor" content="#0c0e12">
 <title>CloroPrime — Gestão de Cloração</title>
-<link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/x-icon" href="icons/favicon.ico">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/x-icon" href="./icons/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="./icons/icon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Fira+Code:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;700;800&family=Sora:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Lexend:wght@400;500;600;700;800&family=Work+Sans:wght@400;500;600;700;800&family=Urbanist:wght@400;500;600;700;800&family=Archivo:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Mulish:wght@400;500;600;700;800&family=Cabinet+Grotesk:wght@400;500;700&family=Geist:wght@400;500;600;700;800&family=Instrument+Sans:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;700&family=Source+Code+Pro:wght@400;500;700&family=Geist+Mono:wght@400;500;700&family=Chivo+Mono:wght@400;500;700&family=DM+Mono:wght@400;500&family=Red+Hat+Mono:wght@400;500;700&family=Azeret+Mono:wght@400;500;700&family=Commit+Mono:wght@400;700&family=Martian+Mono:wght@400;500;700&family=Nunito:wght@400;500;600;700;800&family=Nunito+Sans:wght@400;500;600;700;800&family=Raleway:wght@400;500;600;700;800&family=Rubik:wght@400;500;600;700;800&family=Figtree:wght@400;500;600;700;800&family=Exo+2:wght@400;500;600;700;800&family=Josefin+Sans:wght@400;600;700&family=Quicksand:wght@400;500;600;700&family=Noto+Sans:wght@400;500;600;700;800&family=Barlow:wght@400;500;600;700;800&family=Ubuntu+Mono:wght@400;700&family=Anonymous+Pro:wght@400;700&family=Courier+Prime:wght@400;700&family=Share+Tech+Mono&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -5830,18 +5833,245 @@ document.getElementById('calc-fce').addEventListener('input', function() {
 })();
 
 // ── Service Worker registration ────────────────────────────────────
+// ── Service Worker ─────────────────────────────────────────────────
 if('serviceWorker' in navigator) {
   const isLocalPreview = location.hostname.includes('claudeusercontent.com')
     || location.protocol === 'blob:'
     || location.hostname === '';
   if(!isLocalPreview) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('service-worker.js')
-        .then(reg => console.log('CloroPrime SW registered:', reg.scope))
-        .catch(err => console.log('SW registration failed:', err));
+      navigator.serviceWorker.register('./sw.js', { scope: './' })
+        .then(reg => {
+          console.log('CloroPrime PWA ativo:', reg.scope);
+          // Notifica SW para atualizar quando disponível
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            newWorker.addEventListener('statechange', () => {
+              if(newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                newWorker.postMessage({ type: 'SKIP_WAITING' });
+              }
+            });
+          });
+        })
+        .catch(err => console.warn('SW registration failed:', err));
     });
   }
 }
+
+// ── PWA Install Banner ─────────────────────────────────────────────
+(function() {
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const isAndroid = /Android/.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone === true;
+
+  // Já instalado — não mostra nada
+  if(isStandalone) return;
+
+  const DISMISSED_KEY = 'cp_install_dismissed';
+  const dismissed = parseInt(localStorage.getItem(DISMISSED_KEY) || '0');
+  // Não incomoda por 3 dias após dispensar
+  if(Date.now() - dismissed < 3 * 24 * 60 * 60 * 1000) return;
+
+  let deferredPrompt = null;
+
+  function createBanner(mode) {
+    if(document.getElementById('cp-install-banner')) return;
+
+    const banner = document.createElement('div');
+    banner.id = 'cp-install-banner';
+    banner.innerHTML = `
+      <div class="cp-ib-icon">
+        <img src="icons/icon-192.png" width="40" height="40" alt="CloroPrime"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+             style="border-radius:10px">
+        <span style="display:none;width:40px;height:40px;background:linear-gradient(135deg,#1270cc,#1e8fff);border-radius:10px;align-items:center;justify-content:center;font-size:22px">💧</span>
+      </div>
+      <div class="cp-ib-text">
+        <strong>Instalar CloroPrime</strong>
+        <span id="cp-ib-sub">${mode === 'ios'
+          ? 'Toque em <b>Compartilhar</b> → <b>"Adicionar à Tela de Início"</b>'
+          : 'Instale como app — funciona offline, sem navegador'
+        }</span>
+      </div>
+      <div class="cp-ib-actions">
+        ${mode === 'android'
+          ? '<button id="cp-ib-install" class="cp-ib-btn primary">Instalar</button>'
+          : '<button id="cp-ib-install" class="cp-ib-btn primary">Como instalar</button>'
+        }
+        <button id="cp-ib-close" class="cp-ib-btn ghost">✕</button>
+      </div>
+    `;
+    document.body.appendChild(banner);
+
+    // Anima entrada
+    requestAnimationFrame(() => banner.classList.add('visible'));
+
+    document.getElementById('cp-ib-close').addEventListener('click', () => {
+      banner.classList.remove('visible');
+      localStorage.setItem(DISMISSED_KEY, Date.now());
+      setTimeout(() => banner.remove(), 400);
+    });
+
+    const installBtn = document.getElementById('cp-ib-install');
+    if(mode === 'android') {
+      installBtn.addEventListener('click', async () => {
+        if(!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        banner.classList.remove('visible');
+        setTimeout(() => banner.remove(), 400);
+        if(outcome === 'accepted') {
+          localStorage.setItem(DISMISSED_KEY, Date.now() * 10); // não mostrar mais
+        }
+      });
+    } else if(mode === 'ios') {
+      installBtn.addEventListener('click', () => {
+        // Mostra modal com instrução detalhada iOS
+        showIOSModal();
+        banner.classList.remove('visible');
+        setTimeout(() => banner.remove(), 400);
+      });
+    }
+  }
+
+  function showIOSModal() {
+    const m = document.createElement('div');
+    m.id = 'cp-ios-modal';
+    m.innerHTML = `
+      <div class="cp-ios-box">
+        <button class="cp-ios-close" onclick="this.closest('#cp-ios-modal').remove()">✕</button>
+        <div style="font-size:28px;margin-bottom:12px">📲</div>
+        <div style="font-size:17px;font-weight:800;margin-bottom:8px;color:var(--text)">Instalar no iPhone / iPad</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:20px">
+          O Safari não exibe banners automáticos,<br>mas é simples instalar:
+        </div>
+        <div class="cp-ios-steps">
+          <div class="cp-ios-step"><span class="cp-ios-num">1</span><span>Toque no botão <b>Compartilhar</b> <span style="font-size:18px">⎙</span> na barra do Safari</span></div>
+          <div class="cp-ios-step"><span class="cp-ios-num">2</span><span>Role a lista e toque em <b>"Adicionar à Tela de Início"</b></span></div>
+          <div class="cp-ios-step"><span class="cp-ios-num">3</span><span>Confirme tocando em <b>Adicionar</b> — pronto! 🎉</span></div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:16px">Funciona offline após instalado</div>
+      </div>
+    `;
+    document.body.appendChild(m);
+    requestAnimationFrame(() => m.classList.add('visible'));
+    m.addEventListener('click', e => { if(e.target === m) m.remove(); });
+  }
+
+  // Android: captura o evento antes de o Chrome suprimir
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    setTimeout(() => createBanner('android'), 3500);
+  });
+
+  // iOS: mostra banner manual (não tem beforeinstallprompt)
+  if(isIOS) {
+    setTimeout(() => createBanner('ios'), 3500);
+  }
+
+  // Detecta se instalou com sucesso
+  window.addEventListener('appinstalled', () => {
+    const b = document.getElementById('cp-install-banner');
+    if(b) { b.classList.remove('visible'); setTimeout(() => b.remove(), 400); }
+    localStorage.setItem(DISMISSED_KEY, Date.now() * 10);
+    // toast de boas-vindas pós-instalação
+    setTimeout(() => toast && toast('✅ CloroPrime instalado com sucesso!', 'ok', 4000), 500);
+  });
+})();
 </script>
+
+<style>
+/* ── Install Banner ───────────────────────────────────────── */
+#cp-install-banner {
+  position: fixed;
+  bottom: -120px;
+  left: 12px; right: 12px;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 9999;
+  box-shadow: 0 8px 32px rgba(0,0,0,.45), 0 0 0 1px rgba(30,143,255,.15);
+  transition: bottom .4s cubic-bezier(.34,1.56,.64,1);
+  max-width: 500px;
+  margin: 0 auto;
+}
+#cp-install-banner.visible { bottom: 24px; }
+
+.cp-ib-icon { flex-shrink: 0; }
+.cp-ib-text { flex: 1; min-width: 0; }
+.cp-ib-text strong { display: block; font-size: 14px; font-weight: 700; color: var(--text); }
+.cp-ib-text span { display: block; font-size: 11.5px; color: var(--text2); margin-top: 3px; line-height: 1.4; }
+.cp-ib-actions { display: flex; gap: 8px; flex-shrink: 0; align-items: center; }
+
+.cp-ib-btn {
+  border: none; border-radius: 8px;
+  font-family: var(--sans); font-weight: 700; cursor: pointer;
+  font-size: 13px; padding: 8px 14px; transition: all .15s;
+}
+.cp-ib-btn.primary {
+  background: var(--accent); color: #fff;
+}
+.cp-ib-btn.primary:hover { background: var(--accent2); }
+.cp-ib-btn.ghost {
+  background: transparent; color: var(--text3);
+  padding: 8px 10px; font-size: 15px;
+}
+.cp-ib-btn.ghost:hover { color: var(--text); }
+
+/* ── iOS Install Modal ─────────────────────────────────────── */
+#cp-ios-modal {
+  position: fixed; inset: 0; z-index: 10000;
+  background: rgba(0,0,0,.6);
+  display: flex; align-items: flex-end; justify-content: center;
+  padding: 0 0 env(safe-area-inset-bottom, 0) 0;
+  opacity: 0; transition: opacity .25s;
+}
+#cp-ios-modal.visible { opacity: 1; }
+.cp-ios-box {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 20px 20px 0 0;
+  padding: 28px 24px 36px;
+  width: 100%; max-width: 480px;
+  text-align: center;
+  position: relative;
+  transform: translateY(40px);
+  transition: transform .3s cubic-bezier(.34,1.2,.64,1);
+}
+#cp-ios-modal.visible .cp-ios-box { transform: translateY(0); }
+.cp-ios-close {
+  position: absolute; top: 16px; right: 16px;
+  background: var(--bg3); border: none; border-radius: 50%;
+  width: 28px; height: 28px; color: var(--text2);
+  font-size: 13px; cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+}
+.cp-ios-steps { display: flex; flex-direction: column; gap: 14px; text-align: left; }
+.cp-ios-step {
+  display: flex; align-items: flex-start; gap: 12px;
+  font-size: 14px; color: var(--text2); line-height: 1.5;
+}
+.cp-ios-num {
+  flex-shrink: 0; width: 26px; height: 26px;
+  background: var(--accent); color: #fff;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800; margin-top: 1px;
+}
+
+/* Tema claro */
+html[data-theme="light"] #cp-install-banner {
+  background: #fff;
+  border-color: rgba(0,0,0,.14);
+  box-shadow: 0 8px 32px rgba(0,0,0,.15), 0 0 0 1px rgba(16,96,187,.12);
+}
+html[data-theme="light"] .cp-ios-box { background: #fff; }
+</style>
 </body>
 </html>
